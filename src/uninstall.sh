@@ -6,7 +6,6 @@ if [ -z "$BASH_VERSION" ]; then
   else
     exec bash -s "$@" < /dev/stdin
   fi
-  exit 0
 fi
 
 sudo -v
