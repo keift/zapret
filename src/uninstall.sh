@@ -8,6 +8,7 @@ if [ -z "$BASH_VERSION" ]; then
   fi
 fi
 
+
 sudo -v
 
 reset="\e[0m"
