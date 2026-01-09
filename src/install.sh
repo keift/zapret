@@ -1,5 +1,9 @@
 #!/bin/bash
 
+if [ -z "$BASH_VERSION" ]; then
+  exec bash "$0" "$@"
+fi
+
 sudo -v
 
 reset="\e[0m"

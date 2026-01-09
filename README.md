@@ -11,7 +11,7 @@ Zapret is a lightweight tool designed to bypass DPI (Deep Packet Inspection) use
 Let's start the Zapret installation.
 
 ```shell
-curl -fsSL https://is.gd/U95wCm | bash
+curl -fsSL https://is.gd/U95wCm | sh
 ```
 
 ## Uninstall
@@ -19,5 +19,5 @@ curl -fsSL https://is.gd/U95wCm | bash
 This is how you can uninstall Zapret.
 
 ```shell
-curl -fsSL https://is.gd/lxqryq | bash
+curl -fsSL https://is.gd/lxqryq | sh
 ```
