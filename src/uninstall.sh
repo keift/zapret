@@ -1,7 +1,5 @@
 #!/bin/bash
 
-[ -z "$BASH_VERSION" ] && exec bash "$0" "$@"
-
 sudo -v
 
 reset="\e[0m"
