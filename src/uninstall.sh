@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -e
-
 sudo -v
 
 reset="\e[0m"
