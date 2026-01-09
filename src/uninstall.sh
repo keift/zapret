@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 if [ -z "$BASH_VERSION" ]; then
   if [ -t 0 ]; then
