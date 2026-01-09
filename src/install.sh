@@ -90,7 +90,7 @@ sudo ~/zapret-v72.7/uninstall_easy.sh &>/dev/null
 sudo /opt/zapret/uninstall_easy.sh &>/dev/null | true
 sudo rm -rf /opt/zapret
 
-printf "\n\n" | sudo ~/zapret-v72.7/install_prereq.sh &>/dev/null
+printf "\n" | sudo ~/zapret-v72.7/install_prereq.sh &>/dev/null
 sudo ~/zapret-v72.7/install_bin.sh &>/dev/null
 
 # 6. Do Blockcheck
