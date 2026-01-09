@@ -1,0 +1,41 @@
+name: Retouch
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  job:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+          registry-url: https://registry.npmjs.org
+
+      - name: Install Prettier
+        run: bun add -g prettier
+
+      - name: Run Prettier
+        run: prettier --write ./
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Commit and push
+        run: |
+          if [[ -n $(git status --porcelain) ]]; then
+            git add ./
+            git commit -m "✨ chore: retouch"
+            git push
+          else
+            echo "No changes."
+          fi
