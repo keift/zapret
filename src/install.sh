@@ -30,7 +30,7 @@ sudo pacman -S --noconfirm curl bind-tools unzip nftables &>/dev/null | true
 
 # 2. Change DNS rules
 
-echo "  Checking country..."
+echo "  DNS rules are being changed..."
 
 country_code=$(curl -s https://ipinfo.io/country)
 
@@ -84,7 +84,7 @@ sudo rm -rf ~/zapret-v72.7.zip
 
 # 5. Prepare for installation
 
-echo "  Prepare for installation..."
+echo "  Preparing for installation..."
 
 printf "\n" | sudo ~/zapret-v72.7/uninstall_easy.sh &>/dev/null
 printf "\n" | sudo /opt/zapret/uninstall_easy.sh &>/dev/null | true
@@ -95,10 +95,10 @@ sudo ~/zapret-v72.7/install_bin.sh &>/dev/null
 
 # 6. Do Blockcheck
 
-echo "  Do Blockcheck..."
+echo "  Blockcheck is being performed..."
 
-# blockcheck_results="--dpi-desync=fakeddisorder --dpi-desync-ttl=1 --dpi-desync-autottl=-5 --dpi-desync-split-pos=1"
-blockcheck_results=$(printf "discord.com\n\n\n\n\n\n\n" | sudo ~/zapret-v72.7/blockcheck.sh 2>/dev/null | grep "curl_test_https_tls12" | tail -n1 | sed "s/.*nfqws //")
+blockcheck_results="--dpi-desync=fakeddisorder --dpi-desync-ttl=1 --dpi-desync-autottl=-5 --dpi-desync-split-pos=1"
+# blockcheck_results=$(printf "discord.com\n\n\n\n\n\n\n" | sudo ~/zapret-v72.7/blockcheck.sh 2>/dev/null | grep "curl_test_https_tls12" | tail -n1 | sed "s/.*nfqws //")
 
 # echo "  Blockcheck results: $blockcheck_results"
 
@@ -114,7 +114,7 @@ sudo systemctl restart zapret
 
 # 8. Finish the installation
 
-echo "  Zapret successfully installed."
+echo "  Zapret was successfully installed."
 
 sudo rm -rf ~/zapret-v72.7
 
