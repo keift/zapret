@@ -49,14 +49,14 @@ DNS=2a02:6b8:0:1::feed:0ff#common.dot.dns.yandex.net
 DNSOverTLS=yes
 EOF
 else
-  echo "  It appears you are not in Russia. Using Mullvad DNS..."
+  echo "  It appears you are not in Russia. Using Cloudflare DNS..."
 
   sudo tee /etc/systemd/resolved.conf &>/dev/null << EOF
 [Resolve]
-DNS=194.242.2.4#base.dns.mullvad.net
-DNS=2a07:e340::4#base.dns.mullvad.net
-DNS=194.242.2.2#dns.mullvad.net
-DNS=2a07:e340::2#dns.mullvad.net
+DNS=1.1.1.1#one.one.one.one
+DNS=2606:4700:4700::1111#one.one.one.one
+DNS=1.0.0.1#one.one.one.one
+DNS=2606:4700:4700::1001#one.one.one.one
 DNSOverTLS=yes
 EOF
 fi
@@ -86,8 +86,8 @@ sudo rm -rf ~/zapret-v72.7.zip
 
 echo "  Preparing for installation..."
 
-printf "\n" | sudo ~/zapret-v72.7/uninstall_easy.sh &>/dev/null
-printf "\n" | sudo /opt/zapret/uninstall_easy.sh &>/dev/null | true
+sudo ~/zapret-v72.7/uninstall_easy.sh &>/dev/null
+sudo /opt/zapret/uninstall_easy.sh &>/dev/null | true
 sudo rm -rf /opt/zapret
 
 printf "\n\n" | sudo ~/zapret-v72.7/install_prereq.sh &>/dev/null
@@ -95,10 +95,10 @@ sudo ~/zapret-v72.7/install_bin.sh &>/dev/null
 
 # 6. Do Blockcheck
 
-echo "  Blockcheck is being performed..."
+echo "  Blockcheck is being performed, this may take a few minutes..."
 
-blockcheck_results="--dpi-desync=fakeddisorder --dpi-desync-ttl=1 --dpi-desync-autottl=-5 --dpi-desync-split-pos=1"
-# blockcheck_results=$(printf "discord.com\n\n\n\n\n\n\n" | sudo ~/zapret-v72.7/blockcheck.sh 2>/dev/null | grep "curl_test_https_tls12" | tail -n1 | sed "s/.*nfqws //")
+# blockcheck_results="--dpi-desync=fakeddisorder --dpi-desync-ttl=1 --dpi-desync-autottl=-5 --dpi-desync-split-pos=1"
+blockcheck_results=$(printf "discord.com\n\n\n\n\n\n\n" | sudo ~/zapret-v72.7/blockcheck.sh 2>/dev/null | grep "curl_test_https_tls12" | tail -n1 | sed "s/.*nfqws //")
 
 # echo "  Blockcheck results: $blockcheck_results"
 
