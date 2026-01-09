@@ -1,12 +1,6 @@
 #!/bin/bash
 
-if [ -z "$BASH_VERSION" ]; then
-  if [ -t 0 ]; then
-    exec bash "$0" "$@"
-  else
-    exec bash -s "$@" < /dev/stdin
-  fi
-fi
+[ -z "$BASH_VERSION" ] && exec bash "$0" "$@"
 
 sudo -v
 
