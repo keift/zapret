@@ -1,7 +1,11 @@
 #!/bin/sh
 
 if [ -z "$BASH_VERSION" ]; then
-  exec bash "$0" "$@"
+  if [ -t 0 ]; then
+    exec bash "$0" "$@"
+  else
+    exec bash <(cat) "$@"
+  fi
 fi
 
 sudo -v
