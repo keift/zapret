@@ -4,8 +4,9 @@ if [ -z "$BASH_VERSION" ]; then
   if [ -t 0 ]; then
     exec bash "$0" "$@"
   else
-    exec bash <(cat) "$@"
+    exec bash -s "$@" < /dev/stdin
   fi
+  exit 0
 fi
 
 sudo -v
