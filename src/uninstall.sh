@@ -2,6 +2,14 @@
 
 sudo -v
 
+dev=false
+
+for arg in "$@"; do
+  if [ "$arg" = "--dev" ]; then
+    dev=true
+  fi
+done
+
 reset="\e[0m"
 black="\e[30m"
 red="\e[31m"

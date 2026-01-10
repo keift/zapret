@@ -2,6 +2,14 @@
 
 sudo -v
 
+dev=false
+
+for arg in "$@"; do
+  if [ "$arg" = "--dev" ]; then
+    dev=true
+  fi
+done
+
 reset="\e[0m"
 black="\e[30m"
 red="\e[31m"
@@ -103,8 +111,11 @@ sudo /tmp/zapret-v72.7/install_bin.sh &>/dev/null
 
 echo -e "  ${gray}Blockcheck is being performed, this may take a few minutes...${reset}"
 
-# blockcheck_results="--dpi-desync=fakeddisorder --dpi-desync-ttl=1 --dpi-desync-autottl=-5 --dpi-desync-split-pos=1"
-blockcheck_results=$(printf "discord.com\n\n\n\n\n\n\n\n" | sudo /tmp/zapret-v72.7/blockcheck.sh 2>/dev/null | grep "curl_test_https_tls12" | tail -n1 | sed "s/.*nfqws //")
+if [ "$dev" = true ]; then
+  blockcheck_results="--dpi-desync=fakeddisorder --dpi-desync-ttl=1 --dpi-desync-autottl=-5 --dpi-desync-split-pos=1"
+else
+  blockcheck_results=$(printf "discord.com\n\n\n\n\n\n\n\n" | sudo /tmp/zapret-v72.7/blockcheck.sh 2>/dev/null | grep "curl_test_https_tls12" | tail -n1 | sed "s/.*nfqws //")
+fi
 
 # echo -e "  ${gray}Blockcheck results: $blockcheck_results${reset}"
 
