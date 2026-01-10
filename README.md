@@ -17,3 +17,9 @@ This is how you can uninstall Zapret.
 ```shell
 curl -fsSL https://is.gd/lxqryq | bash
 ```
+
+## Screenshots
+
+Here it is.
+
+<img src="./assets/keift-zapret.png" width="350px"/>
