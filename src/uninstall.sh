@@ -19,12 +19,12 @@ echo ""
 echo -e "  ${blue}Keift ${cyan}Uninstall Zapret${reset}"
 echo ""
 
-if ! command -v systemd &>/dev/null; then
-  echo -e "  ${red}Error: It only works on devices where Systemd is installed.${reset}"
-  echo ""
-
-  exit 1
-fi
+# if ! command -v systemd &>/dev/null; then
+#   echo -e "  ${red}Error: It only works on devices where Systemd is installed.${reset}"
+#   echo ""
+#
+#   exit 1
+# fi
 
 if [ ! -d "/opt/zapret" ]; then
   echo -e "  ${gray}Zapret already not installed.${reset}"
