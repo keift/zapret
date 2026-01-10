@@ -16,10 +16,17 @@ gray="\e[90m"
 clear
 
 echo ""
-echo -e "  ${blue}Keift ${green}Zapret Installer${reset}"
+echo -e "  ${blue}Keift ${cyan}Zapret Installer${reset}"
 echo ""
 
-echo -e "  ${gray}Installing required tools..."
+if ! command -v systemd &>/dev/null; then
+  echo -e "  ${red}Error: It only works on devices where Systemd is installed.${reset}"
+  echo ""
+
+  exit 1
+fi
+
+echo -e "  ${gray}Installing required tools...${reset}"
 
 sudo apt install -y curl dnsutils unzip nftables &>/dev/null
 
@@ -32,7 +39,7 @@ sudo pacman -S --noconfirm curl bind-tools unzip nftables &>/dev/null
 
 # 2. Change DNS rules
 
-echo -e "  ${gray}DNS rules are being changed..."
+echo -e "  ${gray}DNS rules are being changed...${reset}"
 
 country_code=$(curl -s https://ipinfo.io/country)
 
@@ -40,7 +47,7 @@ sudo systemctl enable systemd-resolved
 sudo systemctl start systemd-resolved
 
 if [ "$country_code" = "RU" ]; then
-  echo -e "  ${gray}It appears you are in Russia. Using Yandex DNS..."
+  echo -e "  ${gray}It appears you are in Russia. Using Yandex DNS...${reset}"
 
   sudo tee /etc/systemd/resolved.conf &>/dev/null << EOF
 [Resolve]
@@ -51,7 +58,7 @@ DNS=2a02:6b8:0:1::feed:0ff#common.dot.dns.yandex.net
 DNSOverTLS=yes
 EOF
 else
-  echo -e "  ${gray}It appears you are not in Russia. Using Cloudflare DNS..."
+  echo -e "  ${gray}It appears you are not in Russia. Using Cloudflare DNS...${reset}"
 
   sudo tee /etc/systemd/resolved.conf &>/dev/null << EOF
 [Resolve]
@@ -69,7 +76,7 @@ sudo systemctl restart systemd-resolved
 
 # 3. Download Zapret
 
-echo -e "  ${gray}Downloading Zapret..."
+echo -e "  ${gray}Downloading Zapret...${reset}"
 
 sudo rm -rf /tmp/zapret-v72.7
 sudo rm -rf /tmp/zapret-v72.7.zip
@@ -82,7 +89,7 @@ sudo rm -rf /tmp/zapret-v72.7.zip
 
 # 4. Prepare for installation
 
-echo -e "  ${gray}Preparing for installation..."
+echo -e "  ${gray}Preparing for installation...${reset}"
 
 printf "\n" | sudo /opt/zapret/uninstall_easy.sh &>/dev/null
 sudo rm -rf /opt/zapret
@@ -92,15 +99,15 @@ sudo /tmp/zapret-v72.7/install_bin.sh &>/dev/null
 
 # 5. Do Blockcheck
 
-echo -e "  ${gray}Blockcheck is being performed, this may take a few minutes..."
+echo -e "  ${gray}Blockcheck is being performed, this may take a few minutes...${reset}"
 
 # blockcheck_results="--dpi-desync=fakeddisorder --dpi-desync-ttl=1 --dpi-desync-autottl=-5 --dpi-desync-split-pos=1"
 blockcheck_results=$(printf "discord.com\n\n\n\n\n\n\n\n" | sudo /tmp/zapret-v72.7/blockcheck.sh 2>/dev/null | grep "curl_test_https_tls12" | tail -n1 | sed "s/.*nfqws //")
 
-# echo -e "  ${gray}Blockcheck results: $blockcheck_results"
+# echo -e "  ${gray}Blockcheck results: $blockcheck_results${reset}"
 
 if [[ "$blockcheck_results" == *"working without bypass"* ]]; then
-  echo -e "  ${gray}No access restrictions were detected."
+  echo -e "  ${gray}No access restrictions were detected.${reset}"
   echo ""
 
   printf "\n" | sudo /opt/zapret/uninstall_easy.sh &>/dev/null
@@ -112,7 +119,7 @@ fi
 
 # 6. Install Zapret
 
-echo -e "  ${gray}Installing Zapret..."
+echo -e "  ${gray}Installing Zapret...${reset}"
 
 printf "Y\n\n\n\n\n\n\nY\n\n\n\n\n" | sudo /tmp/zapret-v72.7/install_easy.sh &>/dev/null
 
@@ -124,5 +131,5 @@ sudo systemctl restart zapret
 
 sudo rm -rf /tmp/zapret-v72.7
 
-echo -e "  ${gray}Zapret was successfully installed."
+echo -e "  ${gray}Zapret was successfully installed.${reset}"
 echo ""
