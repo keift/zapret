@@ -30,14 +30,14 @@ fi
 
 echo -e "  ${gray}Installing required tools...${reset}"
 
-sudo apt install -y curl dnsutils unzip nftables &>/dev/null
+sudo apt install -y curl dnsutils nftables unzip &>/dev/null
 
-sudo dnf install -y curl bind-utils unzip nftables &>/dev/null
-sudo yum install -y curl bind-utils unzip nftables &>/dev/null
+sudo dnf install -y bind-utils curl nftables unzip &>/dev/null
+sudo yum install -y bind-utils curl nftables unzip &>/dev/null
 
-sudo zypper -n install curl bind-utils unzip nftables &>/dev/null
+sudo zypper -n install bind-utils curl nftables unzip &>/dev/null
 
-sudo pacman -S --noconfirm curl bind-tools unzip nftables &>/dev/null
+sudo pacman -S --noconfirm bind-tools curl nftables unzip &>/dev/null
 
 # 2. Change DNS rules
 
