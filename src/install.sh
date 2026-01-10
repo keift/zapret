@@ -45,8 +45,8 @@ echo -e "  ${gray}DNS rules are being changed...${reset}"
 
 country_code=$(curl -s https://ipinfo.io/country)
 
-sudo systemctl enable systemd-resolved
-sudo systemctl start systemd-resolved
+sudo systemctl enable systemd-resolved &>/dev/null
+sudo systemctl start systemd-resolved &>/dev/null
 
 if [ "$country_code" = "RU" ]; then
   echo -e "  ${gray}It appears you are in Russia. Using Yandex DNS...${reset}"
@@ -72,7 +72,7 @@ DNSOverTLS=yes
 EOF
 fi
 
-sudo ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf &>/dev/null
+sudo ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
 
 sudo systemctl restart systemd-resolved
 
