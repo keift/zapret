@@ -131,8 +131,8 @@ sudo systemctl restart zapret
 
 # 7. Finish the installation
 
-sudo rm -rf /tmp/zapret-v72.7
-
 echo -e "  ${gray}Zapret was successfully installed.${reset}"
+
+sudo rm -rf /tmp/zapret-v72.7
 
 echo ""
