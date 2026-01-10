@@ -16,7 +16,7 @@ gray="\e[90m"
 clear
 
 echo ""
-echo -e "  ${blue}Keift ${cyan}Zapret Uninstaller${reset}"
+echo -e "  ${blue}Keift ${cyan}Uninstall Zapret${reset}"
 echo ""
 
 if ! command -v systemd &>/dev/null; then
