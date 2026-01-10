@@ -46,7 +46,7 @@ echo -e "  ${gray}DNS rules are being changed...${reset}"
 country_code=$(curl -s https://ipinfo.io/country)
 
 sudo systemctl enable systemd-resolved &>/dev/null
-sudo systemctl start systemd-resolved &>/dev/null
+sudo systemctl start systemd-resolved
 
 if [ "$country_code" = "RU" ]; then
   echo -e "  ${gray}It appears you are in Russia. Using Yandex DNS...${reset}"
