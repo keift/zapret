@@ -26,10 +26,10 @@ fi
 
 echo "  Uninstalling Zapret..."
 
-printf "\n" | sudo /opt/zapret/uninstall_easy.sh &>/dev/null
+printf "\n" | sudo /opt/zapret/uninstall_easy.sh &>/dev/null | true
 
-sudo rm -rf ~/zapret-v72.2
 sudo rm -rf /opt/zapret
+sudo rm -rf /tmp/zapret-v72.7
 
 echo "  Zapret has been successfully uninstalled."
 

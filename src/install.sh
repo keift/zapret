@@ -69,53 +69,58 @@ sudo systemctl restart systemd-resolved
 
 echo "  Downloading Zapret..."
 
-sudo rm -rf ~/zapret-v72.7.zip
-sudo rm -rf ~/zapret-v72.7
+sudo rm -rf /tmp/zapret-v72.7
+sudo rm -rf /tmp/zapret-v72.7.zip
 
-cd ~/
+sudo wget -P /tmp https://github.com/bol-van/zapret/releases/download/v72.7/zapret-v72.7.zip &>/dev/null
 
-sudo wget https://github.com/bol-van/zapret/releases/download/v72.7/zapret-v72.7.zip &>/dev/null
+sudo unzip -d /tmp /tmp/zapret-v72.7.zip &>/dev/null
 
-# 4. Unzip the zip file
+sudo rm -rf /tmp/zapret-v72.7.zip
 
-sudo unzip ~/zapret-v72.7.zip &>/dev/null
-
-sudo rm -rf ~/zapret-v72.7.zip
-
-# 5. Prepare for installation
+# 4. Prepare for installation
 
 echo "  Preparing for installation..."
 
-sudo ~/zapret-v72.7/uninstall_easy.sh &>/dev/null
-sudo /opt/zapret/uninstall_easy.sh &>/dev/null | true
+printf "\n" | sudo /opt/zapret/uninstall_easy.sh &>/dev/null | true
 sudo rm -rf /opt/zapret
 
-printf "\n" | sudo ~/zapret-v72.7/install_prereq.sh &>/dev/null
-sudo ~/zapret-v72.7/install_bin.sh &>/dev/null
+printf "\n\n" | sudo /tmp/zapret-v72.7/install_prereq.sh &>/dev/null
+sudo /tmp/zapret-v72.7/install_bin.sh &>/dev/null
 
-# 6. Do Blockcheck
+# 5. Do Blockcheck
 
 echo "  Blockcheck is being performed, this may take a few minutes..."
 
 # blockcheck_results="--dpi-desync=fakeddisorder --dpi-desync-ttl=1 --dpi-desync-autottl=-5 --dpi-desync-split-pos=1"
-blockcheck_results=$(printf "discord.com\n\n\n\n\n\n\n" | sudo ~/zapret-v72.7/blockcheck.sh 2>/dev/null | grep "curl_test_https_tls12" | tail -n1 | sed "s/.*nfqws //")
+blockcheck_results=$(printf "discord.com\n\n\n\n\n\n\n\n" | sudo /tmp/zapret-v72.7/blockcheck.sh 2>/dev/null | grep "curl_test_https_tls12" | tail -n1 | sed "s/.*nfqws //")
 
 # echo "  Blockcheck results: $blockcheck_results"
 
-# 7. Install Zapret
+if [[ "$blockcheck_results" == *"working without bypass"* ]]; then
+  echo "  No access restrictions were detected."
+  echo ""
+
+  printf "\n" | sudo /opt/zapret/uninstall_easy.sh &>/dev/null | true
+  sudo rm -rf /opt/zapret
+  sudo rm -rf /tmp/zapret-v72.7
+
+  exit 0
+fi
+
+# 6. Install Zapret
 
 echo "  Installing Zapret..."
 
-printf "Y\n\n\n\n\n\n\nY\n\n\n\n" | sudo ~/zapret-v72.7/install_easy.sh &>/dev/null
+printf "Y\n\n\n\n\n\n\nY\n\n\n\n\n" | sudo /tmp/zapret-v72.7/install_easy.sh &>/dev/null
 
 sudo sed -i "/^NFQWS_OPT=\"/,/^\"/c NFQWS_OPT=\"$blockcheck_results\"" /opt/zapret/config
 
 sudo systemctl restart zapret
 
-# 8. Finish the installation
+# 7. Finish the installation
+
+sudo rm -rf /tmp/zapret-v72.7
 
 echo "  Zapret was successfully installed."
-
-sudo rm -rf ~/zapret-v72.7
-
 echo ""
