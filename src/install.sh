@@ -21,14 +21,14 @@ echo ""
 
 echo "  Installing required tools..."
 
-sudo apt install -y curl dnsutils unzip nftables &>/dev/null | true
+sudo apt install -y curl dnsutils unzip nftables &>/dev/null
 
-sudo dnf install -y curl bind-utils unzip nftables &>/dev/null | true
-sudo yum install -y curl bind-utils unzip nftables &>/dev/null | true
+sudo dnf install -y curl bind-utils unzip nftables &>/dev/null
+sudo yum install -y curl bind-utils unzip nftables &>/dev/null
 
-sudo zypper -n install curl bind-utils unzip nftables &>/dev/null | true
+sudo zypper -n install curl bind-utils unzip nftables &>/dev/null
 
-sudo pacman -S --noconfirm curl bind-tools unzip nftables &>/dev/null | true
+sudo pacman -S --noconfirm curl bind-tools unzip nftables &>/dev/null
 
 # 2. Change DNS rules
 
@@ -84,7 +84,7 @@ sudo rm -rf /tmp/zapret-v72.7.zip
 
 echo "  Preparing for installation..."
 
-printf "\n" | sudo /opt/zapret/uninstall_easy.sh &>/dev/null | true
+printf "\n" | sudo /opt/zapret/uninstall_easy.sh &>/dev/null
 sudo rm -rf /opt/zapret
 
 printf "\n\n" | sudo /tmp/zapret-v72.7/install_prereq.sh &>/dev/null
@@ -103,7 +103,7 @@ if [[ "$blockcheck_results" == *"working without bypass"* ]]; then
   echo "  No access restrictions were detected."
   echo ""
 
-  printf "\n" | sudo /opt/zapret/uninstall_easy.sh &>/dev/null | true
+  printf "\n" | sudo /opt/zapret/uninstall_easy.sh &>/dev/null
   sudo rm -rf /opt/zapret
   sudo rm -rf /tmp/zapret-v72.7
 
