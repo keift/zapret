@@ -22,4 +22,4 @@ curl -fsSL https://is.gd/uninstall_zapret | bash
 
 Here it is.
 
-<img src="./assets/keift-zapret.png" width="100%"/>
+<img src="./assets/screenshot-1.png" width="100%"/>
