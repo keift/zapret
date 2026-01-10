@@ -22,4 +22,4 @@ curl -fsSL https://is.gd/lxqryq | bash
 
 Here it is.
 
-<img src="./assets/keift-zapret.png" width="750px"/>
+<img src="./assets/keift-zapret.png" width="100%"/>
