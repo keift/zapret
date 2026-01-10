@@ -19,12 +19,12 @@ echo ""
 echo -e "  ${blue}Keift ${cyan}Install Zapret${reset}"
 echo ""
 
-# if ! command -v systemd &>/dev/null; then
-#   echo -e "  ${red}Error: It only works on devices where Systemd is installed.${reset}"
-#   echo ""
-#
-#   exit 1
-# fi
+if [ ! -d /run/systemd/system ]; then
+  echo -e "  ${red}Error: It only works on devices where Systemd is installed.${reset}"
+  echo ""
+
+  exit 1
+fi
 
 # 1. Install required tools
 
