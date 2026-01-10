@@ -26,6 +26,8 @@ if ! command -v systemd &>/dev/null; then
   exit 1
 fi
 
+# 1. Install required tools
+
 echo -e "  ${gray}Installing required tools...${reset}"
 
 sudo apt install -y curl dnsutils unzip nftables &>/dev/null
