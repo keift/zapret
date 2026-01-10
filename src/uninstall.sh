@@ -16,23 +16,23 @@ gray="\e[90m"
 clear
 
 echo ""
-echo -e "  ${blue}Keift ${gray}- ${green}Zapret Uninstaller${reset}"
+echo -e "  ${blue}Keift ${green}Zapret Uninstaller${reset}"
 echo ""
 
 if [ ! -d "/opt/zapret" ]; then
-  echo "  Zapret already not installed."
+  echo -e "  ${gray}Zapret already not installed."
   echo ""
 
   exit 0
 fi
 
-echo "  Uninstalling Zapret..."
+echo -e "  ${gray}Uninstalling Zapret..."
 
 printf "\n" | sudo /opt/zapret/uninstall_easy.sh &>/dev/null
 
 sudo rm -rf /opt/zapret
 sudo rm -rf /tmp/zapret-v72.7
 
-echo "  Zapret has been successfully uninstalled."
+echo -e "  ${gray}Zapret has been successfully uninstalled."
 
 echo ""
