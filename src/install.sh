@@ -13,6 +13,8 @@ cyan="\e[36m"
 white="\e[37m"
 gray="\e[90m"
 
+clear
+
 echo ""
 echo -e "  ${blue}Keift ${gray}- ${green}Zapret Installer${reset}"
 echo ""
