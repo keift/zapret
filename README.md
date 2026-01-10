@@ -1,4 +1,4 @@
-# Zapret - One step, bypass DPI barriers
+# Zapret - One Step, Bypass DPI Barriers
 
 Install Zapret in one step.
 
