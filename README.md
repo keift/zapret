@@ -12,7 +12,7 @@ curl -fsSL https://is.gd/install_zapret | bash
 
 ## Uninstall
 
-This is how you can uninstall Zapret.
+You can uninstall it as follows.
 
 ```shell
 curl -fsSL https://is.gd/uninstall_zapret | bash
