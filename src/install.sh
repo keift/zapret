@@ -34,9 +34,9 @@ if ! command -v systemctl &>/dev/null; then
   exit 1
 fi
 
-# 1. Install required tools
+# 1. Install dependencies
 
-echo -e "  ${gray}Installing required tools...${reset}"
+echo -e "  ${gray}Installing dependencies...${reset}"
 
 sudo apt install -y curl dnsutils nftables systemd-resolved unzip &>/dev/null
 
@@ -47,9 +47,9 @@ sudo pacman -S --noconfirm bind-tools curl nftables systemd-resolved unzip &>/de
 
 sudo zypper -n install bind-utils curl nftables systemd-resolved unzip &>/dev/null
 
-# 2. Change DNS rules
+# 2. Change DNS settings
 
-echo -e "  ${gray}DNS rules are being changed...${reset}"
+echo -e "  ${gray}DNS settings are being changed...${reset}"
 
 country_code=$(curl -s https://ipinfo.io/country)
 
