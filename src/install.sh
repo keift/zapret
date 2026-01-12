@@ -124,10 +124,8 @@ echo -e "  ${gray}Blockcheck is being performed, this may take a few minutes...$
 if [ "$dev" = true ]; then
   blockcheck_results="--dpi-desync=fakeddisorder --dpi-desync-ttl=1 --dpi-desync-autottl=-5 --dpi-desync-split-pos=1"
 else
-  blockcheck_results=$(printf "discord.com\n\n\n\n\n\n\n\n" | sudo /tmp/zapret-v72.7/blockcheck.sh 2>"$log_redirect" | grep "curl_test_https_tls12 ipv4 discord.com : nfqws" | tail -n1 | sed "s/.*nfqws //")
+  blockcheck_results=$(printf "discord.com\n\n\n\n\n\n\n\n" | sudo /tmp/zapret-v72.7/blockcheck.sh 2>"$log_redirect" | grep "curl_test_https_tls12 ipv4" | tail -n1 | sed "s/.*nfqws //")
 fi
-
-# echo -e "  ${gray}Blockcheck results: $blockcheck_results${reset}"
 
 if [[ "$blockcheck_results" == *"working without bypass"* ]]; then
   echo -e "  ${gray}No access restrictions were detected.${reset}"
