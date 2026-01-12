@@ -53,7 +53,7 @@ sudo apt install -y curl dnsutils nftables systemd-resolved unzip wget &>"$log_r
 
 sudo dnf install -y bind-utils curl nftables systemd-resolved unzip wget &>"$log_redirects"
 
-sudo pacman -S --noconfirm bind-tools curl nftables systemd-resolved unzip wget &>"$log_redirects"
+sudo pacman -S --noconfirm bind curl nftables systemd-resolved unzip wget &>"$log_redirects"
 
 sudo zypper -n install bind-utils curl nftables systemd-resolved unzip wget &>"$log_redirects"
 
