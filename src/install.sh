@@ -80,13 +80,6 @@ DNSOverTLS=yes
 EOF
 fi
 
-sudo tee /etc/resolv.conf &>/dev/null << EOF
-nameserver 1.1.1.1
-nameserver 2606:4700:4700::1111
-nameserver 1.0.0.1
-nameserver 2606:4700:4700::1001
-EOF
-
 [ -e /run/systemd/resolve/stub-resolv.conf ] && sudo ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
 
 sudo systemctl restart systemd-resolved
