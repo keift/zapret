@@ -41,7 +41,6 @@ echo -e "  ${gray}Installing dependencies...${reset}"
 sudo apt install -y curl dnsutils nftables systemd-resolved unzip &>/dev/null
 
 sudo dnf install -y bind-utils curl nftables systemd-resolved unzip &>/dev/null
-sudo yum install -y bind-utils curl nftables systemd-resolved unzip &>/dev/null
 
 sudo pacman -S --noconfirm bind-tools curl nftables systemd-resolved unzip &>/dev/null
 
