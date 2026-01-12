@@ -129,6 +129,8 @@ fi
 
 echo -e "$blockcheck_results"
 
+exit
+
 if [[ "$blockcheck_results" == *"working without bypass"* ]]; then
   echo -e "  ${gray}No access restrictions were detected.${reset}"
   echo ""
