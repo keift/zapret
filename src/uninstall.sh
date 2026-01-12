@@ -3,12 +3,23 @@
 sudo -v
 
 dev=false
+debug=false
 
 for arg in "$@"; do
   if [ "$arg" = "--dev" ]; then
     dev=true
   fi
 done
+
+for arg in "$@"; do
+  if [ "$arg" = "--debug" ]; then
+    debug=true
+  fi
+done
+
+log_redirect=/dev/null
+
+[ "$debug" = true ] && log_redirect=/dev/stdout
 
 reset="\e[0m"
 black="\e[30m"
@@ -43,7 +54,7 @@ fi
 
 echo -e "  ${gray}Uninstalling Zapret...${reset}"
 
-printf "\n" | sudo /opt/zapret/uninstall_easy.sh &>/dev/null
+printf "\n" | sudo /opt/zapret/uninstall_easy.sh &>"$log_redirect"
 
 sudo rm -rf /opt/zapret
 sudo rm -rf /tmp/zapret-v72.7
