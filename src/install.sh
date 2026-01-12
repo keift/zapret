@@ -17,9 +17,9 @@ for arg in "$@"; do
   fi
 done
 
-log_redirect=/dev/null
+log_redirects=/dev/null
 
-[ "$debug" = true ] && log_redirect=/dev/stdout
+[ "$debug" = true ] && log_redirects=/dev/stdout
 
 reset="\e[0m"
 black="\e[30m"
@@ -49,13 +49,13 @@ fi
 
 echo -e "  ${gray}Installing dependencies...${reset}"
 
-sudo apt install -y curl dnsutils nftables systemd-resolved unzip &>"$log_redirect"
+sudo apt install -y curl dnsutils nftables systemd-resolved unzip &>"$log_redirects"
 
-sudo dnf install -y bind-utils curl nftables systemd-resolved unzip &>"$log_redirect"
+sudo dnf install -y bind-utils curl nftables systemd-resolved unzip &>"$log_redirects"
 
-sudo pacman -S --noconfirm bind-tools curl nftables systemd-resolved unzip &>"$log_redirect"
+sudo pacman -S --noconfirm bind-tools curl nftables systemd-resolved unzip &>"$log_redirects"
 
-sudo zypper -n install bind-utils curl nftables systemd-resolved unzip &>"$log_redirect"
+sudo zypper -n install bind-utils curl nftables systemd-resolved unzip &>"$log_redirects"
 
 # 2. Change DNS settings
 
@@ -63,7 +63,7 @@ echo -e "  ${gray}DNS settings are being changed...${reset}"
 
 country_code=$(curl -s https://ipinfo.io/country)
 
-sudo systemctl enable systemd-resolved &>"$log_redirect"
+sudo systemctl enable systemd-resolved &>"$log_redirects"
 sudo systemctl start systemd-resolved
 
 if [ "$country_code" = "RU" ]; then
@@ -101,9 +101,9 @@ echo -e "  ${gray}Downloading Zapret...${reset}"
 sudo rm -rf /tmp/zapret-v72.7
 sudo rm -rf /tmp/zapret-v72.7.zip
 
-sudo wget -P /tmp https://github.com/bol-van/zapret/releases/download/v72.7/zapret-v72.7.zip &>"$log_redirect"
+sudo wget -P /tmp https://github.com/bol-van/zapret/releases/download/v72.7/zapret-v72.7.zip &>"$log_redirects"
 
-sudo unzip -d /tmp /tmp/zapret-v72.7.zip &>"$log_redirect"
+sudo unzip -d /tmp /tmp/zapret-v72.7.zip &>"$log_redirects"
 
 sudo rm -rf /tmp/zapret-v72.7.zip
 
@@ -111,11 +111,11 @@ sudo rm -rf /tmp/zapret-v72.7.zip
 
 echo -e "  ${gray}Preparing for installation...${reset}"
 
-printf "\n" | sudo /opt/zapret/uninstall_easy.sh &>"$log_redirect"
+printf "\n" | sudo /opt/zapret/uninstall_easy.sh &>"$log_redirects"
 sudo rm -rf /opt/zapret
 
-printf "\n\n" | sudo /tmp/zapret-v72.7/install_prereq.sh &>"$log_redirect"
-sudo /tmp/zapret-v72.7/install_bin.sh &>"$log_redirect"
+printf "\n\n" | sudo /tmp/zapret-v72.7/install_prereq.sh &>"$log_redirects"
+sudo /tmp/zapret-v72.7/install_bin.sh &>"$log_redirects"
 
 # 5. Do Blockcheck
 
@@ -124,14 +124,14 @@ echo -e "  ${gray}Blockcheck is being performed, this may take a few minutes...$
 if [ "$dev" = true ]; then
   blockcheck_results="--dpi-desync=fakeddisorder --dpi-desync-ttl=1 --dpi-desync-autottl=-5 --dpi-desync-split-pos=1"
 else
-  blockcheck_results=$(printf "discord.com\n\n\n\n\n\n\n\n" | sudo /tmp/zapret-v72.7/blockcheck.sh 2>"$log_redirect" | grep "curl_test_https_tls12 ipv4" | tail -n1 | sed "s/.*nfqws //")
+  blockcheck_results=$(printf "discord.com\n\n\n\n\n\n\n\n" | sudo /tmp/zapret-v72.7/blockcheck.sh 2>"$log_redirects" | grep "curl_test_https_tls12 ipv4" | tail -n1 | sed "s/.*nfqws //")
 fi
 
 if [[ "$blockcheck_results" == *"working without bypass"* ]]; then
   echo -e "  ${gray}No access restrictions were detected.${reset}"
   echo ""
 
-  printf "\n" | sudo /opt/zapret/uninstall_easy.sh &>"$log_redirect"
+  printf "\n" | sudo /opt/zapret/uninstall_easy.sh &>"$log_redirects"
   sudo rm -rf /opt/zapret
   sudo rm -rf /tmp/zapret-v72.7
 
@@ -142,7 +142,7 @@ fi
 
 echo -e "  ${gray}Installing Zapret...${reset}"
 
-printf "Y\n\n\n\n\n\n\nY\n\n\n\n\n" | sudo /tmp/zapret-v72.7/install_easy.sh &>"$log_redirect"
+printf "Y\n\n\n\n\n\n\nY\n\n\n\n\n" | sudo /tmp/zapret-v72.7/install_easy.sh &>"$log_redirects"
 
 sudo sed -i "/^NFQWS_OPT=\"/,/^\"/c NFQWS_OPT=\"$blockcheck_results\"" /opt/zapret/config
 

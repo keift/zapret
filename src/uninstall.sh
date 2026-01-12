@@ -17,9 +17,9 @@ for arg in "$@"; do
   fi
 done
 
-log_redirect=/dev/null
+log_redirects=/dev/null
 
-[ "$debug" = true ] && log_redirect=/dev/stdout
+[ "$debug" = true ] && log_redirects=/dev/stdout
 
 reset="\e[0m"
 black="\e[30m"
@@ -54,7 +54,7 @@ fi
 
 echo -e "  ${gray}Uninstalling Zapret...${reset}"
 
-printf "\n" | sudo /opt/zapret/uninstall_easy.sh &>"$log_redirect"
+printf "\n" | sudo /opt/zapret/uninstall_easy.sh &>"$log_redirects"
 
 sudo rm -rf /opt/zapret
 sudo rm -rf /tmp/zapret-v72.7
