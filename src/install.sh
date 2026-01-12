@@ -17,9 +17,9 @@ for arg in "$@"; do
   fi
 done
 
-log_redirects=/dev/null
+log_redirects="/dev/null"
 
-[ "$debug" = true ] && log_redirects=/dev/stdout
+[ "$debug" = true ] && log_redirects="/dev/stdout"
 
 reset="\e[0m"
 black="\e[30m"
