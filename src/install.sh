@@ -49,19 +49,26 @@ fi
 
 echo -e "  ${gray}Installing dependencies...${reset}"
 
-export DEBIAN_FRONTEND="noninteractive"
+if command -v apt &>/dev/null; then
+  export DEBIAN_FRONTEND="noninteractive"
 
-sudo apt update -y &>"$log_redirects"
-sudo apt install -y bind9-dnsutils curl nftables systemd-resolved unzip wget &>"$log_redirects"
+  sudo apt update -y &>"$log_redirects"
+  sudo apt install -y bind9-dnsutils curl nftables systemd-resolved unzip wget &>"$log_redirects"
+elif command -v dnf &>/dev/null; then
+  sudo dnf check-update -y &>"$log_redirects"
+  sudo dnf install -y bind-utils curl nftables systemd-resolved unzip wget &>"$log_redirects"
+elif command -v pacman &>/dev/null; then
+  sudo pacman -Sy --noconfirm &>"$log_redirects"
+  sudo pacman -S --noconfirm bind curl nftables systemd-resolved unzip wget &>"$log_redirects"
+elif command -v zypper &>/dev/null; then
+  sudo zypper refresh -y &>"$log_redirects"
+  sudo zypper -n install bind-utils curl nftables systemd-resolved unzip wget &>"$log_redirects"
+else
+  echo -e "  ${red}Error: Unsupported package manager.${reset}"
+  echo ""
 
-sudo dnf check-update -y &>"$log_redirects"
-sudo dnf install -y bind-utils curl nftables systemd-resolved unzip wget &>"$log_redirects"
-
-sudo pacman -Sy --noconfirm &>"$log_redirects"
-sudo pacman -S --noconfirm bind curl nftables systemd-resolved unzip wget &>"$log_redirects"
-
-sudo zypper refresh -y &>"$log_redirects"
-sudo zypper -n install bind-utils curl nftables systemd-resolved unzip wget &>"$log_redirects"
+  exit 1
+fi
 
 # 2. Change DNS settings
 
