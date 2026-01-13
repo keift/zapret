@@ -49,12 +49,18 @@ fi
 
 echo -e "  ${gray}Installing dependencies...${reset}"
 
+export DEBIAN_FRONTEND="noninteractive"
+
+sudo apt update -y &>"$log_redirects"
 sudo apt install -y bind9-dnsutils curl nftables systemd-resolved unzip wget &>"$log_redirects"
 
+sudo dnf check-update -y &>"$log_redirects"
 sudo dnf install -y bind-utils curl nftables systemd-resolved unzip wget &>"$log_redirects"
 
+sudo pacman -Sy --noconfirm &>"$log_redirects"
 sudo pacman -S --noconfirm bind curl nftables systemd-resolved unzip wget &>"$log_redirects"
 
+sudo zypper refresh -y &>"$log_redirects"
 sudo zypper -n install bind-utils curl nftables systemd-resolved unzip wget &>"$log_redirects"
 
 # 2. Change DNS settings
