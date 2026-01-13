@@ -61,7 +61,7 @@ elif command -v pacman &>/dev/null; then
   sudo pacman -Sy --noconfirm &>"$log_redirects"
   sudo pacman -S --noconfirm bind curl nftables systemd-resolved unzip wget &>"$log_redirects"
 elif command -v zypper &>/dev/null; then
-  sudo zypper refresh -y &>"$log_redirects"
+  sudo zypper -n refresh &>"$log_redirects"
   sudo zypper -n install bind-utils curl nftables systemd-resolved unzip wget &>"$log_redirects"
 else
   echo -e "  ${red}Error: Unsupported package manager.${reset}"
