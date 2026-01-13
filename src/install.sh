@@ -155,9 +155,13 @@ sudo /tmp/zapret-v72.7/install_bin.sh &>"$log_redirects"
 echo -e "  ${gray}Blockcheck is being performed, this may take a few minutes...${reset}"
 
 if [ "$dev" = true ]; then
-  blockcheck_results="--dpi-desync=fakeddisorder --dpi-desync-ttl=1 --dpi-desync-autottl=-5 --dpi-desync-split-pos=1"
+  nfqws_options="--dpi-desync=fakeddisorder --dpi-desync-ttl=1 --dpi-desync-autottl=-5 --dpi-desync-split-pos=1"
 else
-  blockcheck_results=$(printf "discord.com\n\n\n\n\n\n\n\n" | sudo /tmp/zapret-v72.7/blockcheck.sh 2>"$log_redirects" | grep "curl_test_https_tls12 ipv4" | tail -n1 | sed "s/.*nfqws //")
+  blockcheck_results=$(printf "discord.com\n\n\n\n\n\n\n\n" | sudo /tmp/zapret-v72.7/blockcheck.sh 2>"$log_redirects")
+
+  [ "$debug" = true ] && echo "$blockcheck_results"
+
+  nfqws_options=$(echo "$blockcheck_results" | grep "curl_test_https_tls12 ipv4" | tail -n1 | sed "s/.*nfqws //")
 fi
 
 if [[ "$blockcheck_results" == *"working without bypass"* ]]; then
@@ -177,7 +181,7 @@ echo -e "  ${gray}Installing Zapret...${reset}"
 
 printf "Y\n\n\n\n\n\n\nY\n\n\n\n\n" | sudo /tmp/zapret-v72.7/install_easy.sh &>"$log_redirects"
 
-sudo sed -i "/^NFQWS_OPT=\"/,/^\"/c NFQWS_OPT=\"$blockcheck_results\"" /opt/zapret/config
+sudo sed -i "/^NFQWS_OPT=\"/,/^\"/c NFQWS_OPT=\"$nfqws_options\"" /opt/zapret/config
 
 sudo systemctl restart zapret
 
