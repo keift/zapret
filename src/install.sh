@@ -164,7 +164,7 @@ else
   nfqws_options=$(echo "$blockcheck_results" | grep "curl_test_https_tls12 ipv4" | tail -n1 | sed "s/.*nfqws //")
 fi
 
-if [[ "$blockcheck_results" == *"working without bypass"* ]]; then
+if [[ "$blockcheck_results" == *"curl_test_https_tls12 ipv4 discord.com : working without bypass"* ]]; then
   echo -e "  ${gray}No access restrictions were detected.${reset}"
   echo ""
 
