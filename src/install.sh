@@ -154,17 +154,19 @@ sudo /tmp/zapret-v72.7/install_bin.sh &>"$log_redirects"
 
 echo -e "  ${gray}Blockcheck is being performed, this may take a few minutes...${reset}"
 
+blockcheck_domain="google.com"
+
 if [ "$dev" = true ]; then
   nfqws_options="--dpi-desync=fakeddisorder --dpi-desync-ttl=1 --dpi-desync-autottl=-5 --dpi-desync-split-pos=1"
 else
-  blockcheck_results=$(printf "discord.com\n\n\n\n\n\n\n\n" | sudo /tmp/zapret-v72.7/blockcheck.sh 2>"$log_redirects")
+  blockcheck_results=$(printf "$blockcheck_domain\n\n\n\n\n\n\n\n" | sudo /tmp/zapret-v72.7/blockcheck.sh 2>"$log_redirects")
 
   [ "$debug" = true ] && echo "$blockcheck_results"
 
-  nfqws_options=$(echo "$blockcheck_results" | grep "curl_test_https_tls12 ipv4" | tail -n1 | sed "s/.*nfqws //")
+  nfqws_options=$(echo "$blockcheck_results" | grep "curl_test_https_tls12 ipv4 $blockcheck_domain : nfqws" | tail -n1 | sed "s/.*nfqws //")
 fi
 
-if [[ "$blockcheck_results" == *"curl_test_https_tls12 ipv4 discord.com : working without bypass"* ]]; then
+if [[ "$blockcheck_results" == *"curl_test_https_tls12 ipv4 $blockcheck_domain : working without bypass"* ]]; then
   echo -e "  ${gray}No access restrictions were detected.${reset}"
   echo ""
 
