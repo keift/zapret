@@ -7,7 +7,7 @@ Install Zapret in one step.
 You can install it as follows.
 
 ```shell
-curl -fsSL https://is.gd/install_zapret | bash
+curl -fsSL https://raw.githubusercontent.com/keift/zapret/refs/heads/main/src/install.sh | bash
 ```
 
 ## Uninstall
@@ -15,7 +15,7 @@ curl -fsSL https://is.gd/install_zapret | bash
 You can uninstall it as follows.
 
 ```shell
-curl -fsSL https://is.gd/uninstall_zapret | bash
+curl -fsSL https://raw.githubusercontent.com/keift/zapret/refs/heads/main/src/uninstall.sh | bash
 ```
 
 ## Screenshots
