@@ -57,7 +57,6 @@ echo -e "  ${gray}Uninstalling Zapret...${reset}"
 printf "\n" | sudo /opt/zapret/uninstall_easy.sh &>"$log_redirects"
 
 sudo rm -rf /opt/zapret
-sudo rm -rf /tmp/zapret-v72.7
 
 echo -e "  ${gray}Zapret has been successfully uninstalled.${reset}"
 
