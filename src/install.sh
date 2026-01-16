@@ -183,7 +183,14 @@ echo -e "  ${gray}Installing Zapret...${reset}"
 
 printf "Y\n\n\n\n\n\n\nY\n\n\n\n\n" | sudo /tmp/zapret-v72.8/install_easy.sh &>"$log_redirects"
 
-sudo sed -i "/^NFQWS_OPT=\"/,/^\"/c NFQWS_OPT=\"$nfqws_options\"" /opt/zapret/config
+sudo sed -i "/^NFQWS_OPT=\"/,/^\"/c NFQWS_OPT=\"$nfqws_options --hostlist=/opt/zapret/hostlist.txt --hostlist-auto=/opt/zapret/ipset/zapret-hostlist-auto.txt\"" /opt/zapret/config
+
+sudo touch /opt/zapret/hostlist.txt
+
+sudo tee /opt/zapret/ipset/zapret-hostlist-auto.txt &>/dev/null << EOF
+discord.com
+roblox.com
+EOF
 
 sudo systemctl restart zapret
 
