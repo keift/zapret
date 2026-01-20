@@ -134,14 +134,14 @@ sudo systemctl restart systemd-resolved
 
 echo -e "  ${gray}Downloading Zapret...${reset}"
 
-sudo rm -rf /tmp/zapret-v72.8
-sudo rm -rf /tmp/zapret-v72.8.zip
+sudo rm -rf /tmp/zapret-v72.9
+sudo rm -rf /tmp/zapret-v72.9.zip
 
-sudo wget -P /tmp https://github.com/bol-van/zapret/releases/download/v72.8/zapret-v72.8.zip &>"$log_redirects"
+sudo wget -P /tmp https://github.com/bol-van/zapret/releases/download/v72.9/zapret-v72.9.zip &>"$log_redirects"
 
-sudo unzip -d /tmp /tmp/zapret-v72.8.zip &>"$log_redirects"
+sudo unzip -d /tmp /tmp/zapret-v72.9.zip &>"$log_redirects"
 
-sudo rm -rf /tmp/zapret-v72.8.zip
+sudo rm -rf /tmp/zapret-v72.9.zip
 
 # 4. Prepare for installation
 
@@ -150,8 +150,8 @@ echo -e "  ${gray}Preparing for installation...${reset}"
 printf "\n" | sudo /opt/zapret/uninstall_easy.sh &>"$log_redirects"
 sudo rm -rf /opt/zapret
 
-printf "\n\n" | sudo /tmp/zapret-v72.8/install_prereq.sh &>"$log_redirects"
-sudo /tmp/zapret-v72.8/install_bin.sh &>"$log_redirects"
+printf "\n\n" | sudo /tmp/zapret-v72.9/install_prereq.sh &>"$log_redirects"
+sudo /tmp/zapret-v72.9/install_bin.sh &>"$log_redirects"
 
 # 5. Do Blockcheck
 
@@ -162,7 +162,7 @@ blockcheck_domain="discord.com"
 if [ "$dev" = true ]; then
   nfqws_options="--dpi-desync=fakeddisorder --dpi-desync-ttl=1 --dpi-desync-autottl=-5 --dpi-desync-split-pos=1"
 else
-  blockcheck_results=$(printf "$blockcheck_domain\n\n\n\n\n\n\n\n" | sudo /tmp/zapret-v72.8/blockcheck.sh 2>"$log_redirects")
+  blockcheck_results=$(printf "$blockcheck_domain\n\n\n\n\n\n\n\n" | sudo /tmp/zapret-v72.9/blockcheck.sh 2>"$log_redirects")
 
   [ "$debug" = true ] && echo "$blockcheck_results"
 
@@ -175,7 +175,7 @@ if [[ "$blockcheck_results" == *"curl_test_https_tls12 ipv4 $blockcheck_domain :
 
   printf "\n" | sudo /opt/zapret/uninstall_easy.sh &>"$log_redirects"
   sudo rm -rf /opt/zapret
-  sudo rm -rf /tmp/zapret-v72.8
+  sudo rm -rf /tmp/zapret-v72.9
 
   exit 0
 fi
@@ -184,7 +184,7 @@ fi
 
 echo -e "  ${gray}Installing Zapret...${reset}"
 
-printf "Y\n\n\n\n\n\n\nY\n\n\n\n\n" | sudo /tmp/zapret-v72.8/install_easy.sh &>"$log_redirects"
+printf "Y\n\n\n\n\n\n\nY\n\n\n\n\n" | sudo /tmp/zapret-v72.9/install_easy.sh &>"$log_redirects"
 
 sudo sed -i "/^NFQWS_OPT=\"/,/^\"/c NFQWS_OPT=\"$nfqws_options --hostlist=/opt/zapret/hostlist.txt --hostlist-auto=/opt/zapret/ipset/zapret-hostlist-auto.txt\"" /opt/zapret/config
 
@@ -201,6 +201,6 @@ sudo systemctl restart zapret
 
 echo -e "  ${gray}Zapret was successfully installed.${reset}"
 
-sudo rm -rf /tmp/zapret-v72.8
+sudo rm -rf /tmp/zapret-v72.9
 
 echo ""
