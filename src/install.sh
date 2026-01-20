@@ -55,6 +55,7 @@ if command -v apt &>/dev/null; then
   sudo apt update -y &>"$log_redirects"
   sudo apt install -y bind9-dnsutils &>"$log_redirects"
   sudo apt install -y curl &>"$log_redirects"
+  sudo apt install -y dnscrypt-proxy &>"$log_redirects"
   sudo apt install -y nftables &>"$log_redirects"
   sudo apt install -y systemd-resolved &>"$log_redirects"
   sudo apt install -y unzip &>"$log_redirects"
@@ -63,6 +64,7 @@ elif command -v dnf &>/dev/null; then
   sudo dnf check-update -y &>"$log_redirects"
   sudo dnf install -y bind-utils &>"$log_redirects"
   sudo dnf install -y curl &>"$log_redirects"
+  sudo dnf install -y dnscrypt-proxy &>"$log_redirects"
   sudo dnf install -y nftables &>"$log_redirects"
   sudo dnf install -y systemd-resolved &>"$log_redirects"
   sudo dnf install -y unzip &>"$log_redirects"
@@ -71,6 +73,7 @@ elif command -v pacman &>/dev/null; then
   sudo pacman -Sy --noconfirm &>"$log_redirects"
   sudo pacman -S --noconfirm bind &>"$log_redirects"
   sudo pacman -S --noconfirm curl &>"$log_redirects"
+  sudo pacman -S --noconfirm dnscrypt-proxy &>"$log_redirects"
   sudo pacman -S --noconfirm nftables &>"$log_redirects"
   sudo pacman -S --noconfirm systemd-resolved &>"$log_redirects"
   sudo pacman -S --noconfirm unzip &>"$log_redirects"
@@ -79,6 +82,7 @@ elif command -v zypper &>/dev/null; then
   sudo zypper -n refresh &>"$log_redirects"
   sudo zypper -n install bind-utils &>"$log_redirects"
   sudo zypper -n install curl &>"$log_redirects"
+  sudo zypper -n install dnscrypt-proxy &>"$log_redirects"
   sudo zypper -n install nftables &>"$log_redirects"
   sudo zypper -n install systemd-resolved &>"$log_redirects"
   sudo zypper -n install unzip &>"$log_redirects"
@@ -94,34 +98,33 @@ fi
 
 echo -e "  ${gray}DNS settings are being changed...${reset}"
 
-country_code=$(curl -s https://ipinfo.io/country)
-
 sudo systemctl enable systemd-resolved &>"$log_redirects"
 sudo systemctl start systemd-resolved
 
-if [ "$country_code" = "RU" ]; then
-  echo -e "  ${gray}It appears you are in Russia. Using Yandex DNS...${reset}"
+sudo tee /etc/dnscrypt-proxy/dnscrypt-proxy.toml &>/dev/null << EOF
+listen_addresses = ["127.0.0.1:5300", "[::1]:5300"]
 
-  sudo tee /etc/systemd/resolved.conf &>/dev/null << EOF
-[Resolve]
-DNS=77.88.8.8#common.dot.dns.yandex.net
-DNS=2a02:6b8::feed:0ff#common.dot.dns.yandex.net
-DNS=77.88.8.1#common.dot.dns.yandex.net
-DNS=2a02:6b8:0:1::feed:0ff#common.dot.dns.yandex.net
-DNSOverTLS=yes
+server_names = ["cloudflare", "cloudflare-ipv6"]
+
+[sources]
+  [sources."public-resolvers"]
+  url = "https://raw.github.com/DNSCrypt/dnscrypt-resolvers/master/v3/public-resolvers.md"
+  minisign_key = "RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3"
+  cache_file = "/var/cache/dnscrypt-proxy/public-resolvers-v3.md"
 EOF
-else
-  echo -e "  ${gray}It appears you are not in Russia. Using Cloudflare DNS...${reset}"
 
-  sudo tee /etc/systemd/resolved.conf &>/dev/null << EOF
+sudo systemctl restart dnscrypt-proxy
+
+sudo tee /etc/systemd/resolved.conf &>/dev/null << EOF
 [Resolve]
+DNS=127.0.0.1:5300
+DNS=[::1]:5300
 DNS=1.1.1.1#one.one.one.one
 DNS=2606:4700:4700::1111#one.one.one.one
 DNS=1.0.0.1#one.one.one.one
 DNS=2606:4700:4700::1001#one.one.one.one
 DNSOverTLS=yes
 EOF
-fi
 
 [ -e /run/systemd/resolve/stub-resolv.conf ] && sudo ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
 
