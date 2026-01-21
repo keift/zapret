@@ -101,6 +101,9 @@ echo -e "  ${gray}DNS settings are being changed...${reset}"
 sudo systemctl enable systemd-resolved &>"$log_redirects"
 sudo systemctl start systemd-resolved
 
+sudo systemctl enable dnscrypt-proxy &>"$log_redirects"
+sudo systemctl start dnscrypt-proxy
+
 sudo tee /etc/dnscrypt-proxy/dnscrypt-proxy.toml &>/dev/null << EOF
 listen_addresses = ["127.0.0.1:5300", "[::1]:5300"]
 
