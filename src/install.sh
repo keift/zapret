@@ -174,13 +174,16 @@ if [[ "$blockcheck_results" == *"nftables queue support is not available. pls in
   echo -e "  ${red}Error: You need to update your system.${reset}"
 
   if command -v apt &>/dev/null; then
-    echo -e "         ${red}Use: ${white}sudo apt upgrade -y${reset}"
+    echo -e "         ${red}Use: ${white}sudo apt update -y${reset}"
+    echo -e "              ${white}sudo apt upgrade -y${reset}"
   elif command -v dnf &>/dev/null; then
-    echo -e "         ${red}Use: ${white}sudo dnf upgrade -y${reset}"
+    echo -e "         ${red}Use: ${white}sudo dnf check-update -y${reset}"
+    echo -e "              ${white}sudo dnf upgrade -y${reset}"
   elif command -v pacman &>/dev/null; then
     echo -e "         ${red}Use: ${white}sudo pacman -Syu --noconfirm${reset}"
   elif command -v zypper &>/dev/null; then
-    echo -e "         ${red}Use: ${white}sudo zypper -n up${reset}"
+    echo -e "         ${red}Use: ${white}sudo zypper -n refresh${reset}"
+    echo -e "              ${white}sudo zypper -n update${reset}"
   fi
 
   echo ""
