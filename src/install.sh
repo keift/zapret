@@ -172,6 +172,28 @@ else
   nfqws_options=$(echo "$blockcheck_results" | grep "curl_test_https_tls12 ipv4 $blockcheck_domain : nfqws" | tail -n1 | sed "s/.*nfqws //")
 fi
 
+if [[ "$blockcheck_results" =~ (pls|please)[[:space:]]+install ]]; then
+  echo -e "  ${red}Error: You need to update your system.${reset}"
+
+  if command -v apt &>/dev/null; then
+    echo -e "    ${white}sudo apt upgrade -y${reset}"
+  elif command -v dnf &>/dev/null; then
+    echo -e "    ${white}sudo dnf upgrade -y${reset}"
+  elif command -v pacman &>/dev/null; then
+    echo -e "    ${white}sudo pacman -Syu --noconfirm${reset}"
+  elif command -v zypper &>/dev/null; then
+    echo -e "    ${white}sudo zypper -n up${reset}"
+  fi
+
+  echo ""
+
+  printf "\n" | sudo /opt/zapret/uninstall_easy.sh &>"$log_redirects"
+  sudo rm -rf /opt/zapret
+  sudo rm -rf /tmp/zapret-v72.9
+
+  exit 0
+fi
+
 if [[ "$blockcheck_results" == *"curl_test_https_tls12 ipv4 $blockcheck_domain : working without bypass"* ]]; then
   echo -e "  ${gray}No access restrictions were detected.${reset}"
   echo ""
