@@ -39,7 +39,7 @@ echo -e "  ${blue}Keift ${cyan}Install Zapret${reset}"
 echo ""
 
 if ! command -v systemctl &>/dev/null; then
-  echo -e "  ${red}Error: It only works on devices where Systemd is installed.${reset}"
+  echo -e "  ${red}Error: This only works on Systemd devices.${reset}"
   echo ""
 
   exit 1
