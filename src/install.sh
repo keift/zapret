@@ -50,6 +50,10 @@ fi
 echo -e "  ${gray}Installing dependencies...${reset}"
 
 if command -v apt &>/dev/null; then
+  export DEBIAN_FRONTEND="noninteractive"
+
+  sudo apt update -y &>"$log_redirects"
+
   sudo apt install -y bind9-dnsutils &>"$log_redirects"
   sudo apt install -y curl &>"$log_redirects"
   sudo apt install -y dnscrypt-proxy &>"$log_redirects"
@@ -58,6 +62,8 @@ if command -v apt &>/dev/null; then
   sudo apt install -y unzip &>"$log_redirects"
   sudo apt install -y wget &>"$log_redirects"
 elif command -v dnf &>/dev/null; then
+  sudo dnf check-update -y &>"$log_redirects"
+
   sudo dnf install -y bind-utils &>"$log_redirects"
   sudo dnf install -y curl &>"$log_redirects"
   sudo dnf install -y dnscrypt-proxy &>"$log_redirects"
@@ -66,6 +72,8 @@ elif command -v dnf &>/dev/null; then
   sudo dnf install -y unzip &>"$log_redirects"
   sudo dnf install -y wget &>"$log_redirects"
 elif command -v pacman &>/dev/null; then
+  sudo pacman -Syu --noconfirm &>"$log_redirects"
+
   sudo pacman -S --noconfirm bind &>"$log_redirects"
   sudo pacman -S --noconfirm curl &>"$log_redirects"
   sudo pacman -S --noconfirm dnscrypt-proxy &>"$log_redirects"
@@ -74,6 +82,8 @@ elif command -v pacman &>/dev/null; then
   sudo pacman -S --noconfirm unzip &>"$log_redirects"
   sudo pacman -S --noconfirm wget &>"$log_redirects"
 elif command -v zypper &>/dev/null; then
+  sudo zypper -n refresh &>"$log_redirects"
+
   sudo zypper -n install bind-utils &>"$log_redirects"
   sudo zypper -n install curl &>"$log_redirects"
   sudo zypper -n install dnscrypt-proxy &>"$log_redirects"
