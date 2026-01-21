@@ -62,7 +62,7 @@ if command -v apt &>/dev/null; then
   sudo apt install -y unzip &>"$log_redirects"
   sudo apt install -y wget &>"$log_redirects"
 elif command -v dnf &>/dev/null; then
-  sudo dnf check-update -y &>"$log_redirects"
+  sudo dnf makecache -y &>"$log_redirects"
 
   sudo dnf install -y bind-utils &>"$log_redirects"
   sudo dnf install -y curl &>"$log_redirects"
