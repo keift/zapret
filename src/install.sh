@@ -173,14 +173,17 @@ else
 fi
 
 if [[ "$blockcheck_results" =~ (pls|please)[[:space:]]+install ]]; then
+  echo -e "  ${red}Error: You need to update your system.${reset}"
+  echo ""
+
   if command -v apt &>/dev/null; then
-    echo -e "  ${red}Error: You need to update your system. Use: ${white}sudo apt upgrade -y${reset}"
+    echo -e "    ${white}sudo apt upgrade -y${reset}"
   elif command -v dnf &>/dev/null; then
-    echo -e "  ${red}Error: You need to update your system. Use: ${white}sudo dnf upgrade -y${reset}"
+    echo -e "    ${white}sudo dnf upgrade -y${reset}"
   elif command -v pacman &>/dev/null; then
-    echo -e "  ${red}Error: You need to update your system. Use: ${white}sudo pacman -Syu --noconfirm${reset}"
+    echo -e "    ${white}sudo pacman -Syu --noconfirm${reset}"
   elif command -v zypper &>/dev/null; then
-    echo -e "  ${red}Error: You need to update your system. Use: ${white}sudo zypper -n up${reset}"
+    echo -e "    ${white}sudo zypper -n up${reset}"
   fi
 
   echo ""
