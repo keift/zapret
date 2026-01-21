@@ -122,10 +122,10 @@ sudo tee /etc/systemd/resolved.conf &>/dev/null << EOF
 [Resolve]
 DNS=127.0.0.1:5300
 DNS=[::1]:5300
-DNS=1.1.1.1#one.one.one.one
-DNS=2606:4700:4700::1111#one.one.one.one
-DNS=1.0.0.1#one.one.one.one
-DNS=2606:4700:4700::1001#one.one.one.one
+FallbackDNS=1.1.1.1#one.one.one.one
+FallbackDNS=2606:4700:4700::1111#one.one.one.one
+FallbackDNS=1.0.0.1#one.one.one.one
+FallbackDNS=2606:4700:4700::1001#one.one.one.one
 DNSOverTLS=yes
 EOF
 
