@@ -180,7 +180,7 @@ else
   nfqws_options=$(echo "$blockcheck_results" | grep "curl_test_https_tls12 ipv4 $blockcheck_domain : nfqws" | tail -n1 | sed "s/.*nfqws //")
 fi
 
-if [[ "$blockcheck_results" == *"nftables queue support is not available. pls install modules."* ]]; then
+if [[ "$blockcheck_results" == *"nftables queue support is not available"* ]]; then
   echo -e "  ${red}Error: You need to update your system.${reset}"
 
   if command -v apt &>/dev/null; then
