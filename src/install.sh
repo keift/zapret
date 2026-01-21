@@ -187,7 +187,7 @@ if [[ "$blockcheck_results" == *"nftables queue support is not available. pls in
     echo -e "         ${red}Use: ${white}sudo apt update -y${reset}"
     echo -e "              ${white}sudo apt upgrade -y${reset}"
   elif command -v dnf &>/dev/null; then
-    echo -e "         ${red}Use: ${white}sudo dnf check-update -y${reset}"
+    echo -e "         ${red}Use: ${white}sudo dnf makecache -y${reset}"
     echo -e "              ${white}sudo dnf upgrade -y${reset}"
   elif command -v pacman &>/dev/null; then
     echo -e "         ${red}Use: ${white}sudo pacman -Syu --noconfirm${reset}"
