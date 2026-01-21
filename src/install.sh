@@ -50,8 +50,6 @@ fi
 echo -e "  ${gray}Installing dependencies...${reset}"
 
 if command -v apt &>/dev/null; then
-  export DEBIAN_FRONTEND="noninteractive"
-
   sudo apt install -y bind9-dnsutils &>"$log_redirects"
   sudo apt install -y curl &>"$log_redirects"
   sudo apt install -y dnscrypt-proxy &>"$log_redirects"
