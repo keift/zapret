@@ -191,7 +191,7 @@ if [[ "$blockcheck_results" =~ (pls|please)[[:space:]]+install ]]; then
   sudo rm -rf /opt/zapret
   sudo rm -rf /tmp/zapret-v72.9
 
-  exit 1
+  exit 0
 fi
 
 if [[ "$blockcheck_results" == *"curl_test_https_tls12 ipv4 $blockcheck_domain : working without bypass"* ]]; then
