@@ -15,9 +15,6 @@ jobs:
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: latest
-          registry-url: https://registry.npmjs.org
 
       - name: Install Prettier
         run: bun add -g prettier
