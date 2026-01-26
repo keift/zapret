@@ -113,12 +113,7 @@ sudo tee /etc/systemd/resolved.conf &>/dev/null << EOF
 DNS=127.0.0.1:5300
 DNS=[::1]:5300
 
-DNS=1.1.1.1#one.one.one.one
-DNS=2606:4700:4700::1111#one.one.one.one
-DNS=1.0.0.1#one.one.one.one
-DNS=2606:4700:4700::1001#one.one.one.one
-
-DNSOverTLS=opportunistic
+DNSOverTLS=no
 EOF
 
 sudo chattr -i /etc/resolv.conf &>"$log_redirects"
