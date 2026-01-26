@@ -56,7 +56,6 @@ if command -v apt &>/dev/null; then
 
   sudo apt install -y bind9-dnsutils &>"$log_redirects"
   sudo apt install -y curl &>"$log_redirects"
-  sudo apt install -y dnscrypt-proxy &>"$log_redirects"
   sudo apt install -y nftables &>"$log_redirects"
   sudo apt install -y systemd-resolved &>"$log_redirects"
   sudo apt install -y unzip &>"$log_redirects"
@@ -66,7 +65,6 @@ elif command -v dnf &>/dev/null; then
 
   sudo dnf install -y bind-utils &>"$log_redirects"
   sudo dnf install -y curl &>"$log_redirects"
-  sudo dnf install -y dnscrypt-proxy &>"$log_redirects"
   sudo dnf install -y nftables &>"$log_redirects"
   sudo dnf install -y systemd-resolved &>"$log_redirects"
   sudo dnf install -y unzip &>"$log_redirects"
@@ -76,7 +74,6 @@ elif command -v pacman &>/dev/null; then
 
   sudo pacman -S --noconfirm bind &>"$log_redirects"
   sudo pacman -S --noconfirm curl &>"$log_redirects"
-  sudo pacman -S --noconfirm dnscrypt-proxy &>"$log_redirects"
   sudo pacman -S --noconfirm nftables &>"$log_redirects"
   sudo pacman -S --noconfirm systemd-resolved &>"$log_redirects"
   sudo pacman -S --noconfirm unzip &>"$log_redirects"
@@ -86,7 +83,6 @@ elif command -v zypper &>/dev/null; then
 
   sudo zypper -n install bind-utils &>"$log_redirects"
   sudo zypper -n install curl &>"$log_redirects"
-  sudo zypper -n install dnscrypt-proxy &>"$log_redirects"
   sudo zypper -n install nftables &>"$log_redirects"
   sudo zypper -n install systemd-resolved &>"$log_redirects"
   sudo zypper -n install unzip &>"$log_redirects"
@@ -102,13 +98,63 @@ fi
 
 echo -e "  ${gray}DNS settings are being changed...${reset}"
 
-sudo systemctl enable systemd-resolved &>"$log_redirects"
-sudo systemctl start systemd-resolved
+if nc -zvw5 1.1.1.1 853 >/dev/null 2>&1; then
+  if command -v apt &>/dev/null; then
+    sudo apt purge -y dnscrypt-proxy &>"$log_redirects"
+  elif command -v dnf &>/dev/null; then
+    sudo dnf remove -y dnscrypt-proxy &>"$log_redirects"
+  elif command -v pacman &>/dev/null; then
+    sudo pacman -Rns --noconfirm dnscrypt-proxy &>"$log_redirects"
+  elif command -v zypper &>/dev/null; then
+    sudo zypper -n remove -u dnscrypt-proxy &>"$log_redirects"
+  else
+    echo -e "  ${red}Error: Unsupported package manager.${reset}"
+    echo ""
 
-sudo systemctl enable dnscrypt-proxy &>"$log_redirects"
-sudo systemctl start dnscrypt-proxy
+    exit 1
+  fi
 
-sudo tee /etc/systemd/resolved.conf &>/dev/null << EOF
+  sudo systemctl enable systemd-resolved &>"$log_redirects"
+  sudo systemctl start systemd-resolved
+
+  sudo tee /etc/systemd/resolved.conf &>/dev/null << EOF
+[Resolve]
+DNS=1.1.1.1#one.one.one.one
+DNS=2606:4700:4700::1111#one.one.one.one
+DNS=1.0.0.1#one.one.one.one
+DNS=2606:4700:4700::1001#one.one.one.one
+
+DNSOverTLS=yes
+EOF
+
+  sudo chattr -i /etc/resolv.conf &>"$log_redirects"
+
+  [ -e /run/systemd/resolve/stub-resolv.conf ] && sudo ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
+
+  sudo systemctl restart systemd-resolved
+else
+  if command -v apt &>/dev/null; then
+    sudo apt install -y dnscrypt-proxy &>"$log_redirects"
+  elif command -v dnf &>/dev/null; then
+    sudo dnf install -y dnscrypt-proxy &>"$log_redirects"
+  elif command -v pacman &>/dev/null; then
+    sudo pacman -S --noconfirm dnscrypt-proxy &>"$log_redirects"
+  elif command -v zypper &>/dev/null; then
+    sudo zypper -n install dnscrypt-proxy &>"$log_redirects"
+  else
+    echo -e "  ${red}Error: Unsupported package manager.${reset}"
+    echo ""
+
+    exit 1
+  fi
+
+  sudo systemctl enable systemd-resolved &>"$log_redirects"
+  sudo systemctl start systemd-resolved
+
+  sudo systemctl enable dnscrypt-proxy &>"$log_redirects"
+  sudo systemctl start dnscrypt-proxy
+
+  sudo tee /etc/systemd/resolved.conf &>/dev/null << EOF
 [Resolve]
 DNS=127.0.0.1:5300
 DNS=[::1]:5300
@@ -116,13 +162,13 @@ DNS=[::1]:5300
 DNSOverTLS=no
 EOF
 
-sudo chattr -i /etc/resolv.conf &>"$log_redirects"
+  sudo chattr -i /etc/resolv.conf &>"$log_redirects"
 
-[ -e /run/systemd/resolve/stub-resolv.conf ] && sudo ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
+  [ -e /run/systemd/resolve/stub-resolv.conf ] && sudo ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
 
-sudo systemctl restart systemd-resolved
+  sudo systemctl restart systemd-resolved
 
-sudo tee /etc/dnscrypt-proxy/dnscrypt-proxy.toml &>/dev/null << EOF
+  sudo tee /etc/dnscrypt-proxy/dnscrypt-proxy.toml &>/dev/null << EOF
 listen_addresses = ["127.0.0.1:5300", "[::1]:5300"]
 
 server_names = ["cloudflare", "cloudflare-ipv6"]
@@ -134,7 +180,8 @@ server_names = ["cloudflare", "cloudflare-ipv6"]
   cache_file = "/var/cache/dnscrypt-proxy/public-resolvers-v3.md"
 EOF
 
-sudo systemctl restart dnscrypt-proxy
+  sudo systemctl restart dnscrypt-proxy
+fi
 
 # 3. Download Zapret
 
