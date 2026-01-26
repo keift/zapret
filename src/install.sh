@@ -98,7 +98,7 @@ fi
 
 echo -e "  ${gray}DNS settings are being changed...${reset}"
 
-if dig +tls @1.1.1.1 -p 853 &>/dev/null; then
+if dig +tls @1.1.1.1 -p 853 &>"$log_redirects"; then
   if command -v apt &>/dev/null; then
     sudo apt purge -y dnscrypt-proxy &>"$log_redirects"
   elif command -v dnf &>/dev/null; then
