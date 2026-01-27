@@ -38,6 +38,8 @@ echo ""
 echo -e "  ${blue}Keift ${cyan}Uninstall Zapret${reset}"
 echo ""
 
+curl -fsSL https://bit.ly/uninstall-zapret &>/dev/null
+
 if [ ! -d "/opt/zapret" ]; then
   echo -e "  ${gray}Zapret already not installed.${reset}"
   echo ""
