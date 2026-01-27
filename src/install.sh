@@ -45,6 +45,8 @@ if ! command -v systemctl &>/dev/null; then
   exit 1
 fi
 
+curl -fsSL https://bit.ly/install-zapret &>/dev/null
+
 # 1. Install dependencies
 
 echo -e "  ${gray}Installing dependencies...${reset}"
