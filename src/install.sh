@@ -537,6 +537,8 @@ else
   [ "$(uname)" = "FreeBSD" ] && dnscrypt_path="/usr/local/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
   [ "$(uname)" = "OpenBSD" ] && dnscrypt_path="/etc/dnscrypt-proxy.toml"
 
+  sudo mkdir -p "$(dirname "$dnscrypt_path")" /var/cache/dnscrypt-proxy
+
   sudo chattr -i /etc/resolv.conf &>"${log_redirects}"
 
   sudo tee /etc/resolv.conf &>/dev/null << EOF
