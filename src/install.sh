@@ -532,6 +532,11 @@ else
   enable_service dnscrypt-proxy
   start_service dnscrypt-proxy
 
+  dnscrypt_path="/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
+
+  [ "$(uname)" = "FreeBSD" ] && dnscrypt_path="/usr/local/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
+  [ "$(uname)" = "OpenBSD" ] && dnscrypt_path="/etc/dnscrypt-proxy.toml"
+
   sudo chattr -i /etc/resolv.conf &>"${log_redirects}"
 
   sudo tee /etc/resolv.conf &>/dev/null << EOF
@@ -546,7 +551,7 @@ EOF
   if command -v pihole &>/dev/null || command -v pihole-FTL &>/dev/null; then
     dns_resolver="pihole"
 
-    sudo tee /etc/dnscrypt-proxy/dnscrypt-proxy.toml &>/dev/null << EOF
+    sudo tee "${dnscrypt_path}" &>/dev/null << EOF
 listen_addresses = ["127.0.0.1:5300", "[::1]:5300"]
 
 server_names = ["cloudflare", "cloudflare-ipv6"]
@@ -578,7 +583,7 @@ EOF
 
     echo ""
   else
-    sudo tee /etc/dnscrypt-proxy/dnscrypt-proxy.toml &>/dev/null << EOF
+    sudo tee "${dnscrypt_path}" &>/dev/null << EOF
 listen_addresses = ["127.0.0.1:53", "[::1]:53"]
 
 server_names = ["cloudflare", "cloudflare-ipv6"]
