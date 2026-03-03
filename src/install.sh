@@ -378,6 +378,7 @@ echo -e "  ${gray}Installing dependencies...${reset}"
 update_packages
 
 install_package bind9-dnsutils
+install_package bind920
 install_package bind-utils
 install_package bind-tools
 install_package bind
@@ -409,6 +410,7 @@ if command -v systemctl &>/dev/null && ! command -v pihole &>/dev/null && ! comm
 
     install_package systemd-resolved
     remove_package dnscrypt-proxy
+    remove_package dnscrypt-proxy2
     remove_package net-dns/dnscrypt-proxy
 
     enable_service systemd-resolved
@@ -449,6 +451,7 @@ EOF
 
     install_package systemd-resolved
     install_package dnscrypt-proxy
+    install_package dnscrypt-proxy2
     install_package net-dns/dnscrypt-proxy
 
     enable_service systemd-resolved
@@ -523,6 +526,7 @@ else
   update_packages
 
   install_package dnscrypt-proxy
+  install_package dnscrypt-proxy2
   install_package net-dns/dnscrypt-proxy
 
   enable_service dnscrypt-proxy
