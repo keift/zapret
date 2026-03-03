@@ -469,7 +469,7 @@ EOF
     restart_service systemd-resolved
 
     sudo tee /etc/dnscrypt-proxy/dnscrypt-proxy.toml &>/dev/null << EOF
-listen_addresses = ["127.0.0.1:5300", "[::1]:5300"]
+listen_addresses = ["127.0.0.1:5053", "[::1]:5053"]
 
 server_names = ["cloudflare", "cloudflare-ipv6"]
 
@@ -485,13 +485,13 @@ EOF
 
     restart_service dnscrypt-proxy
 
-    while ! dig -p 5300 +tries=1 +time=10 @127.0.0.1 &>/dev/null; do restart_service dnscrypt-proxy; sleep 1; done
+    while ! dig -p 5053 +tries=1 +time=10 @127.0.0.1 &>/dev/null; do restart_service dnscrypt-proxy; sleep 1; done
 
     if [ "${strict}" = true ]; then
       sudo tee /etc/systemd/resolved.conf &>/dev/null << EOF
 [Resolve]
-DNS=127.0.0.1:5300
-DNS=[::1]:5300
+DNS=127.0.0.1:5053
+DNS=[::1]:5053
 
 Domains=~.
 DNSOverTLS=no
@@ -499,8 +499,8 @@ EOF
     else
       sudo tee /etc/systemd/resolved.conf &>/dev/null << EOF
 [Resolve]
-DNS=127.0.0.1:5300
-DNS=[::1]:5300
+DNS=127.0.0.1:5053
+DNS=[::1]:5053
 
 DNS=$(ip route show default | awk "{print \$3}" | head -n 1)
 
@@ -547,7 +547,7 @@ EOF
     dns_resolver="pihole"
 
     sudo tee /etc/dnscrypt-proxy/dnscrypt-proxy.toml &>/dev/null << EOF
-listen_addresses = ["127.0.0.1:5300", "[::1]:5300"]
+listen_addresses = ["127.0.0.1:5053", "[::1]:5053"]
 
 server_names = ["cloudflare", "cloudflare-ipv6"]
 
@@ -563,11 +563,11 @@ EOF
 
     restart_service dnscrypt-proxy
 
-    while ! dig -p 5300 +tries=1 +time=10 @127.0.0.1 &>/dev/null; do restart_service dnscrypt-proxy; sleep 1; done
+    while ! dig -p 5053 +tries=1 +time=10 @127.0.0.1 &>/dev/null; do restart_service dnscrypt-proxy; sleep 1; done
 
     echo ""
     echo -e "  ${gray}It appears you are using ${red}Pi-hole${gray}.${reset}"
-    echo -e "  ${gray}Change the ${green}Custom DNS ${gray}option in the Pi-hole to: ${white}127.0.0.1#5300${reset}"
+    echo -e "  ${gray}Change the ${green}Custom DNS ${gray}option in the Pi-hole to: ${white}127.0.0.1#5053${reset}"
     echo -ne "  ${gray}Press ${blue}[ENTER] ${gray}after you have made this change to continue...${reset}"
 
     if [ -t 0 ]; then
