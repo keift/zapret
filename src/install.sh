@@ -192,7 +192,7 @@ enable_service() {
   elif command -v rcctl &>/dev/null; then
     sudo rcctl enable "${service_name}" &>"${log_redirects}"
   elif command -v sysrc &>/dev/null; then
-    sudo sysrc "${service_name}_enable=YES" &>"${log_redirects}"
+    sudo sysrc "${service_name}_enable=\"YES\"" &>"${log_redirects}"
   elif command -v service &>/dev/null || [ -x /usr/sbin/service ] || [ -x /sbin/service ]; then
     if command -v update-rc.d &>/dev/null || [ -x /usr/sbin/update-rc.d ] || [ -x /sbin/update-rc.d ]; then
       sudo update-rc.d "${service_name}" defaults &>"${log_redirects}"
