@@ -682,11 +682,11 @@ for domain in "${blockcheck_domains[@]}"; do
 done
 
 while [[ $# -gt 0 ]]; do
-  if [[ "${1}" == "--blockcheck-domain="* ]]; then
+  if [[ "${1}" = "--blockcheck-domain="* ]]; then
     blockcheck_domain="${1#*=}"
 
     shift
-  elif [[ "${1}" == "--blockcheck-domain" ]]; then
+  elif [[ "${1}" = "--blockcheck-domain" ]]; then
     blockcheck_domain="${2}"
 
     shift 2
