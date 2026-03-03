@@ -726,13 +726,13 @@ echo -e "  ${gray}Installing Zapret...${reset}"
 
 if command -v systemctl &>/dev/null \
   || command -v rc-service &>/dev/null; then
-  if sudo test -w /etc; then
+  if sudo test -w /bin; then
     printf "Y\n\n\n\n\n\n\nY\n\n\n\n\n" | sudo /tmp/zapret/install_easy.sh &>"${log_redirects}"
   else
     printf "Y\nY\n\n\n\n\n\n\nY\n\n\n\n\n" | sudo /tmp/zapret/install_easy.sh &>"${log_redirects}"
   fi
 else
-  if sudo test -w /etc; then
+  if sudo test -w /bin; then
     printf "Y\nY\nY\n\n\n\n\n\n\nY\n\n\n\n\n" | sudo /tmp/zapret/install_easy.sh &>"${log_redirects}"
   else
     printf "Y\nY\nY\nY\n\n\n\n\n\n\nY\n\n\n\n\n" | sudo /tmp/zapret/install_easy.sh &>"${log_redirects}"
