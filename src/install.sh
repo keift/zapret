@@ -85,6 +85,7 @@ send_metrics() {
         --arg dns_resolver "${dns_resolver}" \
         --arg blockcheck_domain "${blockcheck_domain}" \
         --arg blockcheck_results "${blockcheck_results_filtered}" \
+        --arg installation_results "${installation_results}" \
         --arg domain_response "${domain_response}" \
         --arg nfqws_options "${nfqws_options}" \
         --arg parameters "${parameters}" \
@@ -96,6 +97,7 @@ send_metrics() {
             dns_resolver: $dns_resolver,
             blockcheck_domain: $blockcheck_domain,
             blockcheck_results: $blockcheck_results,
+            installation_results: $installation_results,
             domain_response: $domain_response,
             nfqws_options: $nfqws_options,
             parameters: $parameters
@@ -727,15 +729,15 @@ echo -e "  ${gray}Installing Zapret...${reset}"
 if command -v systemctl &>/dev/null \
   || command -v rc-service &>/dev/null; then
   if sudo test -w /bin; then
-    printf "Y\n\n\n\n\n\n\nY\n\n\n\n\n" | sudo /tmp/zapret/install_easy.sh &>"${log_redirects}"
+    installation_results=$(printf "Y\n\n\n\n\n\n\nY\n\n\n\n\n" | sudo /tmp/zapret/install_easy.sh &>"${log_redirects}")
   else
-    printf "Y\nY\n\n\n\n\n\n\nY\n\n\n\n\n" | sudo /tmp/zapret/install_easy.sh &>"${log_redirects}"
+    installation_results=$(printf "Y\nY\n\n\n\n\n\n\nY\n\n\n\n\n" | sudo /tmp/zapret/install_easy.sh &>"${log_redirects}")
   fi
 else
   if sudo test -w /bin; then
-    printf "Y\nY\nY\n\n\n\n\n\n\nY\n\n\n\n\n" | sudo /tmp/zapret/install_easy.sh &>"${log_redirects}"
+    installation_results=$(printf "Y\nY\nY\n\n\n\n\n\n\nY\n\n\n\n\n" | sudo /tmp/zapret/install_easy.sh &>"${log_redirects}")
   else
-    printf "Y\nY\nY\nY\n\n\n\n\n\n\nY\n\n\n\n\n" | sudo /tmp/zapret/install_easy.sh &>"${log_redirects}"
+    installation_results=$(printf "Y\nY\nY\nY\n\n\n\n\n\n\nY\n\n\n\n\n" | sudo /tmp/zapret/install_easy.sh &>"${log_redirects}")
   fi
 fi
 
