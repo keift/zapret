@@ -741,6 +741,20 @@ else
   fi
 fi
 
+if [[ "${installation_results}" != *$'* starting zapret service\n\npress enter to continue'* ]]; then
+  printf "\n" | sudo /opt/zapret/uninstall_easy.sh &>"${log_redirects}"
+  sudo rm -rf /opt/zapret
+  sudo rm -rf /tmp/zapret
+
+  echo -e "  ${red}Something went wrong. Please contact us.${reset}"
+
+  send_metrics ZAPRET_SOMETHING_WENT_WRONG
+
+  echo ""
+
+  exit 1
+fi
+
 sudo sed -i "/^NFQWS_OPT=\"/,/^\"/c NFQWS_OPT=\"${nfqws_options} --hostlist=/opt/zapret/hostlist.txt --hostlist-auto=/opt/zapret/ipset/zapret-hostlist-auto.txt\"" /opt/zapret/config
 
 sudo touch /opt/zapret/hostlist.txt
