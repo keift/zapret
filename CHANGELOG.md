@@ -3,10 +3,12 @@
 ## v1.1 → v1.2
 
 - Added:
+  - **Atomic systems support.** Respect for atomic systems.
   - **Runit init support.** Respect for Runit init.
   - **OpenRC init support.** Respect for OpenRC init.
   - **OpenBSD init support.** Respect for OpenBSD init.
   - **SysVinit init support.** Respect for SysVinit init.
+  - **RPM-OSTREE package manager support.** Respect for RPM-OSTREE package manager.
   - **XBPS package manager support.** Respect for XBPS package manager.
   - **Emerge package manager support.** Respect for Emerge package manager.
   - **PKG package manager support.** Respect for PKG package manager.
