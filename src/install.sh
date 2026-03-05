@@ -64,17 +64,43 @@ send_metrics() {
     local domain_response=$(curl --max-time 10 -sS -I "https://${blockcheck_domain}" 2>&1 | head -n 1)
 
     if command -v systemctl &>/dev/null; then
-      init_system="Systemd"
+      init_system="systemd"
     elif command -v sv &>/dev/null; then
-      init_system="Runit"
+      init_system="runit"
     elif command -v rc-service &>/dev/null; then
-      init_system="OpenRC"
+      init_system="openrc"
     elif command -v rcctl &>/dev/null; then
-      init_system="OpenBSD"
+      init_system="openbsd"
     elif command -v service &>/dev/null || [ -x /usr/sbin/service ] || [ -x /sbin/service ]; then
-      init_system="SysvInit"
+      init_system="sysvinit"
     else
-      init_system="Unknown"
+      init_system="unknown"
+    fi
+
+    if command -v apt &>/dev/null; then
+      package_manager="apt"
+    elif command -v rpm-ostree &>/dev/null; then
+      package_manager="rpm-ostree"
+    elif command -v dnf &>/dev/null; then
+      package_manager="dnf"
+    elif command -v pacman &>/dev/null; then
+      package_manager="pacman"
+    elif command -v zypper &>/dev/null; then
+      package_manager="zypper"
+    elif command -v xbps-install &>/dev/null; then
+      package_manager="xbps"
+    elif command -v apk &>/dev/null; then
+      package_manager="apk"
+    elif command -v emerge &>/dev/null; then
+      package_manager="emerge"
+    elif command -v pkg &>/dev/null; then
+      package_manager="pkg"
+    elif command -v pkg_add &>/dev/null; then
+      package_manager="pkg_add"
+    elif command -v opkg &>/dev/null; then
+      package_manager="opkg"
+    else
+      package_manager="unknown"
     fi
 
     local payload=$(
@@ -82,6 +108,7 @@ send_metrics() {
         --arg event "${event}" \
         --arg unix_name "${unix_name}" \
         --arg init_system "${init_system}" \
+        --arg package_manager "${package_manager}" \
         --arg dns_resolver "${dns_resolver}" \
         --arg blockcheck_domain "${blockcheck_domain}" \
         --arg blockcheck_results "${blockcheck_results_filtered}" \
@@ -94,6 +121,7 @@ send_metrics() {
           data: {
             unix_name: $unix_name,
             init_system: $init_system,
+            package_manager: $package_manager,
             dns_resolver: $dns_resolver,
             blockcheck_domain: $blockcheck_domain,
             blockcheck_results: $blockcheck_results,
