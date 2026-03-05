@@ -759,13 +759,13 @@ if command -v systemctl &>/dev/null \
   if sudo test -w /bin; then
     installation_results=$(printf "Y\n\n\n\n\n\n\nY\n\n\n\n\n" | sudo /tmp/zapret/install_easy.sh 2>"${log_redirects}")
   else
-    installation_results=$(printf "Y\nY\n\n\n\n\n\n\nY\n\n\n\n\n" | sudo /tmp/zapret/install_easy.sh 2>"${log_redirects}")
+    installation_results=$(printf "Y\nY\nY\n\n\n\n\n\n\nY\n\n\n\n\n" | sudo /tmp/zapret/install_easy.sh 2>"${log_redirects}")
   fi
 else
   if sudo test -w /bin; then
     installation_results=$(printf "Y\nY\nY\n\n\n\n\n\n\nY\n\n\n\n\n" | sudo /tmp/zapret/install_easy.sh 2>"${log_redirects}")
   else
-    installation_results=$(printf "Y\nY\nY\nY\n\n\n\n\n\n\nY\n\n\n\n\n" | sudo /tmp/zapret/install_easy.sh 2>"${log_redirects}")
+    installation_results=$(printf "Y\nY\nY\nY\nY\n\n\n\n\n\n\nY\n\n\n\n\n" | sudo /tmp/zapret/install_easy.sh 2>"${log_redirects}")
   fi
 fi
 
