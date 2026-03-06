@@ -769,7 +769,7 @@ else
   fi
 fi
 
-if [[ "${installation_results}" != *$'* starting zapret service\n\npress enter to continue'* ]]; then
+if [[ "${installation_results}" = *$'could not start zapret service\n\npress enter to continue'* ]]; then
   printf "\n" | sudo /opt/zapret/uninstall_easy.sh &>"${log_redirects}"
   sudo rm -rf /opt/zapret
   sudo rm -rf /tmp/zapret
