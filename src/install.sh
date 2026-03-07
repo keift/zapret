@@ -783,6 +783,10 @@ if [[ "${installation_results}" = *$'could not start zapret service\n\npress ent
   exit 1
 fi
 
+init_zapret
+
+start_service zapret
+
 sudo sed -i "/^NFQWS_OPT=\"/,/^\"/c NFQWS_OPT=\"${nfqws_options} --hostlist=/opt/zapret/hostlist.txt --hostlist-auto=/opt/zapret/ipset/zapret-hostlist-auto.txt\"" /opt/zapret/config
 
 sudo touch /opt/zapret/hostlist.txt
@@ -809,8 +813,6 @@ roblox.com
 # Others
 EOF
 fi
-
-init_zapret
 
 restart_service zapret
 
