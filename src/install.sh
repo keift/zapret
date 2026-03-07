@@ -422,6 +422,7 @@ install_package net-firewall/nftables
 install_package unzip
 install_package app-arch/unzip
 install_package wget
+install_package wget-ssl
 install_package net-misc/wget
 
 # 2. Change DNS settings
@@ -566,6 +567,10 @@ else
 
   [ "$(uname)" = "FreeBSD" ] && dnscrypt_path="/usr/local/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
   [ "$(uname)" = "OpenBSD" ] && dnscrypt_path="/etc/dnscrypt-proxy.toml"
+
+  if command -v opkg &>/dev/null; then
+    dnscrypt_path="/opt/etc/dnscrypt-proxy.toml"
+  fi
 
   sudo mkdir -p "$(dirname "$dnscrypt_path")" /var/cache/dnscrypt-proxy
 
