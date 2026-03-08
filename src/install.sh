@@ -567,10 +567,7 @@ else
 
   [ "$(uname)" = "FreeBSD" ] && dnscrypt_path="/usr/local/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
   [ "$(uname)" = "OpenBSD" ] && dnscrypt_path="/etc/dnscrypt-proxy.toml"
-
-  if command -v opkg &>/dev/null; then
-    dnscrypt_path="/opt/etc/dnscrypt-proxy.toml"
-  fi
+  command -v opkg &>/dev/null && dnscrypt_path="/opt/etc/dnscrypt-proxy.toml"
 
   sudo mkdir -p "$(dirname "$dnscrypt_path")" /var/cache/dnscrypt-proxy
 
