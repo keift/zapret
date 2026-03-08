@@ -160,6 +160,14 @@ start_service() {
     sudo rcctl start "${service_name}" &>"${log_redirects}"
   elif command -v service &>/dev/null || [ -x /usr/sbin/service ] || [ -x /sbin/service ]; then
     sudo service "${service_name}" start &>"${log_redirects}"
+  elif [ -f /etc/openwrt_release ] || command -v procd &>/dev/null; then
+    sudo /etc/init.d/"${service_name}" start &>"${log_redirects}"
+  elif [ -d /opt/etc/init.d ] && command -v opkg &>/dev/null; then
+    local entware_script=$(ls /opt/etc/init.d/*"${service_name}" 2>/dev/null | head -n 1)
+
+    if [ -n "${entware_script}" ] && [ -x "${entware_script}" ]; then
+      sudo "${entware_script}" start &>"${log_redirects}"
+    fi
   else
     echo -e "  ${red}Error: Unsupported init system.${reset}"
     echo ""
@@ -181,6 +189,14 @@ stop_service() {
     sudo rcctl stop "${service_name}" &>"${log_redirects}"
   elif command -v service &>/dev/null || [ -x /usr/sbin/service ] || [ -x /sbin/service ]; then
     sudo service "${service_name}" stop &>"${log_redirects}"
+  elif [ -f /etc/openwrt_release ] || command -v procd &>/dev/null; then
+    sudo /etc/init.d/"${service_name}" stop &>"${log_redirects}"
+  elif [ -d /opt/etc/init.d ] && command -v opkg &>/dev/null; then
+    local entware_script=$(ls /opt/etc/init.d/*"${service_name}" 2>/dev/null | head -n 1)
+
+    if [ -n "${entware_script}" ] && [ -x "${entware_script}" ]; then
+      sudo "${entware_script}" stop &>"${log_redirects}"
+    fi
   else
     echo -e "  ${red}Error: Unsupported init system.${reset}"
     echo ""
@@ -202,6 +218,14 @@ restart_service() {
     sudo rcctl restart "${service_name}" &>"${log_redirects}"
   elif command -v service &>/dev/null || [ -x /usr/sbin/service ] || [ -x /sbin/service ]; then
     sudo service "${service_name}" restart &>"${log_redirects}"
+  elif [ -f /etc/openwrt_release ] || command -v procd &>/dev/null; then
+    sudo /etc/init.d/"${service_name}" restart &>"${log_redirects}"
+  elif [ -d /opt/etc/init.d ] && command -v opkg &>/dev/null; then
+    local entware_script=$(ls /opt/etc/init.d/*"${service_name}" 2>/dev/null | head -n 1)
+
+    if [ -n "${entware_script}" ] && [ -x "${entware_script}" ]; then
+      sudo "${entware_script}" restart &>"${log_redirects}"
+    fi
   else
     echo -e "  ${red}Error: Unsupported init system.${reset}"
     echo ""
@@ -234,6 +258,10 @@ enable_service() {
 
       exit 1
     fi
+  elif [ -f /etc/openwrt_release ] || command -v procd &>/dev/null; then
+    sudo /etc/init.d/"${service_name}" enable &>"${log_redirects}"
+  elif [ -d /opt/etc/init.d ] && command -v opkg &>/dev/null; then
+    :
   else
     echo -e "  ${red}Error: Unsupported init system.${reset}"
     echo ""
@@ -291,6 +319,27 @@ EOF
     enable_service zapret
   elif command -v service &>/dev/null || [ -x /usr/sbin/service ] || [ -x /sbin/service ]; then
     sudo ln -sf /opt/zapret/init.d/sysv/zapret /etc/init.d/zapret
+
+    enable_service zapret
+  elif [ -d /opt/etc/init.d ] && command -v opkg &>/dev/null; then
+    sudo tee /opt/etc/init.d/S90zapret &>/dev/null << 'EOF'
+#!/bin/sh
+
+if [ "${1}" = "start" ]; then
+  /opt/zapret/init.d/sysv/zapret start
+elif [ "${1}" = "stop" ]; then
+  /opt/zapret/init.d/sysv/zapret stop
+elif [ "${1}" = "restart" ]; then
+  /opt/zapret/init.d/sysv/zapret stop
+  /opt/zapret/init.d/sysv/zapret start
+else
+  echo "Usage: ${0} {start|stop|restart}"
+
+  exit 1
+fi
+EOF
+
+    sudo chmod +x /opt/etc/init.d/S90zapret
 
     enable_service zapret
   fi
@@ -771,7 +820,7 @@ else
   fi
 fi
 
-if [[ "${installation_results}" = *$'could not start zapret service\n\npress enter to continue'* ]]; then
+if [[ "${installation_results}" = *$"could not start zapret service"* ]]; then
   printf "\n" | sudo /opt/zapret/uninstall_easy.sh &>"${log_redirects}"
   sudo rm -rf /opt/zapret
   sudo rm -rf /tmp/zapret
@@ -785,7 +834,7 @@ if [[ "${installation_results}" = *$'could not start zapret service\n\npress ent
   exit 1
 fi
 
-init_zapret
+[[ "${installation_results}" = *"system is not either systemd"* ]] && init_zapret
 
 start_service zapret
 
