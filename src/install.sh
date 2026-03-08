@@ -564,8 +564,14 @@ netprobe_timeout = 60
 EOF
 
     restart_service dnscrypt-proxy
+    restart_service dnscrypt-proxy2
 
-    while ! dig -p 5300 +tries=1 +time=10 @127.0.0.1 &>/dev/null; do restart_service dnscrypt-proxy; sleep 1; done
+    while ! dig -p 5300 +tries=1 +time=10 @127.0.0.1 &>/dev/null; do
+      restart_service dnscrypt-proxy
+      restart_service dnscrypt-proxy2
+
+      sleep 1
+    done
 
     if [ "${strict}" = true ]; then
       sudo tee /etc/systemd/resolved.conf &>/dev/null << EOF
@@ -622,7 +628,15 @@ else
 
   sudo chattr -i /etc/resolv.conf &>"${log_redirects}"
 
-  sudo tee /etc/resolv.conf &>/dev/null << EOF
+  if [[ "$(ip route show default | awk "{print \$3}" | head -n 1)" = *"ppp"* ]]; then
+    sudo tee /etc/resolv.conf &>/dev/null << EOF
+nameserver 1.1.1.1
+nameserver 2606:4700:4700::1111
+nameserver 1.0.0.1
+nameserver 2606:4700:4700::1001
+EOF
+  else
+    sudo tee /etc/resolv.conf &>/dev/null << EOF
 nameserver $(ip route show default | awk "{print \$3}" | head -n 1)
 
 nameserver 1.1.1.1
@@ -630,6 +644,7 @@ nameserver 2606:4700:4700::1111
 nameserver 1.0.0.1
 nameserver 2606:4700:4700::1001
 EOF
+  fi
 
   if command -v pihole &>/dev/null || command -v pihole-FTL &>/dev/null; then
     dns_resolver="pihole"
@@ -650,8 +665,14 @@ netprobe_timeout = 60
 EOF
 
     restart_service dnscrypt-proxy
+    restart_service dnscrypt-proxy2
 
-    while ! dig -p 5300 +tries=1 +time=10 @127.0.0.1 &>/dev/null; do restart_service dnscrypt-proxy; sleep 1; done
+    while ! dig -p 5300 +tries=1 +time=10 @127.0.0.1 &>/dev/null; do
+      restart_service dnscrypt-proxy
+      restart_service dnscrypt-proxy2
+
+      sleep 1
+    done
 
     echo ""
     echo -e "  ${gray}It appears you are using ${red}Pi-hole${gray}.${reset}"
@@ -682,8 +703,14 @@ netprobe_timeout = 60
 EOF
 
     restart_service dnscrypt-proxy
+    restart_service dnscrypt-proxy2
 
-    while ! dig -p 53 +tries=1 +time=10 @127.0.0.1 &>/dev/null; do restart_service dnscrypt-proxy; sleep 1; done
+    while ! dig -p 53 +tries=1 +time=10 @127.0.0.1 &>/dev/null; do
+      restart_service dnscrypt-proxy
+      restart_service dnscrypt-proxy2
+
+      sleep 1
+    done
   fi
 
   sudo chattr -i /etc/resolv.conf &>"${log_redirects}"
