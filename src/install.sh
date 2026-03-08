@@ -570,7 +570,7 @@ EOF
       restart_service dnscrypt-proxy
       restart_service dnscrypt-proxy2
 
-      sleep 1
+      sleep 10
     done
 
     if [ "${strict}" = true ]; then
@@ -671,7 +671,7 @@ EOF
       restart_service dnscrypt-proxy
       restart_service dnscrypt-proxy2
 
-      sleep 1
+      sleep 10
     done
 
     echo ""
@@ -709,7 +709,7 @@ EOF
       restart_service dnscrypt-proxy
       restart_service dnscrypt-proxy2
 
-      sleep 1
+      sleep 10
     done
   fi
 
