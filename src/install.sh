@@ -188,14 +188,12 @@ start_service() {
     sudo rcctl start "${service_name}" &>"${log_redirects}"
   elif command -v service &>/dev/null || [ -x /usr/sbin/service ] || [ -x /sbin/service ]; then
     sudo service "${service_name}" start &>"${log_redirects}"
-  elif [ -f /etc/openwrt_release ] || command -v procd &>/dev/null; then
+  elif [ -d /etc/init.d ]; then
     sudo /etc/init.d/"${service_name}" start &>"${log_redirects}"
-  elif [ -d /opt/etc/init.d ] && command -v opkg &>/dev/null; then
+  elif [ -d /opt/etc/init.d ]; then
     local entware_script=$(ls /opt/etc/init.d/*"${service_name}" 2>/dev/null | head -n 1)
 
-    if [ -n "${entware_script}" ] && [ -x "${entware_script}" ]; then
-      sudo "${entware_script}" start &>"${log_redirects}"
-    fi
+    sudo "${entware_script}" start &>"${log_redirects}"
   else
     echo -e "  ${red}Error: Unsupported init system.${reset}"
     echo ""
@@ -217,14 +215,12 @@ stop_service() {
     sudo rcctl stop "${service_name}" &>"${log_redirects}"
   elif command -v service &>/dev/null || [ -x /usr/sbin/service ] || [ -x /sbin/service ]; then
     sudo service "${service_name}" stop &>"${log_redirects}"
-  elif [ -f /etc/openwrt_release ] || command -v procd &>/dev/null; then
+  elif [ -d /etc/init.d ]; then
     sudo /etc/init.d/"${service_name}" stop &>"${log_redirects}"
-  elif [ -d /opt/etc/init.d ] && command -v opkg &>/dev/null; then
+  elif [ -d /opt/etc/init.d ]; then
     local entware_script=$(ls /opt/etc/init.d/*"${service_name}" 2>/dev/null | head -n 1)
 
-    if [ -n "${entware_script}" ] && [ -x "${entware_script}" ]; then
-      sudo "${entware_script}" stop &>"${log_redirects}"
-    fi
+    sudo "${entware_script}" stop &>"${log_redirects}"
   else
     echo -e "  ${red}Error: Unsupported init system.${reset}"
     echo ""
@@ -246,14 +242,12 @@ restart_service() {
     sudo rcctl restart "${service_name}" &>"${log_redirects}"
   elif command -v service &>/dev/null || [ -x /usr/sbin/service ] || [ -x /sbin/service ]; then
     sudo service "${service_name}" restart &>"${log_redirects}"
-  elif [ -f /etc/openwrt_release ] || command -v procd &>/dev/null; then
+  elif [ -d /etc/init.d ]; then
     sudo /etc/init.d/"${service_name}" restart &>"${log_redirects}"
-  elif [ -d /opt/etc/init.d ] && command -v opkg &>/dev/null; then
+  elif [ -d /opt/etc/init.d ]; then
     local entware_script=$(ls /opt/etc/init.d/*"${service_name}" 2>/dev/null | head -n 1)
 
-    if [ -n "${entware_script}" ] && [ -x "${entware_script}" ]; then
-      sudo "${entware_script}" restart &>"${log_redirects}"
-    fi
+    sudo "${entware_script}" restart &>"${log_redirects}"
   else
     echo -e "  ${red}Error: Unsupported init system.${reset}"
     echo ""
@@ -286,10 +280,12 @@ enable_service() {
 
       exit 1
     fi
-  elif [ -f /etc/openwrt_release ] || command -v procd &>/dev/null; then
+  elif [ -d /etc/init.d ]; then
     sudo /etc/init.d/"${service_name}" enable &>"${log_redirects}"
-  elif [ -d /opt/etc/init.d ] && command -v opkg &>/dev/null; then
-    :
+  elif [ -d /opt/etc/init.d ]; then
+    local entware_script=$(ls /opt/etc/init.d/*"${service_name}" 2>/dev/null | head -n 1)
+
+    sudo "${entware_script}" enable &>"${log_redirects}"
   else
     echo -e "  ${red}Error: Unsupported init system.${reset}"
     echo ""
@@ -349,7 +345,11 @@ EOF
     sudo ln -sf /opt/zapret/init.d/sysv/zapret /etc/init.d/zapret
 
     enable_service zapret
-  elif [ -d /opt/etc/init.d ] && command -v opkg &>/dev/null; then
+  elif [ -d /etc/init.d ]; then
+    sudo ln -sf /opt/zapret/init.d/sysv/zapret /etc/init.d/zapret
+
+    enable_service zapret
+  elif [ -d /opt/etc/init.d ]; then
     sudo tee /opt/etc/init.d/S90zapret &>/dev/null << 'EOF'
 #!/bin/sh
 
@@ -648,7 +648,7 @@ else
 
   sudo chattr -i /etc/resolv.conf &>"${log_redirects}"
 
-  if [[ "$(ip route show default | awk "{print \$3}" | head -n 1)" = *"ppp"* ]]; then
+  if ip route show default | awk "{print \$3}" | head -n 1 | grep -q "ppp"; then
     sudo tee /etc/resolv.conf &>/dev/null << EOF
 nameserver 1.1.1.1
 nameserver 2606:4700:4700::1111
@@ -745,7 +745,7 @@ EOF
 
   sudo chattr -i /etc/resolv.conf &>"${log_redirects}"
 
-  if [[ "$(ip route show default | awk "{print \$3}" | head -n 1)" = *"ppp"* ]]; then
+  if ip route show default | awk "{print \$3}" | head -n 1 | grep -q "ppp"; then
     sudo tee /etc/resolv.conf &>/dev/null << EOF
 nameserver 127.0.0.1
 nameserver ::1
@@ -842,12 +842,12 @@ for domain in "${blockcheck_domains[@]}"; do
   fi
 done
 
-while [[ $# -gt 0 ]]; do
-  if [[ "${1}" = "--blockcheck-domain="* ]]; then
+while [ $# -gt 0 ]; do
+  if echo "${1}" | grep -q "^--blockcheck-domain="; then
     blockcheck_domain="${1#*=}"
 
     shift
-  elif [[ "${1}" = "--blockcheck-domain" ]]; then
+  elif [ "${1}" = "--blockcheck-domain" ]; then
     blockcheck_domain="${2}"
 
     shift 2
@@ -912,7 +912,7 @@ else
   fi
 fi
 
-if [[ "${installation_results}" = *"could not start zapret service"* ]]; then
+if echo "$installation_results" | grep -q "could not start zapret service"; then
   printf "Y\n\n" | sudo /opt/zapret/uninstall_easy.sh &>"${log_redirects}"
   sudo rm -rf /opt/zapret
   sudo rm -rf /tmp/zapret
@@ -932,7 +932,7 @@ if [[ "${installation_results}" = *"could not start zapret service"* ]]; then
   exit 1
 fi
 
-[[ "${installation_results}" = *"system is not either systemd"* ]] && init_zapret
+echo "$installation_results" | grep -q "system is not either systemd" && init_zapret
 
 start_service zapret
 
