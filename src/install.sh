@@ -897,8 +897,9 @@ else
   echo -e "  ${gray}Installing Zapret...${reset}"
 fi
 
-if command -v systemctl &>/dev/null \
-  || command -v rc-service &>/dev/null; then
+prototype_installation_results=$(sudo /tmp/zapret/install_easy.sh 2>"${log_redirects}")
+
+if echo "${prototype_installation_results}" | grep -q "system is not either systemd"; then
   if sudo test -w /bin; then
     installation_results=$(printf "Y\n\n\n\n\n\n\nY\n\n\n\n\n" | sudo /tmp/zapret/install_easy.sh 2>"${log_redirects}")
   else
@@ -912,7 +913,7 @@ else
   fi
 fi
 
-if echo "$installation_results" | grep -q "could not start zapret service"; then
+if echo "${installation_results}" | grep -q "could not start zapret service"; then
   printf "Y\n\n" | sudo /opt/zapret/uninstall_easy.sh &>"${log_redirects}"
   sudo rm -rf /opt/zapret
   sudo rm -rf /tmp/zapret
@@ -932,7 +933,7 @@ if echo "$installation_results" | grep -q "could not start zapret service"; then
   exit 1
 fi
 
-echo "$installation_results" | grep -q "system is not either systemd" && init_zapret
+echo "${installation_results}" | grep -q "system is not either systemd" && init_zapret
 
 start_service zapret
 
