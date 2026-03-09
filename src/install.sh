@@ -41,6 +41,10 @@ gray="\e[90m"
 
 zapret_version="72.10"
 
+country_code=$(curl --max-time 10 -s https://ipinfo.io/country)
+
+clear
+
 send_metrics() {
   echo ""
   if [ "${country_code}" = "RU" ]; then
@@ -467,10 +471,6 @@ update_packages() {
     exit 1
   fi
 }
-
-country_code=$(curl --max-time 10 -s https://ipinfo.io/country)
-
-clear
 
 echo ""
 if [ "${country_code}" = "RU" ]; then
