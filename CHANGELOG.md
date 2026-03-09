@@ -3,6 +3,7 @@
 ## v1.1 → v1.2
 
 - Added:
+  - **Russian and Turkish language support.** Added localization for Russian and Turkish users.
   - **Atomic systems support.** Respect for atomic systems.
   - **Runit init support.** Respect for Runit init.
   - **OpenRC init support.** Respect for OpenRC init.
