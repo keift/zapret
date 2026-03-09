@@ -897,18 +897,19 @@ else
   echo -e "  ${gray}Installing Zapret...${reset}"
 fi
 
-if command -v systemctl &>/dev/null \
-  || command -v rc-service &>/dev/null; then
-  if sudo test -w /bin; then
-    installation_results=$(printf "Y\n\n\n\n\n\n\nY\n\n\n\n\n" | sudo /tmp/zapret/install_easy.sh 2>"${log_redirects}")
-  else
-    installation_results=$(printf "Y\nY\nY\n\n\n\n\n\n\nY\n\n\n\n\n" | sudo /tmp/zapret/install_easy.sh 2>"${log_redirects}")
-  fi
-else
+prototype_installation_results=$(printf "\n\n" | sudo /tmp/zapret/install_easy.sh 2>"${log_redirects}")
+
+if echo "${prototype_installation_results}" | grep -q "system is not either systemd"; then
   if sudo test -w /bin; then
     installation_results=$(printf "Y\nY\nY\n\n\n\n\n\n\nY\n\n\n\n\n" | sudo /tmp/zapret/install_easy.sh 2>"${log_redirects}")
   else
     installation_results=$(printf "Y\nY\nY\nY\nY\n\n\n\n\n\n\nY\n\n\n\n\n" | sudo /tmp/zapret/install_easy.sh 2>"${log_redirects}")
+  fi
+else
+  if sudo test -w /bin; then
+    installation_results=$(printf "Y\n\n\n\n\n\n\nY\n\n\n\n\n" | sudo /tmp/zapret/install_easy.sh 2>"${log_redirects}")
+  else
+    installation_results=$(printf "Y\nY\nY\n\n\n\n\n\n\nY\n\n\n\n\n" | sudo /tmp/zapret/install_easy.sh 2>"${log_redirects}")
   fi
 fi
 
