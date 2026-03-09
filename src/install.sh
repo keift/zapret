@@ -2,14 +2,12 @@
 
 sudo -v
 
-strict=false
 dnscrypt=false
 clean=false
 dev=false
 debug=false
 
 for arg in "${@}"; do
-  [ "${arg}" = "--strict" ] && strict=true
   [ "${arg}" = "--dnscrypt" ] && dnscrypt=true
   [ "${arg}" = "--clean" ] && clean=true
   [ "${arg}" = "--dev" ] && dev=true
@@ -45,8 +43,16 @@ zapret_version="72.10"
 
 send_metrics() {
   echo ""
-  echo -e "  ${gray}Would you like to share the results with ${blue}Keift${gray}?${reset}"
-  echo -ne "  ${gray}This helps us improve this tool. [${green}Y${gray}/${red}N${gray}] ${reset}"
+  if [ "${country_code}" = "RU" ]; then
+    echo -e "  ${gray}Вы хотите поделиться результатами с ${blue}Keift${gray}?${reset}"
+    echo -ne "  ${gray}Это поможет нам улучшить этот инструмент. [${green}Y${gray}/${red}N${gray}] ${reset}"
+  elif [ "${country_code}" = "TR" ]; then
+    echo -e "  ${gray}Sonuçları ${blue}Keift${gray} ile paylaşmak ister misiniz?${reset}"
+    echo -ne "  ${gray}Bu, aracı geliştirmemize yardımcı olur. [${green}Y${gray}/${red}N${gray}] ${reset}"
+  else
+    echo -e "  ${gray}Would you like to share the results with ${blue}Keift${gray}?${reset}"
+    echo -ne "  ${gray}This helps us improve this tool. [${green}Y${gray}/${red}N${gray}] ${reset}"
+  fi
 
   if [ -t 0 ]; then
     read metrics_answer
@@ -56,7 +62,13 @@ send_metrics() {
 
   if [ "${metrics_answer,,}" = "y" ]; then
     echo ""
-    echo -e "  ${gray}Thank you for your feedback.${reset}"
+    if [ "${country_code}" = "RU" ]; then
+      echo -e "  ${gray}Спасибо за ваш отзыв.${reset}"
+    elif [ "${country_code}" = "TR" ]; then
+      echo -e "  ${gray}Geri bildiriminiz için teşekkürler.${reset}"
+    else
+      echo -e "  ${gray}Thank you for your feedback.${reset}"
+    fi
 
     local event="${1}"
     local unix_name=$(uname -a)
@@ -138,10 +150,22 @@ send_metrics() {
       -d "${payload}" &>"${log_redirects}"
   else
     echo ""
-    echo -e "  ${gray}That's okay, nothing was shared.${reset}"
+    if [ "${country_code}" = "RU" ]; then
+      echo -e "  ${gray}Всё в порядке, ничего не было отправлено.${reset}"
+    elif [ "${country_code}" = "TR" ]; then
+      echo -e "  ${gray}Sorun değil, hiçbir şey paylaşılmadı.${reset}"
+    else
+      echo -e "  ${gray}That's okay, nothing was shared.${reset}"
+    fi
   fi
 
-  echo -e "  ${gray}Need help? Contact us.${reset}"
+  if [ "${country_code}" = "RU" ]; then
+    echo -e "  ${gray}Нужна помощь? Свяжитесь с нами.${reset}"
+  elif [ "${country_code}" = "TR" ]; then
+    echo -e "  ${gray}Yardıma mı ihtiyacınız var? Bizimle iletişime geçin.${reset}"
+  else
+    echo -e "  ${gray}Need help? Contact us.${reset}"
+  fi
   echo ""
   echo -e "  ${blue}Discord   ${white}https://discord.gg/keift${reset}"
   echo -e "  ${cyan}Telegram  ${white}https://t.me/keiftco${reset}"
@@ -444,15 +468,29 @@ update_packages() {
   fi
 }
 
+country_code=$(curl --max-time 10 -s https://ipinfo.io/country)
+
 clear
 
 echo ""
-echo -e "  ${blue}Keift ${cyan}Install Zapret${reset}"
+if [ "${country_code}" = "RU" ]; then
+  echo -e "  ${blue}Keift ${cyan}Установить Zapret${reset}"
+elif [ "${country_code}" = "TR" ]; then
+  echo -e "  ${blue}Keift ${cyan}Zapret Kurulumu${reset}"
+else
+  echo -e "  ${blue}Keift ${cyan}Install Zapret${reset}"
+fi
 echo ""
 
 # 1. Install dependencies
 
-echo -e "  ${gray}Installing dependencies...${reset}"
+if [ "${country_code}" = "RU" ]; then
+  echo -e "  ${gray}Установка зависимостей...${reset}"
+elif [ "${country_code}" = "TR" ]; then
+  echo -e "  ${gray}Bağımlılıklar yükleniyor...${reset}"
+else
+  echo -e "  ${gray}Installing dependencies...${reset}"
+fi
 
 update_packages
 
@@ -476,7 +514,13 @@ install_package net-misc/wget
 
 # 2. Change DNS settings
 
-echo -e "  ${gray}DNS settings are being changed...${reset}"
+if [ "${country_code}" = "RU" ]; then
+  echo -e "  ${gray}Настройки DNS изменяются...${reset}"
+elif [ "${country_code}" = "TR" ]; then
+  echo -e "  ${gray}DNS ayarları değiştiriliyor...${reset}"
+else
+  echo -e "  ${gray}DNS settings are being changed...${reset}"
+fi
 
 if command -v systemctl &>/dev/null && ! command -v pihole &>/dev/null && ! command -v pihole-FTL &>/dev/null; then
   if [ "${dnscrypt}" = false ] \
@@ -496,19 +540,7 @@ if command -v systemctl &>/dev/null && ! command -v pihole &>/dev/null && ! comm
     enable_service systemd-resolved
     start_service systemd-resolved
 
-    if [ "${strict}" = true ]; then
-      sudo tee /etc/systemd/resolved.conf &>/dev/null << EOF
-[Resolve]
-DNS=1.1.1.1#one.one.one.one
-DNS=2606:4700:4700::1111#one.one.one.one
-DNS=1.0.0.1#one.one.one.one
-DNS=2606:4700:4700::1001#one.one.one.one
-
-Domains=~.
-DNSOverTLS=yes
-EOF
-    else
-      sudo tee /etc/systemd/resolved.conf &>/dev/null << EOF
+    sudo tee /etc/systemd/resolved.conf &>/dev/null << EOF
 [Resolve]
 DNS=1.1.1.1#one.one.one.one
 DNS=2606:4700:4700::1111#one.one.one.one
@@ -517,7 +549,6 @@ DNS=2606:4700:4700::1001#one.one.one.one
 
 DNSOverTLS=yes
 EOF
-    fi
 
     sudo chattr -i /etc/resolv.conf &>"${log_redirects}"
 
@@ -573,17 +604,7 @@ EOF
       sleep 10
     done
 
-    if [ "${strict}" = true ]; then
-      sudo tee /etc/systemd/resolved.conf &>/dev/null << EOF
-[Resolve]
-DNS=127.0.0.1:5300
-DNS=[::1]:5300
-
-Domains=~.
-DNSOverTLS=no
-EOF
-    else
-      sudo tee /etc/systemd/resolved.conf &>/dev/null << EOF
+    sudo tee /etc/systemd/resolved.conf &>/dev/null << EOF
 [Resolve]
 DNS=127.0.0.1:5300
 DNS=[::1]:5300
@@ -598,7 +619,6 @@ DNS=2606:4700:4700::1001
 Domains=~.
 DNSOverTLS=no
 EOF
-    fi
 
     sudo chattr -i /etc/resolv.conf &>"${log_redirects}"
 
@@ -675,9 +695,19 @@ EOF
     done
 
     echo ""
-    echo -e "  ${gray}It appears you are using ${red}Pi-hole${gray}.${reset}"
-    echo -e "  ${gray}Change the ${green}Custom DNS ${gray}option in the Pi-hole to: ${white}127.0.0.1#5300${reset}"
-    echo -ne "  ${gray}Press ${blue}[ENTER] ${gray}after you have made this change to continue...${reset}"
+    if [ "${country_code}" = "RU" ]; then
+      echo -e "  ${gray}Похоже, вы используете ${red}Pi-hole${gray}.${reset}"
+      echo -e "  ${gray}Измените параметр ${green}Custom DNS ${gray}в Pi-hole на: ${white}127.0.0.1#5300${reset}"
+      echo -ne "  ${gray}Нажмите ${blue}[ENTER] ${gray}после внесения этого изменения, чтобы продолжить...${reset}"
+    elif [ "${country_code}" = "TR" ]; then
+      echo -e "  ${gray}Görünüşe göre ${red}Pi-hole${gray} kullanıyorsunuz.${reset}"
+      echo -e "  ${gray}Pi-hole'daki ${green}Custom DNS ${gray}seçeneğini şuna değiştirin: ${white}127.0.0.1#5300${reset}"
+      echo -ne "  ${gray}Devam etmek için bu değişikliği yaptıktan sonra ${blue}[ENTER] ${gray}tuşuna basın...${reset}"
+    else
+      echo -e "  ${gray}It appears you are using ${red}Pi-hole${gray}.${reset}"
+      echo -e "  ${gray}Change the ${green}Custom DNS ${gray}option in the Pi-hole to: ${white}127.0.0.1#5300${reset}"
+      echo -ne "  ${gray}Press ${blue}[ENTER] ${gray}after you have made this change to continue...${reset}"
+    fi
 
     if [ -t 0 ]; then
       read -r
@@ -715,14 +745,8 @@ EOF
 
   sudo chattr -i /etc/resolv.conf &>"${log_redirects}"
 
-  if [ "${strict}" = true ]; then
-   sudo tee /etc/resolv.conf &>/dev/null << EOF
-nameserver 127.0.0.1
-nameserver ::1
-EOF
-  else
-    if [[ "$(ip route show default | awk "{print \$3}" | head -n 1)" = *"ppp"* ]]; then
-      sudo tee /etc/resolv.conf &>/dev/null << EOF
+  if [[ "$(ip route show default | awk "{print \$3}" | head -n 1)" = *"ppp"* ]]; then
+    sudo tee /etc/resolv.conf &>/dev/null << EOF
 nameserver 127.0.0.1
 nameserver ::1
 
@@ -731,8 +755,8 @@ nameserver 2606:4700:4700::1111
 nameserver 1.0.0.1
 nameserver 2606:4700:4700::1001
 EOF
-    else
-      sudo tee /etc/resolv.conf &>/dev/null << EOF
+  else
+    sudo tee /etc/resolv.conf &>/dev/null << EOF
 nameserver 127.0.0.1
 nameserver ::1
 
@@ -743,7 +767,6 @@ nameserver 2606:4700:4700::1111
 nameserver 1.0.0.1
 nameserver 2606:4700:4700::1001
 EOF
-    fi
   fi
 
   sudo chattr +i /etc/resolv.conf &>"${log_redirects}"
@@ -751,7 +774,13 @@ fi
 
 # 3. Download Zapret
 
-echo -e "  ${gray}Downloading Zapret...${reset}"
+if [ "${country_code}" = "RU" ]; then
+  echo -e "  ${gray}Скачивание Zapret...${reset}"
+elif [ "${country_code}" = "TR" ]; then
+  echo -e "  ${gray}Zapret indiriliyor...${reset}"
+else
+  echo -e "  ${gray}Downloading Zapret...${reset}"
+fi
 
 sudo rm -rf /tmp/zapret
 sudo rm -rf /tmp/zapret.zip
@@ -766,9 +795,15 @@ sudo rm -rf /tmp/zapret.zip
 
 # 4. Prepare for installation
 
-echo -e "  ${gray}Preparing for installation...${reset}"
+if [ "${country_code}" = "RU" ]; then
+  echo -e "  ${gray}Подготовка к установке...${reset}"
+elif [ "${country_code}" = "TR" ]; then
+  echo -e "  ${gray}Kuruluma hazırlanıyor...${reset}"
+else
+  echo -e "  ${gray}Preparing for installation...${reset}"
+fi
 
-printf "\n" | sudo /opt/zapret/uninstall_easy.sh &>"${log_redirects}"
+printf "Y\n\n" | sudo /opt/zapret/uninstall_easy.sh &>"${log_redirects}"
 sudo rm -rf /opt/zapret
 
 printf "\n\n" | sudo /tmp/zapret/install_prereq.sh &>"${log_redirects}"
@@ -776,7 +811,13 @@ sudo /tmp/zapret/install_bin.sh &>"${log_redirects}"
 
 # 5. Do Blockcheck
 
-echo -e "  ${gray}Blockcheck is being performed, this may take a few minutes...${reset}"
+if [ "${country_code}" = "RU" ]; then
+  echo -e "  ${gray}Выполняется Blockcheck, это может занять несколько минут...${reset}"
+elif [ "${country_code}" = "TR" ]; then
+  echo -e "  ${gray}Blockcheck yapılıyor, bu birkaç dakika sürebilir...${reset}"
+else
+  echo -e "  ${gray}Blockcheck is being performed, this may take a few minutes...${reset}"
+fi
 
 blockcheck_domains=(
   "discord.com"
@@ -827,11 +868,17 @@ fi
 
 if echo "${blockcheck_results}" | grep -q "curl_test_http ipv4 ${blockcheck_domain} : working without bypass" \
   && echo "${blockcheck_results}" | grep -q "curl_test_https_tls12 ipv4 ${blockcheck_domain} : working without bypass"; then
-  printf "\n" | sudo /opt/zapret/uninstall_easy.sh &>"${log_redirects}"
+  printf "Y\n\n" | sudo /opt/zapret/uninstall_easy.sh &>"${log_redirects}"
   sudo rm -rf /opt/zapret
   sudo rm -rf /tmp/zapret
 
-  echo -e "  ${gray}No access restrictions were detected.${reset}"
+  if [ "${country_code}" = "RU" ]; then
+    echo -e "  ${gray}Ограничений доступа не обнаружено.${reset}"
+  elif [ "${country_code}" = "TR" ]; then
+    echo -e "  ${gray}Erişim kısıtlaması tespit edilmedi.${reset}"
+  else
+    echo -e "  ${gray}No access restrictions were detected.${reset}"
+  fi
 
   send_metrics ZAPRET_NO_ACCESS_RESTRICTIONS_WERE_DETECTED
 
@@ -842,7 +889,13 @@ fi
 
 # 6. Install Zapret
 
-echo -e "  ${gray}Installing Zapret...${reset}"
+if [ "${country_code}" = "RU" ]; then
+  echo -e "  ${gray}Установка Zapret...${reset}"
+elif [ "${country_code}" = "TR" ]; then
+  echo -e "  ${gray}Zapret kuruluyor...${reset}"
+else
+  echo -e "  ${gray}Installing Zapret...${reset}"
+fi
 
 if command -v systemctl &>/dev/null \
   || command -v rc-service &>/dev/null; then
@@ -860,11 +913,17 @@ else
 fi
 
 if [[ "${installation_results}" = *"could not start zapret service"* ]]; then
-  printf "\n" | sudo /opt/zapret/uninstall_easy.sh &>"${log_redirects}"
+  printf "Y\n\n" | sudo /opt/zapret/uninstall_easy.sh &>"${log_redirects}"
   sudo rm -rf /opt/zapret
   sudo rm -rf /tmp/zapret
 
-  echo -e "  ${red}Something went wrong. Please contact us.${reset}"
+  if [ "${country_code}" = "RU" ]; then
+    echo -e "  ${red}Что-то пошло не так. Пожалуйста, свяжитесь с нами.${reset}"
+  elif [ "${country_code}" = "TR" ]; then
+    echo -e "  ${red}Bir şeyler ters gitti. Lütfen bizimle iletişime geçin.${reset}"
+  else
+    echo -e "  ${red}Something went wrong. Please contact us.${reset}"
+  fi
 
   send_metrics ZAPRET_SOMETHING_WENT_WRONG
 
@@ -915,7 +974,13 @@ done
 
 # 7. Finish the installation
 
-echo -e "  ${gray}Zapret was successfully installed.${reset}"
+if [ "${country_code}" = "RU" ]; then
+  echo -e "  ${gray}Zapret успешно установлен.${reset}"
+elif [ "${country_code}" = "TR" ]; then
+  echo -e "  ${gray}Zapret başarıyla kuruldu.${reset}"
+else
+  echo -e "  ${gray}Zapret was successfully installed.${reset}"
+fi
 
 sudo rm -rf /tmp/zapret
 

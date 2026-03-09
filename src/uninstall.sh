@@ -49,7 +49,7 @@ fi
 
 echo -e "  ${gray}Uninstalling Zapret...${reset}"
 
-printf "\n" | sudo /opt/zapret/uninstall_easy.sh &>"${log_redirects}"
+printf "Y\n\n" | sudo /opt/zapret/uninstall_easy.sh &>"${log_redirects}"
 
 sudo rm -rf /opt/zapret
 
