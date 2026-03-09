@@ -15,7 +15,7 @@ for arg in "${@}"; do
 done
 
 parameters="${*}"
-log_redirects="/dev/null"
+log_redirects="/dev/stdout"
 
 [ "${debug}" = true ] && log_redirects="/dev/stdout"
 
