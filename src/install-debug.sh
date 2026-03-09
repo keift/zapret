@@ -15,9 +15,9 @@ for arg in "${@}"; do
 done
 
 parameters="${*}"
-log_redirects="/dev/stdout"
+log_redirects="/dev/null"
 
-[ "${debug}" = true ] && log_redirects="/dev/stdout"
+[ "${debug}" = true ] && log_redirects="/tmp/zapret.log"
 
 reset="\e[0m"
 bold="\x1b[1m"
