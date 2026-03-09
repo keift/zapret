@@ -647,9 +647,12 @@ else
 
   update_packages
 
-  install_package dnscrypt-proxy
-  install_package dnscrypt-proxy2
-  install_package net-dns/dnscrypt-proxy
+  if command -v opkg &>/dev/null; then
+    install_package dnscrypt-proxy2
+  else
+    install_package dnscrypt-proxy
+    install_package net-dns/dnscrypt-proxy
+  fi
 
   enable_service dnscrypt-proxy
   start_service dnscrypt-proxy
