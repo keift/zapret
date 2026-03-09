@@ -897,8 +897,6 @@ else
   echo -e "  ${gray}Installing Zapret...${reset}"
 fi
 
-prototype_installation_results=$(sudo /tmp/zapret/install_easy.sh 2>"${log_redirects}")
-
 if command -v systemctl &>/dev/null \
   || command -v rc-service &>/dev/null; then
   if sudo test -w /bin; then
