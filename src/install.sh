@@ -504,6 +504,7 @@ install_package curl
 install_package net-misc/curl
 install_package jq
 install_package app-misc/jq
+install_package iptables
 install_package nftables
 install_package net-firewall/nftables
 install_package unzip
