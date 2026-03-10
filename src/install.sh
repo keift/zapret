@@ -499,20 +499,13 @@ install_package bind920
 install_package bind-utils
 install_package bind-tools
 install_package bind
-install_package net-dns/bind-tools
 install_package curl
-install_package net-misc/curl
 install_package jq
-install_package app-misc/jq
 install_package iptables
-install_package net-firewall/iptables
 install_package nftables
-install_package net-firewall/nftables
 install_package unzip
-install_package app-arch/unzip
 install_package wget
 install_package wget-ssl
-install_package net-misc/wget
 
 # 2. Change DNS settings
 
@@ -537,10 +530,6 @@ if command -v systemctl &>/dev/null && ! command -v pihole &>/dev/null && ! comm
     install_package systemd-resolved
     remove_package dnscrypt-proxy
     remove_package dnscrypt-proxy2
-    remove_package dns/dnscrypt-proxy
-    remove_package dns/dnscrypt-proxy2
-    remove_package net-dns/dnscrypt-proxy
-    remove_package net-dns/dnscrypt-proxy2
 
     enable_service systemd-resolved
     start_service systemd-resolved
@@ -567,12 +556,8 @@ EOF
 
     if command -v pkg &>/dev/null || command -v opkg &>/dev/null; then
       install_package dnscrypt-proxy2
-      install_package dns/dnscrypt-proxy2
-      install_package net-dns/dnscrypt-proxy2
     else
       install_package dnscrypt-proxy
-      install_package dns/dnscrypt-proxy
-      install_package net-dns/dnscrypt-proxy
     fi
 
     enable_service systemd-resolved
@@ -669,12 +654,8 @@ else
 
   if command -v pkg &>/dev/null || command -v opkg &>/dev/null; then
     install_package dnscrypt-proxy2
-    install_package dns/dnscrypt-proxy2
-    install_package net-dns/dnscrypt-proxy2
   else
     install_package dnscrypt-proxy
-    install_package dns/dnscrypt-proxy
-    install_package net-dns/dnscrypt-proxy
   fi
 
   enable_service dnscrypt-proxy
