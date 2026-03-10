@@ -825,12 +825,7 @@ fi
 printf "Y\n\n" | sudo /opt/zapret/uninstall_easy.sh &>"${log_redirects}"
 sudo rm -rf /opt/zapret
 
-prototype_install_prereq=$(printf "\n\n" | sudo /tmp/zapret/install_prereq.sh 2>"${log_redirects}")
-
-if echo "${prototype_install_prereq}" | grep -q "default : unsupported"; then
-  printf "1\n\n" | sudo /tmp/zapret/install_prereq.sh &>"${log_redirects}"
-fi
-
+printf "\n\n" | sudo /tmp/zapret/install_prereq.sh 2>"${log_redirects}"
 sudo /tmp/zapret/install_bin.sh &>"${log_redirects}"
 
 # 5. Do Blockcheck
