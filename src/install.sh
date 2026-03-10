@@ -505,7 +505,6 @@ install_package net-misc/curl
 install_package jq
 install_package app-misc/jq
 install_package nftables
-install_package kmod-nft-core
 install_package net-firewall/nftables
 install_package unzip
 install_package app-arch/unzip
@@ -826,7 +825,7 @@ fi
 printf "Y\n\n" | sudo /opt/zapret/uninstall_easy.sh &>"${log_redirects}"
 sudo rm -rf /opt/zapret
 
-printf "\n\n" | sudo /tmp/zapret/install_prereq.sh &>"${log_redirects}"
+printf "2\n\n" | sudo /tmp/zapret/install_prereq.sh &>"${log_redirects}"
 sudo /tmp/zapret/install_bin.sh &>"${log_redirects}"
 
 # 5. Do Blockcheck
