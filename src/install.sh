@@ -536,7 +536,10 @@ if command -v systemctl &>/dev/null && ! command -v pihole &>/dev/null && ! comm
     install_package systemd-resolved
     remove_package dnscrypt-proxy
     remove_package dnscrypt-proxy2
+    remove_package dns/dnscrypt-proxy
+    remove_package dns/dnscrypt-proxy2
     remove_package net-dns/dnscrypt-proxy
+    remove_package net-dns/dnscrypt-proxy2
 
     enable_service systemd-resolved
     start_service systemd-resolved
@@ -561,16 +564,31 @@ EOF
 
     update_packages
 
-    install_package systemd-resolved
-    install_package dnscrypt-proxy
-    install_package dnscrypt-proxy2
-    install_package net-dns/dnscrypt-proxy
+    if command -v pkg &>/dev/null || command -v opkg &>/dev/null; then
+      install_package dnscrypt-proxy2
+      install_package dns/dnscrypt-proxy2
+      install_package net-dns/dnscrypt-proxy2
+    else
+      install_package dnscrypt-proxy
+      install_package dns/dnscrypt-proxy
+      install_package net-dns/dnscrypt-proxy
+    fi
 
     enable_service systemd-resolved
     start_service systemd-resolved
 
     enable_service dnscrypt-proxy
+    enable_service dnscrypt-proxy2
     start_service dnscrypt-proxy
+    start_service dnscrypt-proxy2
+
+    dnscrypt_path="/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
+
+    [ "$(uname)" = "FreeBSD" ] && dnscrypt_path="/usr/local/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
+    [ "$(uname)" = "OpenBSD" ] && dnscrypt_path="/etc/dnscrypt-proxy.toml"
+    command -v opkg &>/dev/null && dnscrypt_path="/opt/etc/dnscrypt-proxy.toml"
+
+    sudo mkdir -p "$(dirname "${dnscrypt_path}")" /var/cache/dnscrypt-proxy
 
     sudo chattr -i /etc/resolv.conf &>"${log_redirects}"
 
@@ -580,7 +598,7 @@ EOF
 
     restart_service systemd-resolved
 
-    sudo tee /etc/dnscrypt-proxy/dnscrypt-proxy.toml &>/dev/null << EOF
+    sudo tee "${dnscrypt_path}" &>/dev/null << EOF
 listen_addresses = ["127.0.0.1:5300", "[::1]:5300"]
 
 server_names = ["cloudflare", "cloudflare-ipv6"]
@@ -648,15 +666,20 @@ else
 
   update_packages
 
-  if command -v opkg &>/dev/null; then
+  if command -v pkg &>/dev/null || command -v opkg &>/dev/null; then
     install_package dnscrypt-proxy2
+    install_package dns/dnscrypt-proxy2
+    install_package net-dns/dnscrypt-proxy2
   else
     install_package dnscrypt-proxy
+    install_package dns/dnscrypt-proxy
     install_package net-dns/dnscrypt-proxy
   fi
 
   enable_service dnscrypt-proxy
+  enable_service dnscrypt-proxy2
   start_service dnscrypt-proxy
+  start_service dnscrypt-proxy2
 
   dnscrypt_path="/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
 
@@ -664,7 +687,7 @@ else
   [ "$(uname)" = "OpenBSD" ] && dnscrypt_path="/etc/dnscrypt-proxy.toml"
   command -v opkg &>/dev/null && dnscrypt_path="/opt/etc/dnscrypt-proxy.toml"
 
-  sudo mkdir -p "$(dirname "$dnscrypt_path")" /var/cache/dnscrypt-proxy
+  sudo mkdir -p "$(dirname "${dnscrypt_path}")" /var/cache/dnscrypt-proxy
 
   sudo chattr -i /etc/resolv.conf &>"${log_redirects}"
 
@@ -920,7 +943,11 @@ fi
 prototype_installation_results=$(printf "\n\n" | sudo /tmp/zapret/install_easy.sh 2>"${log_redirects}")
 
 if echo "${prototype_installation_results}" | grep -q "system is not either systemd"; then
-  installation_results=$(printf "Y\nY\nY\n\n\n\n\n\n\nY\n\n\n\n\n" | sudo /tmp/zapret/install_easy.sh 2>"${log_redirects}")
+  if sudo test -w /bin; then
+    installation_results=$(printf "Y\nY\nY\n\n\n\n\n\n\nY\n\n\n\n\n" | sudo /tmp/zapret/install_easy.sh 2>"${log_redirects}")
+  else
+    installation_results=$(printf "Y\nY\nY\nY\nY\n\n\n\n\n\n\nY\n\n\n\n\n" | sudo /tmp/zapret/install_easy.sh 2>"${log_redirects}")
+  fi
 else
   if sudo test -w /bin; then
     installation_results=$(printf "Y\n\n\n\n\n\n\nY\n\n\n\n\n" | sudo /tmp/zapret/install_easy.sh 2>"${log_redirects}")
