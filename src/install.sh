@@ -587,8 +587,6 @@ EOF
     sudo tee "${dnscrypt_path}" &>/dev/null << EOF
 listen_addresses = ["127.0.0.1:5300", "[::1]:5300"]
 
-server_names = ["cloudflare", "cloudflare-ipv6"]
-
 netprobe_address = "1.1.1.1:53"
 netprobe_timeout = 60
 
@@ -697,8 +695,6 @@ EOF
     sudo tee "${dnscrypt_path}" &>/dev/null << EOF
 listen_addresses = ["127.0.0.1:5300", "[::1]:5300"]
 
-server_names = ["cloudflare", "cloudflare-ipv6"]
-
 netprobe_address = "1.1.1.1:53"
 netprobe_timeout = 60
 
@@ -744,8 +740,6 @@ EOF
   else
     sudo tee "${dnscrypt_path}" &>/dev/null << EOF
 listen_addresses = ["127.0.0.1:53", "[::1]:53"]
-
-server_names = ["cloudflare", "cloudflare-ipv6"]
 
 netprobe_address = "1.1.1.1:53"
 netprobe_timeout = 60
