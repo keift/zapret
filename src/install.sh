@@ -825,7 +825,7 @@ fi
 printf "Y\n\n" | sudo /opt/zapret/uninstall_easy.sh &>"${log_redirects}"
 sudo rm -rf /opt/zapret
 
-printf "\n\n" | sudo /tmp/zapret/install_prereq.sh 2>"${log_redirects}"
+printf "\n\n" | sudo /tmp/zapret/install_prereq.sh &>"${log_redirects}"
 sudo /tmp/zapret/install_bin.sh &>"${log_redirects}"
 
 # 5. Do Blockcheck
