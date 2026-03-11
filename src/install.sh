@@ -291,7 +291,13 @@ enable_service() {
     elif command -v chkconfig &>/dev/null || [ -x /usr/sbin/chkconfig ] || [ -x /sbin/chkconfig ]; then
       sudo chkconfig "${service_name}" on &>"${log_redirects}"
     else
-      echo -e "  ${red}Error: Cannot find update-rc.d or chkconfig to enable service.${reset}"
+      if [ "${country_code}" = "RU" ]; then
+        echo -e "  ${red}Не удалось найти update-rc.d или chkconfig для включения службы.${reset}"
+      elif [ "${country_code}" = "TR" ]; then
+        echo -e "  ${red}Hizmeti etkinleştirmek için update-rc.d veya chkconfig bulunamadı.${reset}"
+      else
+        echo -e "  ${red}Cannot find update-rc.d or chkconfig to enable service.${reset}"
+      fi
       echo ""
 
       exit 1
