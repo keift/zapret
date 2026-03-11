@@ -193,7 +193,13 @@ start_service() {
 
     sudo "${entware_script}" start &>"${log_redirects}"
   else
-    echo -e "  ${red}Error: Unsupported init system.${reset}"
+    if [ "${country_code}" = "RU" ]; then
+      echo -e "  ${red}Неподдерживаемая система инициализации.${reset}"
+    elif [ "${country_code}" = "TR" ]; then
+      echo -e "  ${red}Desteklenmeyen başlatma sistemi.${reset}"
+    else
+      echo -e "  ${red}Unsupported init system.${reset}"
+    fi
     echo ""
 
     exit 1
@@ -220,7 +226,13 @@ stop_service() {
 
     sudo "${entware_script}" stop &>"${log_redirects}"
   else
-    echo -e "  ${red}Error: Unsupported init system.${reset}"
+    if [ "${country_code}" = "RU" ]; then
+      echo -e "  ${red}Неподдерживаемая система инициализации.${reset}"
+    elif [ "${country_code}" = "TR" ]; then
+      echo -e "  ${red}Desteklenmeyen başlatma sistemi.${reset}"
+    else
+      echo -e "  ${red}Unsupported init system.${reset}"
+    fi
     echo ""
 
     exit 1
@@ -247,7 +259,13 @@ restart_service() {
 
     sudo "${entware_script}" restart &>"${log_redirects}"
   else
-    echo -e "  ${red}Error: Unsupported init system.${reset}"
+    if [ "${country_code}" = "RU" ]; then
+      echo -e "  ${red}Неподдерживаемая система инициализации.${reset}"
+    elif [ "${country_code}" = "TR" ]; then
+      echo -e "  ${red}Desteklenmeyen başlatma sistemi.${reset}"
+    else
+      echo -e "  ${red}Unsupported init system.${reset}"
+    fi
     echo ""
 
     exit 1
@@ -285,7 +303,13 @@ enable_service() {
 
     sudo "${entware_script}" enable &>"${log_redirects}"
   else
-    echo -e "  ${red}Error: Unsupported init system.${reset}"
+    if [ "${country_code}" = "RU" ]; then
+      echo -e "  ${red}Неподдерживаемая система инициализации.${reset}"
+    elif [ "${country_code}" = "TR" ]; then
+      echo -e "  ${red}Desteklenmeyen başlatma sistemi.${reset}"
+    else
+      echo -e "  ${red}Unsupported init system.${reset}"
+    fi
     echo ""
 
     exit 1
@@ -397,7 +421,13 @@ install_package() {
   elif command -v opkg &>/dev/null; then
     sudo opkg install "${package_name}" &>"${log_redirects}"
   else
-    echo -e "  ${red}Error: Unsupported package manager.${reset}"
+    if [ "${country_code}" = "RU" ]; then
+      echo -e "  ${red}Неподдерживаемый менеджер пакетов.${reset}"
+    elif [ "${country_code}" = "TR" ]; then
+      echo -e "  ${red}Desteklenmeyen paket yöneticisi.${reset}"
+    else
+      echo -e "  ${red}Unsupported package manager.${reset}"
+    fi
     echo ""
 
     exit 1
@@ -430,7 +460,13 @@ remove_package() {
   elif command -v opkg &>/dev/null; then
     sudo opkg remove "${package_name}" &>"${log_redirects}"
   else
-    echo -e "  ${red}Error: Unsupported package manager.${reset}"
+    if [ "${country_code}" = "RU" ]; then
+      echo -e "  ${red}Неподдерживаемый менеджер пакетов.${reset}"
+    elif [ "${country_code}" = "TR" ]; then
+      echo -e "  ${red}Desteklenmeyen paket yöneticisi.${reset}"
+    else
+      echo -e "  ${red}Unsupported package manager.${reset}"
+    fi
     echo ""
 
     exit 1
@@ -463,7 +499,13 @@ update_packages() {
   elif command -v opkg &>/dev/null; then
     sudo opkg update &>"${log_redirects}"
   else
-    echo -e "  ${red}Error: Unsupported package manager.${reset}"
+    if [ "${country_code}" = "RU" ]; then
+      echo -e "  ${red}Неподдерживаемый менеджер пакетов.${reset}"
+    elif [ "${country_code}" = "TR" ]; then
+      echo -e "  ${red}Desteklenmeyen paket yöneticisi.${reset}"
+    else
+      echo -e "  ${red}Unsupported package manager.${reset}"
+    fi
     echo ""
 
     exit 1
@@ -602,8 +644,7 @@ EOF
       sleep 10
     done
 
-    if ip route show default | awk "{print \$3}" | head -n 1 | grep -q "^192\."; then
-      sudo tee /etc/systemd/resolved.conf &>/dev/null << EOF
+    sudo tee /etc/systemd/resolved.conf &>/dev/null << EOF
 [Resolve]
 DNS=127.0.0.1:5300
 DNS=[::1]:5300
@@ -611,16 +652,6 @@ DNS=[::1]:5300
 Domains=~.
 DNSOverTLS=no
 EOF
-    else
-      sudo tee /etc/systemd/resolved.conf &>/dev/null << EOF
-[Resolve]
-DNS=127.0.0.1:5300
-DNS=[::1]:5300
-
-Domains=~.
-DNSOverTLS=no
-EOF
-    fi
 
     sudo chattr -i /etc/resolv.conf &>"${log_redirects}"
 
