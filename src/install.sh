@@ -610,11 +610,6 @@ EOF
 DNS=127.0.0.1:5300
 DNS=[::1]:5300
 
-DNS=1.1.1.1
-DNS=2606:4700:4700::1111
-DNS=1.0.0.1
-DNS=2606:4700:4700::1001
-
 Domains=~.
 DNSOverTLS=no
 EOF
@@ -623,13 +618,6 @@ EOF
 [Resolve]
 DNS=127.0.0.1:5300
 DNS=[::1]:5300
-
-DNS=$(ip route show default | awk "{print \$3}" | head -n 1)
-
-DNS=1.1.1.1
-DNS=2606:4700:4700::1111
-DNS=1.0.0.1
-DNS=2606:4700:4700::1001
 
 Domains=~.
 DNSOverTLS=no
