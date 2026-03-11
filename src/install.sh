@@ -946,6 +946,8 @@ else
   fi
 fi
 
+[ "${debug}" = true ] && echo "${installation_results}"
+
 if echo "${installation_results}" | grep -q "could not start zapret service"; then
   printf "Y\n\n" | sudo /opt/zapret/uninstall_easy.sh &>"${log_redirects}"
   sudo rm -rf /opt/zapret
