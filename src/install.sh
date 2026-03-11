@@ -3,13 +3,11 @@
 sudo -v
 
 dnscrypt=false
-clean=false
 dev=false
 debug=false
 
 for arg in "${@}"; do
   [ "${arg}" = "--dnscrypt" ] && dnscrypt=true
-  [ "${arg}" = "--clean" ] && clean=true
   [ "${arg}" = "--dev" ] && dev=true
   [ "${arg}" = "--debug" ] && debug=true
 done
@@ -939,10 +937,7 @@ sudo sed -i "/^NFQWS_OPT=\"/,/^\"/c NFQWS_OPT=\"${nfqws_options} --hostlist=/opt
 
 sudo touch /opt/zapret/hostlist.txt
 
-if [ "${clean}" = true ]; then
-  sudo touch /opt/zapret/ipset/zapret-hostlist-auto.txt
-else
-  sudo tee /opt/zapret/ipset/zapret-hostlist-auto.txt &>/dev/null << EOF
+sudo tee /opt/zapret/ipset/zapret-hostlist-auto.txt &>/dev/null << EOF
 # Discord
 discord.com
 discord.net
@@ -960,7 +955,6 @@ roblox.com
 
 # Others
 EOF
-fi
 
 restart_service zapret
 
