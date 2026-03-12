@@ -386,7 +386,14 @@ enable_service() {
     sudo systemctl enable "${service_name}" &>"${log_redirects}"
   # Runit
   elif command -v sv &>/dev/null; then
-    sudo ln -sf "/etc/sv/${service_name}" /var/service &>"${log_redirects}"
+    local runit_sv_dir="/etc/sv"
+    local runit_service_dir="/var/service"
+
+    [ -d "/etc/runit/sv" ] && runit_sv_dir="/etc/runit/sv"
+    [ -d "/run/runit/service" ] && runit_service_dir="/run/runit/service"
+    [ -d "/service" ] && runit_service_dir="/service"
+
+    sudo ln -sf "${runit_sv_dir}/${service_name}" "${runit_service_dir}" &>"${log_redirects}"
   # S6
   elif command -v s6-svscan &>/dev/null || command -v s6-rc &>/dev/null; then
     : &>"${log_redirects}"
@@ -452,15 +459,19 @@ init_zapret() {
     : &>"${log_redirects}"
   # Runit
   elif command -v sv &>/dev/null; then
-    sudo ln -sf /opt/zapret/init.d/runit/zapret /etc/sv/zapret
+    local runit_sv_dir="/etc/sv"
+
+    [ -d "/etc/runit/sv" ] && runit_sv_dir="/etc/runit/sv"
+
+    sudo ln -sf /opt/zapret/init.d/runit/zapret "${runit_sv_dir}/zapret"
 
     enable_service zapret
   # S6
   elif command -v s6-svscan &>/dev/null || command -v s6-rc &>/dev/null; then
     if [ -d /etc/s6/sv ]; then
       sudo ln -sf /opt/zapret/init.d/s6/zapret /etc/s6/sv/zapret
-    else
-      sudo ln -sf /opt/zapret/init.d/s6/zapret /etc/s6-servicedirs/zapret &>"${log_redirects}"
+    elif [ -d /etc/s6-servicedirs ]; then
+      sudo ln -sf /opt/zapret/init.d/s6/zapret /etc/s6-servicedirs/zapret
     fi
 
     enable_service zapret
