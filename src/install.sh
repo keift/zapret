@@ -402,9 +402,7 @@ enable_service() {
     sudo /etc/init.d/"${service_name}" enable &>"${log_redirects}"
   # Entware, Optware
   elif [ -d /opt/etc/init.d ]; then
-    local entware_script=$(ls /opt/etc/init.d/*"${service_name}" 2>/dev/null | head -n 1)
-
-    sudo "${entware_script}" enable &>"${log_redirects}"
+    : &>"${log_redirects}"
   # Launchd (MacOS)
   elif command -v launchctl &>/dev/null; then
     sudo launchctl load -w "/Library/LaunchDaemons/${service_name}.plist" &>"${log_redirects}"
@@ -425,8 +423,8 @@ enable_service() {
 init_zapret() {
   # Systemd
   if command -v systemctl &>/dev/null; then
-    : &>"${log_redirects}"
     # Being set up by Zapret.
+    : &>"${log_redirects}"
   # Runit
   elif command -v sv &>/dev/null; then
     sudo ln -sf /opt/zapret/init.d/runit/zapret /etc/sv/zapret
@@ -443,8 +441,8 @@ init_zapret() {
     enable_service zapret
   # OpenRC
   elif command -v rc-service &>/dev/null; then
-    : &>"${log_redirects}"
     # Being set up by Zapret.
+    : &>"${log_redirects}"
   # OpenBSD
   elif command -v rcctl &>/dev/null; then
     sudo tee /etc/rc.d/zapret &>/dev/null << 'EOF'
@@ -512,8 +510,8 @@ EOF
     enable_service zapret
   # Launchd (MacOS)
   elif command -v launchctl &>/dev/null; then
-    : &>"${log_redirects}"
     # Being set up by Zapret.
+    : &>"${log_redirects}"
   fi
 }
 
