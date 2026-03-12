@@ -378,7 +378,7 @@ enable_service() {
     sudo sysrc "${service_name}_enable=YES" &>"${log_redirects}"
   # pfSense
   elif [ -f /etc/pfsense-release ] || grep -qi "pfsense" /etc/platform 2>/dev/null; then
-    : &>"${log_redirects}"
+    sudo /usr/local/etc/rc.d/"${service_name}.sh" enable &>"${log_redirects}"
   # SysvInit
   elif command -v service &>/dev/null || [ -x /usr/sbin/service ] || [ -x /sbin/service ]; then
     if command -v update-rc.d &>/dev/null || [ -x /usr/sbin/update-rc.d ] || [ -x /sbin/update-rc.d ]; then
@@ -402,7 +402,9 @@ enable_service() {
     sudo /etc/init.d/"${service_name}" enable &>"${log_redirects}"
   # Entware, Optware
   elif [ -d /opt/etc/init.d ]; then
-    : &>"${log_redirects}"
+    local entware_script=$(ls /opt/etc/init.d/*"${service_name}" 2>/dev/null | head -n 1)
+
+    sudo "${entware_script}" enable &>"${log_redirects}"
   # Launchd (MacOS)
   elif command -v launchctl &>/dev/null; then
     sudo launchctl load -w "/Library/LaunchDaemons/${service_name}.plist" &>"${log_redirects}"
