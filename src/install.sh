@@ -807,9 +807,11 @@ else
 
   sudo chattr -i /etc/resolv.conf &>"${log_redirects}"
 
-  if ip route show default | awk "{print \$3}" | head -n 1 | grep -q "^192\."; then
+  local_resolver=$(ip route show default | awk "{print \$3}" | head -n 1)
+
+  if dig -p 53 +tries=1 +time=10 @"${local_resolver}" &>/dev/null; then
     sudo tee /etc/resolv.conf &>/dev/null << EOF
-nameserver $(ip route show default | awk "{print \$3}" | head -n 1)
+nameserver ${local_resolver}
 
 nameserver 1.1.1.1
 nameserver 2606:4700:4700::1111
@@ -894,12 +896,12 @@ EOF
 
   sudo chattr -i /etc/resolv.conf &>"${log_redirects}"
 
-  if ip route show default | awk "{print \$3}" | head -n 1 | grep -q "^192\."; then
+  if dig -p 53 +tries=1 +time=10 @"${local_resolver}" &>/dev/null; then
     sudo tee /etc/resolv.conf &>/dev/null << EOF
 nameserver 127.0.0.1
 nameserver ::1
 
-nameserver $(ip route show default | awk "{print \$3}" | head -n 1)
+nameserver ${local_resolver}
 
 nameserver 1.1.1.1
 nameserver 2606:4700:4700::1111
