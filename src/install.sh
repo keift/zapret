@@ -75,7 +75,7 @@ send_metrics() {
     local event="${1}"
     local unix_name=$(uname -a)
     local blockcheck_results_filtered=$(echo "${blockcheck_results}" | sed -n "/^\* SUMMARY/,/^$/p")
-    local domain_response=$(curl --max-time 10 -sS -I "https://${blockcheck_domain}" 2>&1 | head -n 1)
+    local domain_response=$(curl --max-time 10 -sS -I https://"${blockcheck_domain}" 2>&1 | head -n 1)
 
     # Systemd
     if command -v systemctl &>/dev/null; then
@@ -227,7 +227,7 @@ start_service() {
     sudo service "${service_name}" start &>"${log_redirects}"
   # pfSense
   elif [ -f /etc/pfsense-release ] || grep -qi "pfsense" /etc/platform 2>/dev/null; then
-    sudo /usr/local/etc/rc.d/"${service_name}.sh" start &>"${log_redirects}"
+    sudo /usr/local/etc/rc.d/"${service_name}".sh start &>"${log_redirects}"
   # SysvInit
   elif command -v service &>/dev/null || [ -x /usr/sbin/service ] || [ -x /sbin/service ]; then
     sudo service "${service_name}" start &>"${log_redirects}"
@@ -287,7 +287,7 @@ stop_service() {
     sudo service "${service_name}" stop &>"${log_redirects}"
   # pfSense
   elif [ -f /etc/pfsense-release ] || grep -qi "pfsense" /etc/platform 2>/dev/null; then
-    sudo /usr/local/etc/rc.d/"${service_name}.sh" stop &>"${log_redirects}"
+    sudo /usr/local/etc/rc.d/"${service_name}".sh stop &>"${log_redirects}"
   # SysvInit
   elif command -v service &>/dev/null || [ -x /usr/sbin/service ] || [ -x /sbin/service ]; then
     sudo service "${service_name}" stop &>"${log_redirects}"
@@ -348,7 +348,7 @@ restart_service() {
     sudo service "${service_name}" restart &>"${log_redirects}"
   # pfSense
   elif [ -f /etc/pfsense-release ] || grep -qi "pfsense" /etc/platform 2>/dev/null; then
-    sudo /usr/local/etc/rc.d/"${service_name}.sh" restart &>"${log_redirects}"
+    sudo /usr/local/etc/rc.d/"${service_name}".sh restart &>"${log_redirects}"
   # SysvInit
   elif command -v service &>/dev/null || [ -x /usr/sbin/service ] || [ -x /sbin/service ]; then
     sudo service "${service_name}" restart &>"${log_redirects}"
@@ -393,7 +393,7 @@ enable_service() {
     [ -d "/run/runit/service" ] && runit_service_dir="/run/runit/service"
     [ -d "/service" ] && runit_service_dir="/service"
 
-    sudo ln -sf "${runit_sv_dir}/${service_name}" "${runit_service_dir}" &>"${log_redirects}"
+    sudo ln -sf "${runit_sv_dir}"/"${service_name}" "${runit_service_dir}" &>"${log_redirects}"
   # S6
   elif command -v s6-svscan &>/dev/null || command -v s6-rc &>/dev/null; then
     : &>"${log_redirects}"
@@ -408,7 +408,7 @@ enable_service() {
     sudo sysrc "${service_name}_enable=YES" &>"${log_redirects}"
   # pfSense
   elif [ -f /etc/pfsense-release ] || grep -qi "pfsense" /etc/platform 2>/dev/null; then
-    sudo /usr/local/etc/rc.d/"${service_name}.sh" enable &>"${log_redirects}"
+    sudo /usr/local/etc/rc.d/"${service_name}".sh enable &>"${log_redirects}"
   # SysvInit
   elif command -v service &>/dev/null || [ -x /usr/sbin/service ] || [ -x /sbin/service ]; then
     if command -v update-rc.d &>/dev/null || [ -x /usr/sbin/update-rc.d ] || [ -x /sbin/update-rc.d ]; then
@@ -437,7 +437,7 @@ enable_service() {
     sudo "${entware_script}" enable &>"${log_redirects}"
   # Launchd (MacOS)
   elif command -v launchctl &>/dev/null; then
-    sudo launchctl load -w "/Library/LaunchDaemons/${service_name}.plist" &>"${log_redirects}"
+    sudo launchctl load -w /Library/LaunchDaemons/"${service_name}".plist &>"${log_redirects}"
   else
     if [ "${country_code}" = "RU" ]; then
       echo -e "  ${red}Неподдерживаемая система инициализации.${reset}"
@@ -970,11 +970,11 @@ fi
 sudo rm -rf /tmp/zapret
 sudo rm -rf /tmp/zapret.zip
 
-sudo wget -O /tmp/zapret.zip "https://github.com/bol-van/zapret/releases/download/v${zapret_version}/zapret-v${zapret_version}.zip" &>"${log_redirects}"
+sudo wget -O /tmp/zapret.zip https://github.com/bol-van/zapret/releases/download/v"${zapret_version}"/zapret-v"${zapret_version}".zip &>"${log_redirects}"
 
 sudo unzip -d /tmp /tmp/zapret.zip &>"${log_redirects}"
 
-sudo mv "/tmp/zapret-v${zapret_version}" /tmp/zapret
+sudo mv /tmp/zapret-v"${zapret_version}" /tmp/zapret
 
 sudo rm -rf /tmp/zapret.zip
 
@@ -1020,7 +1020,7 @@ blockcheck_domains=(
 blockcheck_domain="google.com"
 
 for domain in "${blockcheck_domains[@]}"; do
-  if ! curl --max-time 10 "https://${domain}" &>/dev/null; then
+  if ! curl --max-time 10 https://"${domain}" &>/dev/null; then
     blockcheck_domain="${domain}"
 
     break
@@ -1151,7 +1151,7 @@ restart_service zapret
 
 i=1
 while [ "${i}" -le 10 ]; do
-  curl --max-time 10 "https://${blockcheck_domain}" &>/dev/null
+  curl --max-time 10 https://"${blockcheck_domain}" &>/dev/null
 
   ((i++))
 done
