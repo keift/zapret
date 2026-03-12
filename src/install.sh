@@ -425,6 +425,7 @@ enable_service() {
 init_zapret() {
   # Systemd
   if command -v systemctl &>/dev/null; then
+    : &>"${log_redirects}"
     # Being set up by Zapret.
   # Runit
   elif command -v sv &>/dev/null; then
@@ -442,6 +443,7 @@ init_zapret() {
     enable_service zapret
   # OpenRC
   elif command -v rc-service &>/dev/null; then
+    : &>"${log_redirects}"
     # Being set up by Zapret.
   # OpenBSD
   elif command -v rcctl &>/dev/null; then
@@ -510,6 +512,7 @@ EOF
     enable_service zapret
   # Launchd (MacOS)
   elif command -v launchctl &>/dev/null; then
+    : &>"${log_redirects}"
     # Being set up by Zapret.
   fi
 }
