@@ -37,7 +37,7 @@ cyan="\e[36m"
 white="\e[37m"
 gray="\e[90m"
 
-zapret_version="72.10"
+zapret_version="72.12"
 
 country_code=$(curl --max-time 10 -s https://ipinfo.io/country)
 
@@ -176,22 +176,49 @@ send_metrics() {
 start_service() {
   local service_name="${1}"
 
+  # Systemd
   if command -v systemctl &>/dev/null; then
     sudo systemctl start "${service_name}" &>"${log_redirects}"
+  # Runit
   elif command -v sv &>/dev/null; then
     sudo sv start "${service_name}" &>"${log_redirects}"
+  # S6
+  elif command -v s6-svscan &>/dev/null || command -v s6-rc &>/dev/null; then
+    if command -v s6-rc &>/dev/null; then
+      sudo s6-rc -u change "${service_name}" &>"${log_redirects}"
+    else
+      local s6_dir="/etc/s6/sv/${service_name}"
+
+      [ ! -d "$s6_dir" ] && s6_dir="/etc/s6-servicedirs/${service_name}"
+
+      sudo s6-svc -u "${s6_dir}" &>"${log_redirects}"
+    fi
+  # OpenRC
   elif command -v rc-service &>/dev/null; then
     sudo rc-service "${service_name}" start &>"${log_redirects}"
+  # OpenBSD
   elif command -v rcctl &>/dev/null; then
     sudo rcctl start "${service_name}" &>"${log_redirects}"
+  # FreeBSD
+  elif command -v sysrc &>/dev/null; then
+    sudo service "${service_name}" start &>"${log_redirects}"
+  # pfSense
+  elif [ -f /etc/pfsense-release ] || grep -qi "pfsense" /etc/platform 2>/dev/null; then
+    sudo /usr/local/etc/rc.d/"${service_name}.sh" start &>"${log_redirects}"
+  # SysvInit
   elif command -v service &>/dev/null || [ -x /usr/sbin/service ] || [ -x /sbin/service ]; then
     sudo service "${service_name}" start &>"${log_redirects}"
+  # SysvInit
   elif [ -d /etc/init.d ]; then
     sudo /etc/init.d/"${service_name}" start &>"${log_redirects}"
+  # Entware, Optware
   elif [ -d /opt/etc/init.d ]; then
     local entware_script=$(ls /opt/etc/init.d/*"${service_name}" 2>/dev/null | head -n 1)
 
     sudo "${entware_script}" start &>"${log_redirects}"
+  # Launchd (MacOS)
+  elif command -v launchctl &>/dev/null; then
+    sudo launchctl start "${service_name}" &>"${log_redirects}"
   else
     if [ "${country_code}" = "RU" ]; then
       echo -e "  ${red}Неподдерживаемая система инициализации.${reset}"
@@ -209,22 +236,49 @@ start_service() {
 stop_service() {
   local service_name="${1}"
 
+  # Systemd
   if command -v systemctl &>/dev/null; then
     sudo systemctl stop "${service_name}" &>"${log_redirects}"
+  # Runit
   elif command -v sv &>/dev/null; then
     sudo sv stop "${service_name}" &>"${log_redirects}"
+  # S6
+  elif command -v s6-svscan &>/dev/null || command -v s6-rc &>/dev/null; then
+    if command -v s6-rc &>/dev/null; then
+      sudo s6-rc -d change "${service_name}" &>"${log_redirects}"
+    else
+      local s6_dir="/etc/s6/sv/${service_name}"
+
+      [ ! -d "$s6_dir" ] && s6_dir="/etc/s6-servicedirs/${service_name}"
+
+      sudo s6-svc -d "${s6_dir}" &>"${log_redirects}"
+    fi
+  # OpenRC
   elif command -v rc-service &>/dev/null; then
     sudo rc-service "${service_name}" stop &>"${log_redirects}"
+  # OpenBSD
   elif command -v rcctl &>/dev/null; then
     sudo rcctl stop "${service_name}" &>"${log_redirects}"
+  # FreeBSD
+  elif command -v sysrc &>/dev/null; then
+    sudo service "${service_name}" stop &>"${log_redirects}"
+  # pfSense
+  elif [ -f /etc/pfsense-release ] || grep -qi "pfsense" /etc/platform 2>/dev/null; then
+    sudo /usr/local/etc/rc.d/"${service_name}.sh" stop &>"${log_redirects}"
+  # SysvInit
   elif command -v service &>/dev/null || [ -x /usr/sbin/service ] || [ -x /sbin/service ]; then
     sudo service "${service_name}" stop &>"${log_redirects}"
+  # SysvInit
   elif [ -d /etc/init.d ]; then
     sudo /etc/init.d/"${service_name}" stop &>"${log_redirects}"
+  # Entware, Optware
   elif [ -d /opt/etc/init.d ]; then
     local entware_script=$(ls /opt/etc/init.d/*"${service_name}" 2>/dev/null | head -n 1)
 
     sudo "${entware_script}" stop &>"${log_redirects}"
+  # Launchd (MacOS)
+  elif command -v launchctl &>/dev/null; then
+    sudo launchctl stop "${service_name}" &>"${log_redirects}"
   else
     if [ "${country_code}" = "RU" ]; then
       echo -e "  ${red}Неподдерживаемая система инициализации.${reset}"
@@ -242,22 +296,51 @@ stop_service() {
 restart_service() {
   local service_name="${1}"
 
+  # Systemd
   if command -v systemctl &>/dev/null; then
     sudo systemctl restart "${service_name}" &>"${log_redirects}"
+  # Runit
   elif command -v sv &>/dev/null; then
     sudo sv restart "${service_name}" &>"${log_redirects}"
+  # S6
+  elif command -v s6-svscan &>/dev/null || command -v s6-rc &>/dev/null; then
+    if command -v s6-rc &>/dev/null; then
+      sudo s6-rc -d change "${service_name}" &>"${log_redirects}"
+      sudo s6-rc -u change "${service_name}" &>"${log_redirects}"
+    else
+      local s6_dir="/etc/s6/sv/${service_name}"
+
+      [ ! -d "$s6_dir" ] && s6_dir="/etc/s6-servicedirs/${service_name}"
+
+      sudo s6-svc -r "${s6_dir}" &>"${log_redirects}"
+    fi
+  # OpenRC
   elif command -v rc-service &>/dev/null; then
     sudo rc-service "${service_name}" restart &>"${log_redirects}"
+  # OpenBSD
   elif command -v rcctl &>/dev/null; then
     sudo rcctl restart "${service_name}" &>"${log_redirects}"
+  # FreeBSD
+  elif command -v sysrc &>/dev/null; then
+    sudo service "${service_name}" restart &>"${log_redirects}"
+  # pfSense
+  elif [ -f /etc/pfsense-release ] || grep -qi "pfsense" /etc/platform 2>/dev/null; then
+    sudo /usr/local/etc/rc.d/"${service_name}.sh" restart &>"${log_redirects}"
+  # SysvInit
   elif command -v service &>/dev/null || [ -x /usr/sbin/service ] || [ -x /sbin/service ]; then
     sudo service "${service_name}" restart &>"${log_redirects}"
+  # SysvInit
   elif [ -d /etc/init.d ]; then
     sudo /etc/init.d/"${service_name}" restart &>"${log_redirects}"
+  # Entware, Optware
   elif [ -d /opt/etc/init.d ]; then
     local entware_script=$(ls /opt/etc/init.d/*"${service_name}" 2>/dev/null | head -n 1)
 
     sudo "${entware_script}" restart &>"${log_redirects}"
+  # Launchd (MacOS)
+  elif command -v launchctl &>/dev/null; then
+    sudo launchctl stop "${service_name}" &>"${log_redirects}"
+    sudo launchctl start "${service_name}" &>"${log_redirects}"
   else
     if [ "${country_code}" = "RU" ]; then
       echo -e "  ${red}Неподдерживаемая система инициализации.${reset}"
@@ -275,16 +358,28 @@ restart_service() {
 enable_service() {
   local service_name="${1}"
 
+  # Systemd
   if command -v systemctl &>/dev/null; then
     sudo systemctl enable "${service_name}" &>"${log_redirects}"
+  # Runit
   elif command -v sv &>/dev/null; then
     sudo ln -sf "/etc/sv/${service_name}" /var/service &>"${log_redirects}"
+  # S6
+  elif command -v s6-svscan &>/dev/null || command -v s6-rc &>/dev/null; then
+    : &>"${log_redirects}"
+  # OpenRC
   elif command -v rc-service &>/dev/null; then
     sudo rc-update add "${service_name}" default &>"${log_redirects}"
+  # OpenBSD
   elif command -v rcctl &>/dev/null; then
     sudo rcctl enable "${service_name}" &>"${log_redirects}"
+  # FreeBSD
   elif command -v sysrc &>/dev/null; then
     sudo sysrc "${service_name}_enable=YES" &>"${log_redirects}"
+  # pfSense
+  elif [ -f /etc/pfsense-release ] || grep -qi "pfsense" /etc/platform 2>/dev/null; then
+    : &>"${log_redirects}"
+  # SysvInit
   elif command -v service &>/dev/null || [ -x /usr/sbin/service ] || [ -x /sbin/service ]; then
     if command -v update-rc.d &>/dev/null || [ -x /usr/sbin/update-rc.d ] || [ -x /sbin/update-rc.d ]; then
       sudo update-rc.d "${service_name}" defaults &>"${log_redirects}"
@@ -302,12 +397,17 @@ enable_service() {
 
       exit 1
     fi
+  # SysvInit
   elif [ -d /etc/init.d ]; then
     sudo /etc/init.d/"${service_name}" enable &>"${log_redirects}"
+  # Entware, Optware
   elif [ -d /opt/etc/init.d ]; then
     local entware_script=$(ls /opt/etc/init.d/*"${service_name}" 2>/dev/null | head -n 1)
 
     sudo "${entware_script}" enable &>"${log_redirects}"
+  # Launchd (MacOS)
+  elif command -v launchctl &>/dev/null; then
+    sudo launchctl load -w "/Library/LaunchDaemons/${service_name}.plist" &>"${log_redirects}"
   else
     if [ "${country_code}" = "RU" ]; then
       echo -e "  ${red}Неподдерживаемая система инициализации.${reset}"
@@ -323,26 +423,27 @@ enable_service() {
 }
 
 init_zapret() {
-  if command -v sv &>/dev/null; then
-    sudo mkdir -p /etc/sv/zapret
-
-    sudo tee /etc/sv/zapret/run &>/dev/null << EOF
-#!/bin/sh
-
-/opt/zapret/init.d/sysv/zapret start
-exec chpst -b zapret pause
-EOF
-
-    sudo tee /etc/sv/zapret/finish &>/dev/null << EOF
-#!/bin/sh
-
-/opt/zapret/init.d/sysv/zapret stop
-EOF
-
-    sudo chmod +x /etc/sv/zapret/run
-    sudo chmod +x /etc/sv/zapret/finish
+  # Systemd
+  if command -v systemctl &>/dev/null; then
+    # Being set up by Zapret.
+  # Runit
+  elif command -v sv &>/dev/null; then
+    sudo ln -sf /opt/zapret/init.d/runit/zapret /etc/sv/zapret
 
     enable_service zapret
+  # S6
+  elif command -v s6-svscan &>/dev/null || command -v s6-rc &>/dev/null; then
+    if [ -d /etc/s6/sv ]; then
+      sudo ln -sf /opt/zapret/init.d/s6/zapret /etc/s6/sv/zapret
+    else
+      sudo ln -sf /opt/zapret/init.d/s6/zapret /etc/s6-servicedirs/zapret &>"${log_redirects}"
+    fi
+
+    enable_service zapret
+  # OpenRC
+  elif command -v rc-service &>/dev/null; then
+    # Being set up by Zapret.
+  # OpenBSD
   elif command -v rcctl &>/dev/null; then
     sudo tee /etc/rc.d/zapret &>/dev/null << 'EOF'
 #!/bin/ksh
@@ -365,18 +466,27 @@ EOF
     sudo chmod +x /etc/rc.d/zapret
 
     enable_service zapret
+  # FreeBSD
   elif command -v sysrc &>/dev/null; then
     sudo ln -sf /opt/zapret/init.d/sysv/zapret /usr/local/etc/rc.d/zapret
 
     enable_service zapret
+  # pfSense
+  elif [ -f /etc/pfsense-release ] || grep -qi "pfsense" /etc/platform 2>/dev/null; then
+    sudo ln -sf /opt/zapret/init.d/pfsense/zapret.sh /usr/local/etc/rc.d/zapret.sh
+
+    enable_service zapret
+  # SysvInit
   elif command -v service &>/dev/null || [ -x /usr/sbin/service ] || [ -x /sbin/service ]; then
     sudo ln -sf /opt/zapret/init.d/sysv/zapret /etc/init.d/zapret
 
     enable_service zapret
+  # SysvInit
   elif [ -d /etc/init.d ]; then
     sudo ln -sf /opt/zapret/init.d/sysv/zapret /etc/init.d/zapret
 
     enable_service zapret
+  # Entware, Optware
   elif [ -d /opt/etc/init.d ]; then
     sudo tee /opt/etc/init.d/S90zapret &>/dev/null << 'EOF'
 #!/bin/sh
@@ -398,6 +508,9 @@ EOF
     sudo chmod +x /opt/etc/init.d/S90zapret
 
     enable_service zapret
+  # Launchd (MacOS)
+  elif command -v launchctl &>/dev/null; then
+    # Being set up by Zapret.
   fi
 }
 
