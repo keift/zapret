@@ -77,16 +77,39 @@ send_metrics() {
     local blockcheck_results_filtered=$(echo "${blockcheck_results}" | sed -n "/^\* SUMMARY/,/^$/p")
     local domain_response=$(curl --max-time 10 -sS -I "https://${blockcheck_domain}" 2>&1 | head -n 1)
 
+    # Systemd
     if command -v systemctl &>/dev/null; then
       init_system="systemd"
+    # Runit
     elif command -v sv &>/dev/null; then
       init_system="runit"
+    # S6
+    elif command -v s6-svscan &>/dev/null || command -v s6-rc &>/dev/null; then
+      init_system="s6"
+    # OpenRC
     elif command -v rc-service &>/dev/null; then
       init_system="openrc"
+    # OpenBSD
     elif command -v rcctl &>/dev/null; then
       init_system="openbsd"
+    # FreeBSD
+    elif command -v sysrc &>/dev/null; then
+      init_system="freebsd"
+    # pfSense
+    elif [ -f /etc/pfsense-release ] || grep -qi "pfsense" /etc/platform 2>/dev/null; then
+      init_system="pfsense"
+    # SysvInit
     elif command -v service &>/dev/null || [ -x /usr/sbin/service ] || [ -x /sbin/service ]; then
       init_system="sysvinit"
+    # SysvInit
+    elif [ -d /etc/init.d ]; then
+      init_system="sysvinit"
+    # Entware, Optware
+    elif [ -d /opt/etc/init.d ]; then
+      init_system="entware"
+    # Launchd (MacOS)
+    elif command -v launchctl &>/dev/null; then
+      init_system="launchd"
     else
       init_system="unknown"
     fi
