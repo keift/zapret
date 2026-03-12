@@ -214,7 +214,7 @@ start_service() {
 
       [ -d /etc/s6-servicedirs ] && s6_service_dir="/etc/s6-servicedirs"
 
-      sudo s6-svc -u "${s6_service_dir}/zapret" &>"${log_redirects}"
+      sudo s6-svc -u "${s6_service_dir}"/"${service_name}" &>"${log_redirects}"
     fi
   # OpenRC
   elif command -v rc-service &>/dev/null; then
@@ -274,7 +274,7 @@ stop_service() {
 
       [ -d /etc/s6-servicedirs ] && s6_service_dir="/etc/s6-servicedirs"
 
-      sudo s6-svc -d "${s6_service_dir}/zapret" &>"${log_redirects}"
+      sudo s6-svc -d "${s6_service_dir}"/"${service_name}" &>"${log_redirects}"
     fi
   # OpenRC
   elif command -v rc-service &>/dev/null; then
@@ -335,7 +335,7 @@ restart_service() {
 
       [ -d /etc/s6-servicedirs ] && s6_service_dir="/etc/s6-servicedirs"
 
-      sudo s6-svc -r "${s6_service_dir}/zapret" &>"${log_redirects}"
+      sudo s6-svc -r "${s6_service_dir}"/"${service_name}" &>"${log_redirects}"
     fi
   # OpenRC
   elif command -v rc-service &>/dev/null; then
