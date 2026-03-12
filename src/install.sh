@@ -210,11 +210,11 @@ start_service() {
     if command -v s6-rc &>/dev/null; then
       sudo s6-rc -u change "${service_name}" &>"${log_redirects}"
     else
-      local s6_dir="/etc/s6/sv/${service_name}"
+      local s6_service_dir="/etc/s6/sv"
 
-      [ ! -d "$s6_dir" ] && s6_dir="/etc/s6-servicedirs/${service_name}"
+      [ -d /etc/s6-servicedirs ] && s6_service_dir="/etc/s6-servicedirs"
 
-      sudo s6-svc -u "${s6_dir}" &>"${log_redirects}"
+      sudo s6-svc -u "${s6_service_dir}/zapret" &>"${log_redirects}"
     fi
   # OpenRC
   elif command -v rc-service &>/dev/null; then
@@ -270,11 +270,11 @@ stop_service() {
     if command -v s6-rc &>/dev/null; then
       sudo s6-rc -d change "${service_name}" &>"${log_redirects}"
     else
-      local s6_dir="/etc/s6/sv/${service_name}"
+      local s6_service_dir="/etc/s6/sv"
 
-      [ ! -d "$s6_dir" ] && s6_dir="/etc/s6-servicedirs/${service_name}"
+      [ -d /etc/s6-servicedirs ] && s6_service_dir="/etc/s6-servicedirs"
 
-      sudo s6-svc -d "${s6_dir}" &>"${log_redirects}"
+      sudo s6-svc -d "${s6_service_dir}/zapret" &>"${log_redirects}"
     fi
   # OpenRC
   elif command -v rc-service &>/dev/null; then
@@ -331,11 +331,11 @@ restart_service() {
       sudo s6-rc -d change "${service_name}" &>"${log_redirects}"
       sudo s6-rc -u change "${service_name}" &>"${log_redirects}"
     else
-      local s6_dir="/etc/s6/sv/${service_name}"
+      local s6_service_dir="/etc/s6/sv"
 
-      [ ! -d "$s6_dir" ] && s6_dir="/etc/s6-servicedirs/${service_name}"
+      [ -d /etc/s6-servicedirs ] && s6_service_dir="/etc/s6-servicedirs"
 
-      sudo s6-svc -r "${s6_dir}" &>"${log_redirects}"
+      sudo s6-svc -r "${s6_service_dir}/zapret" &>"${log_redirects}"
     fi
   # OpenRC
   elif command -v rc-service &>/dev/null; then
@@ -463,16 +463,16 @@ init_zapret() {
 
     [ -d "/etc/runit/sv" ] && runit_sv_dir="/etc/runit/sv"
 
-    sudo ln -sf /opt/zapret/init.d/runit/zapret "${runit_sv_dir}/zapret"
+    sudo ln -sf /opt/zapret/init.d/runit/zapret "${runit_sv_dir}"/zapret
 
     enable_service zapret
   # S6
   elif command -v s6-svscan &>/dev/null || command -v s6-rc &>/dev/null; then
-    if [ -d /etc/s6/sv ]; then
-      sudo ln -sf /opt/zapret/init.d/s6/zapret /etc/s6/sv/zapret
-    elif [ -d /etc/s6-servicedirs ]; then
-      sudo ln -sf /opt/zapret/init.d/s6/zapret /etc/s6-servicedirs/zapret
-    fi
+    local s6_service_dir="/etc/s6/sv"
+
+    [ -d /etc/s6-servicedirs ] && s6_service_dir="/etc/s6-servicedirs"
+
+    sudo ln -sf /opt/zapret/init.d/s6/zapret "${s6_service_dir}"/zapret
 
     enable_service zapret
   # OpenRC
