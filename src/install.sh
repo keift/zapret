@@ -425,7 +425,7 @@ enable_service() {
     sudo /usr/local/etc/rc.d/"${service_name}".sh enable &>"${log_redirects}"
   # Rc
   elif [ -d /etc/rc.d ]; then
-    sudo chmod +x /etc/rc.d/rc."${service_name}" &>"${log_redirects}"
+    sudo /etc/rc.d/rc."${service_name}" enable &>"${log_redirects}"
   # SysvInit
   elif command -v service &>/dev/null || [ -x /usr/sbin/service ] || [ -x /sbin/service ]; then
     if command -v update-rc.d &>/dev/null || [ -x /usr/sbin/update-rc.d ] || [ -x /sbin/update-rc.d ]; then
