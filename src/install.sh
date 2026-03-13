@@ -3,13 +3,11 @@
 sudo -v
 
 dnscrypt=false
-no_update=false
 dev=false
 debug=false
 
 for arg in "${@}"; do
   [ "${arg}" = "--dnscrypt" ] && dnscrypt=true
-  [ "${arg}" = "--no-update" ] && no_update=true
   [ "${arg}" = "--dev" ] && dev=true
   [ "${arg}" = "--debug" ] && debug=true
 done
@@ -718,7 +716,7 @@ else
   echo -e "  ${gray}Installing dependencies...${reset}"
 fi
 
-[ "${no_update}" = false ] && update_packages
+update_packages
 
 install_package bind
 install_package bind-tools
@@ -751,7 +749,7 @@ if command -v systemctl &>/dev/null && ! command -v pihole &>/dev/null && ! comm
     || dig -p 853 +tls +tls-hostname=one.one.one.one +tries=1 +time=10 @2606:4700:4700::1001 &>"${log_redirects}" ); then
     dns_resolver="systemd-resolved"
 
-    [ "${no_update}" = false ] && update_packages
+    update_packages
 
     install_package systemd-resolved
     remove_package dnscrypt-proxy
@@ -778,7 +776,7 @@ EOF
   else
     dns_resolver="dnscrypt-proxy"
 
-    [ "${no_update}" = false ] && update_packages
+    update_packages
 
     if command -v pkg &>/dev/null || command -v opkg &>/dev/null; then
       install_package dnscrypt-proxy2
@@ -794,11 +792,24 @@ EOF
     start_service dnscrypt-proxy
     start_service dnscrypt-proxy2
 
-    dnscrypt_path="/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
+    [ -f "/etc/dnscrypt-proxy/dnscrypt-proxy.toml" ] && dnscrypt_path="/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
+    [ -f "/etc/dnscrypt-proxy.toml" ] && dnscrypt_path="/etc/dnscrypt-proxy.toml"
+    [ -f "/opt/etc/dnscrypt-proxy.toml" ] && dnscrypt_path="/opt/etc/dnscrypt-proxy.toml"
+    [ -f "/usr/local/etc/dnscrypt-proxy/dnscrypt-proxy.toml" ] && dnscrypt_path="/usr/local/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
 
-    [ "$(uname)" = "FreeBSD" ] && dnscrypt_path="/usr/local/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
-    [ "$(uname)" = "OpenBSD" ] && dnscrypt_path="/etc/dnscrypt-proxy.toml"
-    command -v opkg &>/dev/null && dnscrypt_path="/opt/etc/dnscrypt-proxy.toml"
+    if [ ! -f "${dnscrypt_path}" ]; then
+      if [ "${country_code}" = "RU" ]; then
+        echo -e "  ${red}Путь к DNSCrypt Proxy не найден.${reset}"
+      elif [ "${country_code}" = "TR" ]; then
+        echo -e "  ${red}DNSCrypt Proxy yolu bulunamadı.${reset}"
+      else
+        echo -e "  ${red}DNSCrypt Proxy path could not be found.${reset}"
+      fi
+
+      echo ""
+
+      exit 1
+    fi
 
     sudo mkdir -p "$(dirname "${dnscrypt_path}")" /var/cache/dnscrypt-proxy
 
@@ -848,7 +859,7 @@ EOF
 else
   dns_resolver="dnscrypt-proxy"
 
-  [ "${no_update}" = false ] && update_packages
+  update_packages
 
   if command -v pkg &>/dev/null || command -v opkg &>/dev/null; then
     install_package dnscrypt-proxy2
@@ -861,11 +872,24 @@ else
   start_service dnscrypt-proxy
   start_service dnscrypt-proxy2
 
-  dnscrypt_path="/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
+  [ -f "/etc/dnscrypt-proxy/dnscrypt-proxy.toml" ] && dnscrypt_path="/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
+  [ -f "/etc/dnscrypt-proxy.toml" ] && dnscrypt_path="/etc/dnscrypt-proxy.toml"
+  [ -f "/opt/etc/dnscrypt-proxy.toml" ] && dnscrypt_path="/opt/etc/dnscrypt-proxy.toml"
+  [ -f "/usr/local/etc/dnscrypt-proxy/dnscrypt-proxy.toml" ] && dnscrypt_path="/usr/local/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
 
-  [ "$(uname)" = "FreeBSD" ] && dnscrypt_path="/usr/local/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
-  [ "$(uname)" = "OpenBSD" ] && dnscrypt_path="/etc/dnscrypt-proxy.toml"
-  command -v opkg &>/dev/null && dnscrypt_path="/opt/etc/dnscrypt-proxy.toml"
+  if [ ! -f "${dnscrypt_path}" ]; then
+    if [ "${country_code}" = "RU" ]; then
+      echo -e "  ${red}Путь к DNSCrypt Proxy не найден.${reset}"
+    elif [ "${country_code}" = "TR" ]; then
+      echo -e "  ${red}DNSCrypt Proxy yolu bulunamadı.${reset}"
+    else
+      echo -e "  ${red}DNSCrypt Proxy path could not be found.${reset}"
+    fi
+
+    echo ""
+
+    exit 1
+  fi
 
   sudo mkdir -p "$(dirname "${dnscrypt_path}")" /var/cache/dnscrypt-proxy
 
