@@ -100,6 +100,9 @@ send_metrics() {
     # pfSense
     elif [ -f /etc/pfsense-release ] || grep -qi "pfsense" /etc/platform 2>/dev/null; then
       init_system="pfsense"
+    # Rc
+    elif [ -d /etc/rc.d ]; then
+      init_system="rc"
     # SysvInit
     elif command -v service &>/dev/null || [ -x /usr/sbin/service ] || [ -x /sbin/service ]; then
       init_system="sysvinit"
@@ -132,6 +135,8 @@ send_metrics() {
       package_manager="apk"
     elif command -v emerge &>/dev/null; then
       package_manager="emerge"
+    elif command -v slackpkg &>/dev/null; then
+      package_manager="slackpkg"
     elif command -v pkg &>/dev/null; then
       package_manager="pkg"
     elif command -v pkg_add &>/dev/null; then
@@ -230,6 +235,9 @@ start_service() {
   # pfSense
   elif [ -f /etc/pfsense-release ] || grep -qi "pfsense" /etc/platform 2>/dev/null; then
     sudo /usr/local/etc/rc.d/"${service_name}".sh start &>"${log_redirects}"
+  # Rc
+  elif [ -d /etc/rc.d ]; then
+    sudo /etc/rc.d/rc."${service_name}" start &>"${log_redirects}"
   # SysvInit
   elif command -v service &>/dev/null || [ -x /usr/sbin/service ] || [ -x /sbin/service ]; then
     sudo service "${service_name}" start &>"${log_redirects}"
@@ -290,6 +298,9 @@ stop_service() {
   # pfSense
   elif [ -f /etc/pfsense-release ] || grep -qi "pfsense" /etc/platform 2>/dev/null; then
     sudo /usr/local/etc/rc.d/"${service_name}".sh stop &>"${log_redirects}"
+  # Rc
+  elif [ -d /etc/rc.d ]; then
+    sudo /etc/rc.d/rc."${service_name}" stop &>"${log_redirects}"
   # SysvInit
   elif command -v service &>/dev/null || [ -x /usr/sbin/service ] || [ -x /sbin/service ]; then
     sudo service "${service_name}" stop &>"${log_redirects}"
@@ -351,6 +362,9 @@ restart_service() {
   # pfSense
   elif [ -f /etc/pfsense-release ] || grep -qi "pfsense" /etc/platform 2>/dev/null; then
     sudo /usr/local/etc/rc.d/"${service_name}".sh restart &>"${log_redirects}"
+  # Rc
+  elif [ -d /etc/rc.d ]; then
+    sudo /etc/rc.d/rc."${service_name}" restart &>"${log_redirects}"
   # SysvInit
   elif command -v service &>/dev/null || [ -x /usr/sbin/service ] || [ -x /sbin/service ]; then
     sudo service "${service_name}" restart &>"${log_redirects}"
@@ -411,6 +425,9 @@ enable_service() {
   # pfSense
   elif [ -f /etc/pfsense-release ] || grep -qi "pfsense" /etc/platform 2>/dev/null; then
     sudo /usr/local/etc/rc.d/"${service_name}".sh enable &>"${log_redirects}"
+  # Rc
+  elif [ -d /etc/rc.d ]; then
+    sudo chmod +x /etc/rc.d/rc."${service_name}" &>"${log_redirects}"
   # SysvInit
   elif command -v service &>/dev/null || [ -x /usr/sbin/service ] || [ -x /sbin/service ]; then
     if command -v update-rc.d &>/dev/null || [ -x /usr/sbin/update-rc.d ] || [ -x /sbin/update-rc.d ]; then
@@ -514,6 +531,11 @@ EOF
     sudo ln -sf /opt/zapret/init.d/pfsense/zapret.sh /usr/local/etc/rc.d/zapret.sh
 
     enable_service zapret
+  # Rc
+  elif [ -d /etc/rc.d ]; then
+    sudo ln -sf /opt/zapret/init.d/sysv/zapret /etc/rc.d/rc.zapret
+
+    enable_service zapret
   # SysvInit
   elif command -v service &>/dev/null || [ -x /usr/sbin/service ] || [ -x /sbin/service ]; then
     sudo ln -sf /opt/zapret/init.d/sysv/zapret /etc/init.d/zapret
@@ -572,6 +594,8 @@ install_package() {
     sudo apk add --quiet "${package_name}" &>"${log_redirects}"
   elif command -v emerge &>/dev/null; then
     sudo emerge --quiet "${package_name}" &>"${log_redirects}"
+  elif command -v slackpkg &>/dev/null; then
+    sudo slackpkg -batch=on -default_answer=y install "${package_name}" &>"${log_redirects}"
   elif command -v pkg &>/dev/null; then
     sudo pkg install -y "${package_name}" &>"${log_redirects}"
   elif command -v pkg_add &>/dev/null; then
@@ -611,6 +635,8 @@ remove_package() {
     sudo apk del --quiet "${package_name}" &>"${log_redirects}"
   elif command -v emerge &>/dev/null; then
     sudo emerge --unmerge --quiet "${package_name}" &>"${log_redirects}"
+  elif command -v slackpkg &>/dev/null; then
+    sudo slackpkg -batch=on -default_answer=y remove "${package_name}" &>"${log_redirects}"
   elif command -v pkg &>/dev/null; then
     sudo pkg delete -y "${package_name}" &>"${log_redirects}"
   elif command -v pkg_delete &>/dev/null; then
@@ -650,6 +676,8 @@ update_packages() {
     sudo apk update --quiet &>"${log_redirects}"
   elif command -v emerge &>/dev/null; then
     sudo emerge --sync --quiet &>"${log_redirects}"
+  elif command -v slackpkg &>/dev/null; then
+    sudo slackpkg -batch=on update &>"${log_redirects}"
   elif command -v pkg &>/dev/null; then
     sudo pkg update &>"${log_redirects}"
   elif command -v pkg_add &>/dev/null; then
