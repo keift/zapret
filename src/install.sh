@@ -3,11 +3,13 @@
 sudo -v
 
 dnscrypt=false
+no_update=false
 dev=false
 debug=false
 
 for arg in "${@}"; do
   [ "${arg}" = "--dnscrypt" ] && dnscrypt=true
+  [ "${arg}" = "--no-update" ] && no_update=true
   [ "${arg}" = "--dev" ] && dev=true
   [ "${arg}" = "--debug" ] && debug=true
 done
@@ -688,7 +690,7 @@ else
   echo -e "  ${gray}Installing dependencies...${reset}"
 fi
 
-update_packages
+[ "${no_update}" = false ] && update_packages
 
 install_package bind
 install_package bind-tools
@@ -721,7 +723,7 @@ if command -v systemctl &>/dev/null && ! command -v pihole &>/dev/null && ! comm
     || dig -p 853 +tls +tls-hostname=one.one.one.one +tries=1 +time=10 @2606:4700:4700::1001 &>"${log_redirects}" ); then
     dns_resolver="systemd-resolved"
 
-    update_packages
+    [ "${no_update}" = false ] && update_packages
 
     install_package systemd-resolved
     remove_package dnscrypt-proxy
@@ -748,7 +750,7 @@ EOF
   else
     dns_resolver="dnscrypt-proxy"
 
-    update_packages
+    [ "${no_update}" = false ] && update_packages
 
     if command -v pkg &>/dev/null || command -v opkg &>/dev/null; then
       install_package dnscrypt-proxy2
@@ -818,7 +820,7 @@ EOF
 else
   dns_resolver="dnscrypt-proxy"
 
-  update_packages
+  [ "${no_update}" = false ] && update_packages
 
   if command -v pkg &>/dev/null || command -v opkg &>/dev/null; then
     install_package dnscrypt-proxy2
