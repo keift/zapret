@@ -670,15 +670,15 @@ update_packages() {
 
     sudo apt update -y &>"${log_redirects}"
   elif command -v rpm-ostree &>/dev/null; then
-    sudo rpm-ostree refresh-md &>"${log_redirects}"
+    sudo rpm-ostree upgrade &>"${log_redirects}"
   elif command -v dnf &>/dev/null; then
     sudo dnf makecache -y &>"${log_redirects}"
   elif command -v pacman &>/dev/null; then
-    : &>"${log_redirects}"
+    sudo pacman -Syu --noconfirm &>"${log_redirects}"
   elif command -v zypper &>/dev/null; then
     sudo zypper -n refresh &>"${log_redirects}"
   elif command -v xbps-install &>/dev/null; then
-    : &>"${log_redirects}"
+    sudo xbps-install -Suy &>"${log_redirects}"
   elif command -v apk &>/dev/null; then
     sudo apk update --quiet &>"${log_redirects}"
   elif command -v emerge &>/dev/null; then
@@ -688,7 +688,7 @@ update_packages() {
   elif command -v pkg &>/dev/null; then
     sudo pkg update &>"${log_redirects}"
   elif command -v pkg_add &>/dev/null; then
-    : &>"${log_redirects}"
+    sudo pkg_add -u &>"${log_redirects}"
   elif command -v opkg &>/dev/null; then
     sudo opkg update &>"${log_redirects}"
   else
