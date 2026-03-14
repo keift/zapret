@@ -103,12 +103,12 @@ send_metrics() {
     # SysvInit
     elif [ -d /etc/init.d ]; then
       init_system="sysvinit"
-    # Rc
-    elif [ -d /etc/rc.d ]; then
-      init_system="rc"
     # Entware, Optware
     elif [ -d /opt/etc/init.d ]; then
       init_system="entware"
+    # Rc
+    elif [ -d /etc/rc.d ]; then
+      init_system="rc"
     # Launchd (MacOS)
     elif command -v launchctl &>/dev/null; then
       init_system="launchd"
@@ -240,14 +240,14 @@ start_service() {
   # SysvInit
   elif [ -d /etc/init.d ]; then
     sudo /etc/init.d/"${service_name}" start &>"${log_redirects}"
-  # Rc
-  elif [ -d /etc/rc.d ]; then
-    sudo /etc/rc.d/rc."${service_name}" start &>"${log_redirects}"
   # Entware, Optware
   elif [ -d /opt/etc/init.d ]; then
     local entware_script=$(ls /opt/etc/init.d/*"${service_name}" 2>/dev/null | head -n 1)
 
     sudo "${entware_script}" start &>"${log_redirects}"
+  # Rc
+  elif [ -d /etc/rc.d ]; then
+    sudo /etc/rc.d/rc."${service_name}" start &>"${log_redirects}"
   # Launchd (MacOS)
   elif command -v launchctl &>/dev/null; then
     sudo launchctl start "${service_name}" &>"${log_redirects}"
@@ -305,14 +305,14 @@ stop_service() {
   # SysvInit
   elif [ -d /etc/init.d ]; then
     sudo /etc/init.d/"${service_name}" stop &>"${log_redirects}"
-  # Rc
-  elif [ -d /etc/rc.d ]; then
-    sudo /etc/rc.d/rc."${service_name}" stop &>"${log_redirects}"
   # Entware, Optware
   elif [ -d /opt/etc/init.d ]; then
     local entware_script=$(ls /opt/etc/init.d/*"${service_name}" 2>/dev/null | head -n 1)
 
     sudo "${entware_script}" stop &>"${log_redirects}"
+  # Rc
+  elif [ -d /etc/rc.d ]; then
+    sudo /etc/rc.d/rc."${service_name}" stop &>"${log_redirects}"
   # Launchd (MacOS)
   elif command -v launchctl &>/dev/null; then
     sudo launchctl stop "${service_name}" &>"${log_redirects}"
@@ -371,14 +371,14 @@ restart_service() {
   # SysvInit
   elif [ -d /etc/init.d ]; then
     sudo /etc/init.d/"${service_name}" restart &>"${log_redirects}"
-  # Rc
-  elif [ -d /etc/rc.d ]; then
-    sudo /etc/rc.d/rc."${service_name}" restart &>"${log_redirects}"
   # Entware, Optware
   elif [ -d /opt/etc/init.d ]; then
     local entware_script=$(ls /opt/etc/init.d/*"${service_name}" 2>/dev/null | head -n 1)
 
     sudo "${entware_script}" restart &>"${log_redirects}"
+  # Rc
+  elif [ -d /etc/rc.d ]; then
+    sudo /etc/rc.d/rc."${service_name}" restart &>"${log_redirects}"
   # Launchd (MacOS)
   elif command -v launchctl &>/dev/null; then
     sudo launchctl stop "${service_name}" &>"${log_redirects}"
@@ -422,12 +422,20 @@ enable_service() {
     sudo ln -sf "${runit_sv_dir}"/"${service_name}" "${runit_service_dir}" &>"${log_redirects}"
   # S6
   elif command -v s6-svscan &>/dev/null || command -v s6-rc &>/dev/null; then
-    : &>"${log_redirects}"
+    if [ -d /etc/s6/sv ]; then
+      local s6_service_dir="/etc/s6/sv"
+    elif [ -d /etc/s6-servicedirs ]; then
+      local s6_service_dir="/etc/s6-servicedirs"
+    fi
+
+    sudo chmod +x "${s6_service_dir}"/zapret &>"${log_redirects}"
   # OpenRC
   elif command -v rc-service &>/dev/null; then
     sudo rc-update add "${service_name}" default &>"${log_redirects}"
   # OpenBSD
   elif command -v rcctl &>/dev/null; then
+    sudo chmod +x /etc/rc.d/"${service_name}" &>"${log_redirects}"
+
     sudo rcctl enable "${service_name}" &>"${log_redirects}"
   # FreeBSD
   elif command -v sysrc &>/dev/null; then
@@ -445,14 +453,14 @@ enable_service() {
   # SysvInit
   elif [ -d /etc/init.d ]; then
     sudo chmod +x /etc/init.d/"${service_name}" &>"${log_redirects}"
-  # Rc
-  elif [ -d /etc/rc.d ]; then
-    sudo chmod +x /etc/rc.d/rc."${service_name}" &>"${log_redirects}"
   # Entware, Optware
   elif [ -d /opt/etc/init.d ]; then
     local entware_script=$(ls /opt/etc/init.d/*"${service_name}" 2>/dev/null | head -n 1)
 
     sudo chmod +x "${entware_script}" &>"${log_redirects}"
+  # Rc
+  elif [ -d /etc/rc.d ]; then
+    sudo chmod +x /etc/rc.d/rc."${service_name}" &>"${log_redirects}"
   # Launchd (MacOS)
   elif command -v launchctl &>/dev/null; then
     sudo launchctl load -w /Library/LaunchDaemons/"${service_name}".plist &>"${log_redirects}"
@@ -521,8 +529,6 @@ rc_stop() {
 rc_cmd "${1}"
 EOF
 
-    sudo chmod +x /etc/rc.d/zapret
-
     enable_service zapret
   # FreeBSD
   elif command -v sysrc &>/dev/null; then
@@ -544,11 +550,6 @@ EOF
     sudo ln -sf /opt/zapret/init.d/sysv/zapret /etc/init.d/zapret
 
     enable_service zapret
-  # Rc
-  elif [ -d /etc/rc.d ]; then
-    sudo ln -sf /opt/zapret/init.d/sysv/zapret /etc/rc.d/rc.zapret
-
-    enable_service zapret
   # Entware, Optware
   elif [ -d /opt/etc/init.d ]; then
     sudo tee /opt/etc/init.d/S90zapret &>/dev/null << 'EOF'
@@ -568,7 +569,10 @@ else
 fi
 EOF
 
-    sudo chmod +x /opt/etc/init.d/S90zapret
+    enable_service zapret
+  # Rc
+  elif [ -d /etc/rc.d ]; then
+    sudo ln -sf /opt/zapret/init.d/sysv/zapret /etc/rc.d/rc.zapret
 
     enable_service zapret
   # Launchd (MacOS)
