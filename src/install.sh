@@ -674,7 +674,7 @@ update_packages() {
   elif command -v dnf &>/dev/null; then
     sudo dnf makecache -y &>"${log_redirects}"
   elif command -v pacman &>/dev/null; then
-    sudo pacman -Syu --noconfirm &>"${log_redirects}"
+    : &>"${log_redirects}"
   elif command -v zypper &>/dev/null; then
     sudo zypper -n refresh &>"${log_redirects}"
   elif command -v xbps-install &>/dev/null; then
