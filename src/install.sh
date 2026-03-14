@@ -1116,6 +1116,28 @@ else
   nfqws_options=$(echo "${blockcheck_results}" | sed -n "/^\* SUMMARY/,/^$/p" | grep -E "curl_test_http|curl_test_https_tls12" | grep "ipv4 ${blockcheck_domain} : nfqws" | tail -n 5 | head -n 1 | sed "s/.*nfqws //" | sed "s|/tmp/zapret|/opt/zapret|g" | sed "s/[[:space:]]*\$//")
 fi
 
+if echo "${blockcheck_results}" | grep -q "nftables queue support is not available"; then
+  printf "Y\n\n" | sudo /opt/zapret/uninstall_easy.sh &>"${log_redirects}"
+  sudo rm -rf /opt/zapret
+  sudo rm -rf /tmp/zapret
+
+  if [ "${country_code}" = "RU" ]; then
+    echo -e "  ${red}Вам необходимо обновить и перезагрузить систему.${reset}"
+  elif [ "${country_code}" = "TR" ]; then
+    echo -e "  ${red}Sisteminizi güncellemeniz ve yeniden başlatmanız gerekiyor.${reset}"
+  else
+    echo -e "  ${red}You need to update and reboot your system.${reset}"
+  fi
+
+  echo ""
+
+  send_metrics ZAPRET_UPDATE_AND_REBOOT_REQUIRED
+
+  echo ""
+
+  exit 1
+fi
+
 if echo "${blockcheck_results}" | grep -q "curl_test_http ipv4 ${blockcheck_domain} : working without bypass" \
   && echo "${blockcheck_results}" | grep -q "curl_test_https_tls12 ipv4 ${blockcheck_domain} : working without bypass"; then
   printf "Y\n\n" | sudo /opt/zapret/uninstall_easy.sh &>"${log_redirects}"
