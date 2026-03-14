@@ -97,15 +97,15 @@ send_metrics() {
     # pfSense
     elif [ -f /etc/pfsense-release ] || grep -qi "pfsense" /etc/platform 2>/dev/null; then
       init_system="pfsense"
-    # Rc
-    elif [ -d /etc/rc.d ]; then
-      init_system="rc"
     # SysvInit
     elif command -v service &>/dev/null || [ -x /usr/sbin/service ] || [ -x /sbin/service ]; then
       init_system="sysvinit"
     # SysvInit
     elif [ -d /etc/init.d ]; then
       init_system="sysvinit"
+    # Rc
+    elif [ -d /etc/rc.d ]; then
+      init_system="rc"
     # Entware, Optware
     elif [ -d /opt/etc/init.d ]; then
       init_system="entware"
@@ -234,15 +234,15 @@ start_service() {
   # pfSense
   elif [ -f /etc/pfsense-release ] || grep -qi "pfsense" /etc/platform 2>/dev/null; then
     sudo /usr/local/etc/rc.d/"${service_name}".sh start &>"${log_redirects}"
-  # Rc
-  elif [ -d /etc/rc.d ]; then
-    sudo /etc/rc.d/rc."${service_name}" start &>"${log_redirects}"
   # SysvInit
   elif command -v service &>/dev/null || [ -x /usr/sbin/service ] || [ -x /sbin/service ]; then
     sudo service "${service_name}" start &>"${log_redirects}"
   # SysvInit
   elif [ -d /etc/init.d ]; then
     sudo /etc/init.d/"${service_name}" start &>"${log_redirects}"
+  # Rc
+  elif [ -d /etc/rc.d ]; then
+    sudo /etc/rc.d/rc."${service_name}" start &>"${log_redirects}"
   # Entware, Optware
   elif [ -d /opt/etc/init.d ]; then
     local entware_script=$(ls /opt/etc/init.d/*"${service_name}" 2>/dev/null | head -n 1)
@@ -299,15 +299,15 @@ stop_service() {
   # pfSense
   elif [ -f /etc/pfsense-release ] || grep -qi "pfsense" /etc/platform 2>/dev/null; then
     sudo /usr/local/etc/rc.d/"${service_name}".sh stop &>"${log_redirects}"
-  # Rc
-  elif [ -d /etc/rc.d ]; then
-    sudo /etc/rc.d/rc."${service_name}" stop &>"${log_redirects}"
   # SysvInit
   elif command -v service &>/dev/null || [ -x /usr/sbin/service ] || [ -x /sbin/service ]; then
     sudo service "${service_name}" stop &>"${log_redirects}"
   # SysvInit
   elif [ -d /etc/init.d ]; then
     sudo /etc/init.d/"${service_name}" stop &>"${log_redirects}"
+  # Rc
+  elif [ -d /etc/rc.d ]; then
+    sudo /etc/rc.d/rc."${service_name}" stop &>"${log_redirects}"
   # Entware, Optware
   elif [ -d /opt/etc/init.d ]; then
     local entware_script=$(ls /opt/etc/init.d/*"${service_name}" 2>/dev/null | head -n 1)
@@ -365,15 +365,15 @@ restart_service() {
   # pfSense
   elif [ -f /etc/pfsense-release ] || grep -qi "pfsense" /etc/platform 2>/dev/null; then
     sudo /usr/local/etc/rc.d/"${service_name}".sh restart &>"${log_redirects}"
-  # Rc
-  elif [ -d /etc/rc.d ]; then
-    sudo /etc/rc.d/rc."${service_name}" restart &>"${log_redirects}"
   # SysvInit
   elif command -v service &>/dev/null || [ -x /usr/sbin/service ] || [ -x /sbin/service ]; then
     sudo service "${service_name}" restart &>"${log_redirects}"
   # SysvInit
   elif [ -d /etc/init.d ]; then
     sudo /etc/init.d/"${service_name}" restart &>"${log_redirects}"
+  # Rc
+  elif [ -d /etc/rc.d ]; then
+    sudo /etc/rc.d/rc."${service_name}" restart &>"${log_redirects}"
   # Entware, Optware
   elif [ -d /opt/etc/init.d ]; then
     local entware_script=$(ls /opt/etc/init.d/*"${service_name}" 2>/dev/null | head -n 1)
@@ -434,10 +434,7 @@ enable_service() {
     sudo sysrc "${service_name}_enable=YES" &>"${log_redirects}"
   # pfSense
   elif [ -f /etc/pfsense-release ] || grep -qi "pfsense" /etc/platform 2>/dev/null; then
-    sudo /usr/local/etc/rc.d/"${service_name}".sh enable &>"${log_redirects}"
-  # Rc
-  elif [ -d /etc/rc.d ]; then
-    sudo /etc/rc.d/rc."${service_name}" enable &>"${log_redirects}"
+    sudo chmod +x /usr/local/etc/rc.d/"${service_name}".sh &>"${log_redirects}"
   # SysvInit
   elif command -v service &>/dev/null || [ -x /usr/sbin/service ] || [ -x /sbin/service ]; then
     if command -v update-rc.d &>/dev/null || [ -x /usr/sbin/update-rc.d ] || [ -x /sbin/update-rc.d ]; then
@@ -447,12 +444,15 @@ enable_service() {
     fi
   # SysvInit
   elif [ -d /etc/init.d ]; then
-    sudo /etc/init.d/"${service_name}" enable &>"${log_redirects}"
+    sudo chmod +x /etc/init.d/"${service_name}" &>"${log_redirects}"
+  # Rc
+  elif [ -d /etc/rc.d ]; then
+    sudo chmod +x /etc/rc.d/rc."${service_name}" &>"${log_redirects}"
   # Entware, Optware
   elif [ -d /opt/etc/init.d ]; then
     local entware_script=$(ls /opt/etc/init.d/*"${service_name}" 2>/dev/null | head -n 1)
 
-    sudo "${entware_script}" enable &>"${log_redirects}"
+    sudo chmod +x "${entware_script}" &>"${log_redirects}"
   # Launchd (MacOS)
   elif command -v launchctl &>/dev/null; then
     sudo launchctl load -w /Library/LaunchDaemons/"${service_name}".plist &>"${log_redirects}"
@@ -534,11 +534,6 @@ EOF
     sudo ln -sf /opt/zapret/init.d/pfsense/zapret.sh /usr/local/etc/rc.d/zapret.sh
 
     enable_service zapret
-  # Rc
-  elif [ -d /etc/rc.d ]; then
-    sudo ln -sf /opt/zapret/init.d/sysv/zapret /etc/rc.d/rc.zapret
-
-    enable_service zapret
   # SysvInit
   elif command -v service &>/dev/null || [ -x /usr/sbin/service ] || [ -x /sbin/service ]; then
     sudo ln -sf /opt/zapret/init.d/sysv/zapret /etc/init.d/zapret
@@ -547,6 +542,11 @@ EOF
   # SysvInit
   elif [ -d /etc/init.d ]; then
     sudo ln -sf /opt/zapret/init.d/sysv/zapret /etc/init.d/zapret
+
+    enable_service zapret
+  # Rc
+  elif [ -d /etc/rc.d ]; then
+    sudo ln -sf /opt/zapret/init.d/sysv/zapret /etc/rc.d/rc.zapret
 
     enable_service zapret
   # Entware, Optware

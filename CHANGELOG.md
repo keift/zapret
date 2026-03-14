@@ -12,8 +12,8 @@
   - **OpenBSD init support.** Respect for OpenBSD init.
   - **FreeBSD init support.** Respect for FreeBSD init.
   - **pfSense init support.** Respect for pfSense init.
-  - **Rc init support.** Respect for Rc init.
   - **SysVinit init support.** Respect for SysVinit init.
+  - **Rc init support.** Respect for Rc init.
   - **Entware and Optware init support.** Respect for Entware and Optware init.
   - **Launchd init support.** Respect for Launchd init.
   - **RPM-OSTREE package manager support.** Respect for RPM-OSTREE package manager.
