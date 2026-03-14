@@ -44,7 +44,6 @@ country_code=$(curl --max-time 10 -s https://ipinfo.io/country)
 clear
 
 send_metrics() {
-  echo ""
   if [ "${country_code}" = "RU" ]; then
     echo -e "  ${gray}Вы хотите поделиться результатами с ${blue}Keift${gray}?${reset}"
     echo -ne "  ${gray}Это поможет нам улучшить этот инструмент. [${green}Y${gray}/${red}N${gray}] ${reset}"
@@ -215,9 +214,11 @@ start_service() {
     if command -v s6-rc &>/dev/null; then
       sudo s6-rc -u change "${service_name}" &>"${log_redirects}"
     else
-      local s6_service_dir="/etc/s6/sv"
-
-      [ -d /etc/s6-servicedirs ] && s6_service_dir="/etc/s6-servicedirs"
+      if [ -d /etc/s6/sv ]; then
+        local s6_service_dir="/etc/s6/sv"
+      elif [ -d /etc/s6-servicedirs ]; then
+        local s6_service_dir="/etc/s6-servicedirs"
+      fi
 
       sudo s6-svc -u "${s6_service_dir}"/"${service_name}" &>"${log_redirects}"
     fi
@@ -278,9 +279,11 @@ stop_service() {
     if command -v s6-rc &>/dev/null; then
       sudo s6-rc -d change "${service_name}" &>"${log_redirects}"
     else
-      local s6_service_dir="/etc/s6/sv"
-
-      [ -d /etc/s6-servicedirs ] && s6_service_dir="/etc/s6-servicedirs"
+      if [ -d /etc/s6/sv ]; then
+        local s6_service_dir="/etc/s6/sv"
+      elif [ -d /etc/s6-servicedirs ]; then
+        local s6_service_dir="/etc/s6-servicedirs"
+      fi
 
       sudo s6-svc -d "${s6_service_dir}"/"${service_name}" &>"${log_redirects}"
     fi
@@ -342,9 +345,11 @@ restart_service() {
       sudo s6-rc -d change "${service_name}" &>"${log_redirects}"
       sudo s6-rc -u change "${service_name}" &>"${log_redirects}"
     else
-      local s6_service_dir="/etc/s6/sv"
-
-      [ -d /etc/s6-servicedirs ] && s6_service_dir="/etc/s6-servicedirs"
+      if [ -d /etc/s6/sv ]; then
+        local s6_service_dir="/etc/s6/sv"
+      elif [ -d /etc/s6-servicedirs ]; then
+        local s6_service_dir="/etc/s6-servicedirs"
+      fi
 
       sudo s6-svc -r "${s6_service_dir}"/"${service_name}" &>"${log_redirects}"
     fi
@@ -400,12 +405,19 @@ enable_service() {
     sudo systemctl enable "${service_name}" &>"${log_redirects}"
   # Runit
   elif command -v sv &>/dev/null; then
-    local runit_sv_dir="/etc/sv"
-    local runit_service_dir="/var/service"
+    if [ -d /etc/sv ]; then
+      local runit_sv_dir="/etc/sv"
+    elif [ -d /etc/runit/sv ]; then
+      local runit_sv_dir="/etc/runit/sv"
+    fi
 
-    [ -d "/etc/runit/sv" ] && runit_sv_dir="/etc/runit/sv"
-    [ -d "/run/runit/service" ] && runit_service_dir="/run/runit/service"
-    [ -d "/service" ] && runit_service_dir="/service"
+    if [ -d /var/service ]; then
+      local runit_service_dir="/var/service"
+    elif [ -d /run/runit/service ]; then
+      local runit_service_dir="/run/runit/service"
+    elif [ -d /service ]; then
+      local runit_service_dir="/service"
+    fi
 
     sudo ln -sf "${runit_sv_dir}"/"${service_name}" "${runit_service_dir}" &>"${log_redirects}"
   # S6
@@ -432,17 +444,6 @@ enable_service() {
       sudo update-rc.d "${service_name}" defaults &>"${log_redirects}"
     elif command -v chkconfig &>/dev/null || [ -x /usr/sbin/chkconfig ] || [ -x /sbin/chkconfig ]; then
       sudo chkconfig "${service_name}" on &>"${log_redirects}"
-    else
-      if [ "${country_code}" = "RU" ]; then
-        echo -e "  ${red}Не удалось найти update-rc.d или chkconfig для включения службы.${reset}"
-      elif [ "${country_code}" = "TR" ]; then
-        echo -e "  ${red}Hizmeti etkinleştirmek için update-rc.d veya chkconfig bulunamadı.${reset}"
-      else
-        echo -e "  ${red}Cannot find update-rc.d or chkconfig to enable service.${reset}"
-      fi
-      echo ""
-
-      exit 1
     fi
   # SysvInit
   elif [ -d /etc/init.d ]; then
@@ -476,18 +477,22 @@ init_zapret() {
     : &>"${log_redirects}"
   # Runit
   elif command -v sv &>/dev/null; then
-    local runit_sv_dir="/etc/sv"
-
-    [ -d "/etc/runit/sv" ] && runit_sv_dir="/etc/runit/sv"
+    if [ -d /etc/sv ]; then
+      local runit_sv_dir="/etc/sv"
+    elif [ -d /etc/runit/sv ]; then
+      local runit_sv_dir="/etc/runit/sv"
+    fi
 
     sudo ln -sf /opt/zapret/init.d/runit/zapret "${runit_sv_dir}"/zapret
 
     enable_service zapret
   # S6
   elif command -v s6-svscan &>/dev/null || command -v s6-rc &>/dev/null; then
-    local s6_service_dir="/etc/s6/sv"
-
-    [ -d /etc/s6-servicedirs ] && s6_service_dir="/etc/s6-servicedirs"
+    if [ -d /etc/s6/sv ]; then
+      local s6_service_dir="/etc/s6/sv"
+    elif [ -d /etc/s6-servicedirs ]; then
+      local s6_service_dir="/etc/s6-servicedirs"
+    fi
 
     sudo ln -sf /opt/zapret/init.d/s6/zapret "${s6_service_dir}"/zapret
 
@@ -792,12 +797,15 @@ EOF
     start_service dnscrypt-proxy
     start_service dnscrypt-proxy2
 
-    [ -f "/etc/dnscrypt-proxy/dnscrypt-proxy.toml" ] && dnscrypt_path="/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
-    [ -f "/etc/dnscrypt-proxy.toml" ] && dnscrypt_path="/etc/dnscrypt-proxy.toml"
-    [ -f "/opt/etc/dnscrypt-proxy.toml" ] && dnscrypt_path="/opt/etc/dnscrypt-proxy.toml"
-    [ -f "/usr/local/etc/dnscrypt-proxy/dnscrypt-proxy.toml" ] && dnscrypt_path="/usr/local/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
-
-    if [ ! -f "${dnscrypt_path}" ]; then
+    if [ -f /etc/dnscrypt-proxy/dnscrypt-proxy.toml ]; then
+      dnscrypt_path="/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
+    elif [ -f /etc/dnscrypt-proxy.toml ]; then
+      dnscrypt_path="/etc/dnscrypt-proxy.toml"
+    elif [ -f /opt/etc/dnscrypt-proxy.toml ]; then
+      dnscrypt_path="/opt/etc/dnscrypt-proxy.toml"
+    elif [ -f /usr/local/etc/dnscrypt-proxy/dnscrypt-proxy.toml ]; then
+      dnscrypt_path="/usr/local/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
+    else
       if [ "${country_code}" = "RU" ]; then
         echo -e "  ${red}Путь к DNSCrypt Proxy не найден.${reset}"
       elif [ "${country_code}" = "TR" ]; then
@@ -872,12 +880,15 @@ else
   start_service dnscrypt-proxy
   start_service dnscrypt-proxy2
 
-  [ -f "/etc/dnscrypt-proxy/dnscrypt-proxy.toml" ] && dnscrypt_path="/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
-  [ -f "/etc/dnscrypt-proxy.toml" ] && dnscrypt_path="/etc/dnscrypt-proxy.toml"
-  [ -f "/opt/etc/dnscrypt-proxy.toml" ] && dnscrypt_path="/opt/etc/dnscrypt-proxy.toml"
-  [ -f "/usr/local/etc/dnscrypt-proxy/dnscrypt-proxy.toml" ] && dnscrypt_path="/usr/local/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
-
-  if [ ! -f "${dnscrypt_path}" ]; then
+  if [ -f /etc/dnscrypt-proxy/dnscrypt-proxy.toml ]; then
+    dnscrypt_path="/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
+  elif [ -f /etc/dnscrypt-proxy.toml ]; then
+    dnscrypt_path="/etc/dnscrypt-proxy.toml"
+  elif [ -f /opt/etc/dnscrypt-proxy.toml ]; then
+    dnscrypt_path="/opt/etc/dnscrypt-proxy.toml"
+  elif [ -f /usr/local/etc/dnscrypt-proxy/dnscrypt-proxy.toml ]; then
+    dnscrypt_path="/usr/local/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
+  else
     if [ "${country_code}" = "RU" ]; then
       echo -e "  ${red}Путь к DNSCrypt Proxy не найден.${reset}"
     elif [ "${country_code}" = "TR" ]; then
@@ -1119,6 +1130,8 @@ if echo "${blockcheck_results}" | grep -q "curl_test_http ipv4 ${blockcheck_doma
     echo -e "  ${gray}No access restrictions were detected.${reset}"
   fi
 
+  echo ""
+
   send_metrics ZAPRET_NO_ACCESS_RESTRICTIONS_WERE_DETECTED
 
   echo ""
@@ -1166,6 +1179,8 @@ if echo "${installation_results}" | grep -q "could not start zapret service"; th
   else
     echo -e "  ${red}Something went wrong. Please contact us.${reset}"
   fi
+
+  echo ""
 
   send_metrics ZAPRET_SOMETHING_WENT_WRONG
 
@@ -1221,6 +1236,8 @@ else
 fi
 
 sudo rm -rf /tmp/zapret
+
+echo ""
 
 send_metrics ZAPRET_INSTALLATION_SUCCESSFUL
 
