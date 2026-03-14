@@ -428,7 +428,7 @@ enable_service() {
       local s6_service_dir="/etc/s6-servicedirs"
     fi
 
-    sudo chmod +x "${s6_service_dir}"/zapret &>"${log_redirects}"
+    sudo chmod +x "${s6_service_dir}"/"${service_name}" &>"${log_redirects}"
   # OpenRC
   elif command -v rc-service &>/dev/null; then
     sudo rc-update add "${service_name}" default &>"${log_redirects}"
