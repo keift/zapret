@@ -825,9 +825,9 @@ EOF
 
     sudo mkdir -p "$(dirname "${dnscrypt_path}")" /var/cache/dnscrypt-proxy
 
-    sudo chattr -i /etc/resolv.conf &>"${log_redirects}"
-
     sudo tee /etc/systemd/resolved.conf &>/dev/null <<< ""
+
+    sudo chattr -i /etc/resolv.conf &>"${log_redirects}"
 
     [ -e /run/systemd/resolve/stub-resolv.conf ] && sudo ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
 
