@@ -103,7 +103,7 @@ send_metrics() {
     # SysvInit
     elif [ -d /etc/init.d ]; then
       init_system="sysvinit"
-    # Entware, Optware
+    # Entware
     elif [ -d /opt/etc/init.d ]; then
       init_system="entware"
     # Rc
@@ -240,7 +240,7 @@ start_service() {
   # SysvInit
   elif [ -d /etc/init.d ]; then
     sudo /etc/init.d/"${service_name}" start &>"${log_redirects}"
-  # Entware, Optware
+  # Entware
   elif [ -d /opt/etc/init.d ]; then
     local entware_script=$(ls /opt/etc/init.d/*"${service_name}" 2>/dev/null | head -n 1)
 
@@ -305,7 +305,7 @@ stop_service() {
   # SysvInit
   elif [ -d /etc/init.d ]; then
     sudo /etc/init.d/"${service_name}" stop &>"${log_redirects}"
-  # Entware, Optware
+  # Entware
   elif [ -d /opt/etc/init.d ]; then
     local entware_script=$(ls /opt/etc/init.d/*"${service_name}" 2>/dev/null | head -n 1)
 
@@ -371,7 +371,7 @@ restart_service() {
   # SysvInit
   elif [ -d /etc/init.d ]; then
     sudo /etc/init.d/"${service_name}" restart &>"${log_redirects}"
-  # Entware, Optware
+  # Entware
   elif [ -d /opt/etc/init.d ]; then
     local entware_script=$(ls /opt/etc/init.d/*"${service_name}" 2>/dev/null | head -n 1)
 
@@ -453,7 +453,7 @@ enable_service() {
   # SysvInit
   elif [ -d /etc/init.d ]; then
     sudo chmod +x /etc/init.d/"${service_name}" &>"${log_redirects}"
-  # Entware, Optware
+  # Entware
   elif [ -d /opt/etc/init.d ]; then
     local entware_script=$(ls /opt/etc/init.d/*"${service_name}" 2>/dev/null | head -n 1)
 
@@ -550,7 +550,7 @@ EOF
     sudo ln -sf /opt/zapret/init.d/sysv/zapret /etc/init.d/zapret
 
     enable_service zapret
-  # Entware, Optware
+  # Entware
   elif [ -d /opt/etc/init.d ]; then
     sudo tee /opt/etc/init.d/S90zapret &>/dev/null << 'EOF'
 #!/bin/sh
