@@ -109,7 +109,7 @@ send_metrics() {
     # Rc
     elif [ -d /etc/rc.d ]; then
       init_system="rc"
-    # Launchd (MacOS)
+    # Launchd
     elif command -v launchctl &>/dev/null; then
       init_system="launchd"
     else
@@ -248,7 +248,7 @@ start_service() {
   # Rc
   elif [ -d /etc/rc.d ]; then
     sudo /etc/rc.d/rc."${service_name}" start &>"${log_redirects}"
-  # Launchd (MacOS)
+  # Launchd
   elif command -v launchctl &>/dev/null; then
     sudo launchctl start "${service_name}" &>"${log_redirects}"
   else
@@ -313,7 +313,7 @@ stop_service() {
   # Rc
   elif [ -d /etc/rc.d ]; then
     sudo /etc/rc.d/rc."${service_name}" stop &>"${log_redirects}"
-  # Launchd (MacOS)
+  # Launchd
   elif command -v launchctl &>/dev/null; then
     sudo launchctl stop "${service_name}" &>"${log_redirects}"
   else
@@ -379,7 +379,7 @@ restart_service() {
   # Rc
   elif [ -d /etc/rc.d ]; then
     sudo /etc/rc.d/rc."${service_name}" restart &>"${log_redirects}"
-  # Launchd (MacOS)
+  # Launchd
   elif command -v launchctl &>/dev/null; then
     sudo launchctl stop "${service_name}" &>"${log_redirects}"
     sudo launchctl start "${service_name}" &>"${log_redirects}"
@@ -461,7 +461,7 @@ enable_service() {
   # Rc
   elif [ -d /etc/rc.d ]; then
     sudo chmod +x /etc/rc.d/rc."${service_name}" &>"${log_redirects}"
-  # Launchd (MacOS)
+  # Launchd
   elif command -v launchctl &>/dev/null; then
     sudo launchctl load -w /Library/LaunchDaemons/"${service_name}".plist &>"${log_redirects}"
   else
@@ -575,7 +575,7 @@ EOF
     sudo ln -sf /opt/zapret/init.d/sysv/zapret /etc/rc.d/rc.zapret
 
     enable_service zapret
-  # Launchd (MacOS)
+  # Launchd
   elif command -v launchctl &>/dev/null; then
     # Being set up by Zapret.
     : &>"${log_redirects}"
