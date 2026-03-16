@@ -422,27 +422,19 @@ enable_service() {
     sudo ln -sf "${runit_sv_dir}"/"${service_name}" "${runit_service_dir}" &>"${log_redirects}"
   # S6
   elif command -v s6-svscan &>/dev/null || command -v s6-rc &>/dev/null; then
-    if [ -d /etc/s6/sv ]; then
-      local s6_service_dir="/etc/s6/sv"
-    elif [ -d /etc/s6-servicedirs ]; then
-      local s6_service_dir="/etc/s6-servicedirs"
-    fi
-
-    sudo chmod +x "${s6_service_dir}"/"${service_name}" &>"${log_redirects}"
+    :
   # OpenRC
   elif command -v rc-service &>/dev/null; then
     sudo rc-update add "${service_name}" default &>"${log_redirects}"
   # OpenBSD
   elif command -v rcctl &>/dev/null; then
-    sudo chmod +x /etc/rc.d/"${service_name}" &>"${log_redirects}"
-
     sudo rcctl enable "${service_name}" &>"${log_redirects}"
   # FreeBSD
   elif command -v sysrc &>/dev/null; then
     sudo sysrc "${service_name}_enable=YES" &>"${log_redirects}"
   # pfSense
   elif [ -f /etc/pfsense-release ] || grep -qi "pfsense" /etc/platform 2>/dev/null; then
-    sudo chmod +x /usr/local/etc/rc.d/"${service_name}".sh &>"${log_redirects}"
+    :
   # SysvInit
   elif command -v service &>/dev/null || [ -x /usr/sbin/service ] || [ -x /sbin/service ]; then
     if command -v update-rc.d &>/dev/null || [ -x /usr/sbin/update-rc.d ] || [ -x /sbin/update-rc.d ]; then
@@ -452,15 +444,13 @@ enable_service() {
     fi
   # SysvInit
   elif [ -d /etc/init.d ]; then
-    sudo chmod +x /etc/init.d/"${service_name}" &>"${log_redirects}"
+    :
   # Entware
   elif [ -d /opt/etc/init.d ]; then
-    local entware_script=$(ls /opt/etc/init.d/*"${service_name}" 2>/dev/null | head -n 1)
-
-    sudo chmod +x "${entware_script}" &>"${log_redirects}"
+    :
   # Rc
   elif [ -d /etc/rc.d ]; then
-    sudo chmod +x /etc/rc.d/rc."${service_name}" &>"${log_redirects}"
+    :
   # Launchd
   elif command -v launchctl &>/dev/null; then
     sudo launchctl load -w /Library/LaunchDaemons/"${service_name}".plist &>"${log_redirects}"
@@ -482,7 +472,7 @@ init_zapret() {
   # Systemd
   if command -v systemctl &>/dev/null; then
     # Being set up by Zapret.
-    : &>"${log_redirects}"
+    :
   # Runit
   elif command -v sv &>/dev/null; then
     if [ -d /etc/sv ]; then
@@ -508,7 +498,7 @@ init_zapret() {
   # OpenRC
   elif command -v rc-service &>/dev/null; then
     # Being set up by Zapret.
-    : &>"${log_redirects}"
+    :
   # OpenBSD
   elif command -v rcctl &>/dev/null; then
     sudo tee /etc/rc.d/zapret &>/dev/null << 'EOF'
@@ -528,6 +518,8 @@ rc_stop() {
 
 rc_cmd "${1}"
 EOF
+
+    sudo chmod +x /etc/rc.d/zapret
 
     enable_service zapret
   # FreeBSD
@@ -569,6 +561,8 @@ else
 fi
 EOF
 
+    sudo chmod +x /opt/etc/init.d/S90zapret
+
     enable_service zapret
   # Rc
   elif [ -d /etc/rc.d ]; then
@@ -578,7 +572,7 @@ EOF
   # Launchd
   elif command -v launchctl &>/dev/null; then
     # Being set up by Zapret.
-    : &>"${log_redirects}"
+    :
   fi
 }
 
@@ -751,11 +745,11 @@ else
 fi
 
 if command -v systemctl &>/dev/null && ! command -v pihole &>/dev/null && ! command -v pihole-FTL &>/dev/null; then
-  if [ "${dnscrypt}" = false ] \
-    && ( dig -p 853 +tls +tls-hostname=one.one.one.one +tries=1 +time=10 @1.1.1.1 &>"${log_redirects}" \
-    || dig -p 853 +tls +tls-hostname=one.one.one.one +tries=1 +time=10 @2606:4700:4700::1111 &>"${log_redirects}" \
-    || dig -p 853 +tls +tls-hostname=one.one.one.one +tries=1 +time=10 @1.0.0.1 &>"${log_redirects}" \
-    || dig -p 853 +tls +tls-hostname=one.one.one.one +tries=1 +time=10 @2606:4700:4700::1001 &>"${log_redirects}" ); then
+  if [ "${dnscrypt}" = false ] && \
+    ( dig -p 853 +tls +tls-hostname=one.one.one.one +tries=1 +time=10 @1.1.1.1 &>"${log_redirects}" || \
+    dig -p 853 +tls +tls-hostname=one.one.one.one +tries=1 +time=10 @2606:4700:4700::1111 &>"${log_redirects}" || \
+    dig -p 853 +tls +tls-hostname=one.one.one.one +tries=1 +time=10 @1.0.0.1 &>"${log_redirects}" || \
+    dig -p 853 +tls +tls-hostname=one.one.one.one +tries=1 +time=10 @2606:4700:4700::1001 &>"${log_redirects}" ); then
     dns_resolver="systemd-resolved"
 
     update_packages
@@ -1080,6 +1074,7 @@ blockcheck_domains=(
   "instagram.com"
   "pornhub.com"
   "roblox.com"
+  "steampowered.com"
   "tiktok.com"
   "x.com"
   "yandex.com"
@@ -1142,8 +1137,8 @@ if echo "${blockcheck_results}" | grep -q "nftables queue support is not availab
   exit 1
 fi
 
-if echo "${blockcheck_results}" | grep -q "curl_test_http ipv4 ${blockcheck_domain} : working without bypass" \
-  && echo "${blockcheck_results}" | grep -q "curl_test_https_tls12 ipv4 ${blockcheck_domain} : working without bypass"; then
+if echo "${blockcheck_results}" | grep -q "curl_test_http ipv4 ${blockcheck_domain} : working without bypass" && \
+  echo "${blockcheck_results}" | grep -q "curl_test_https_tls12 ipv4 ${blockcheck_domain} : working without bypass"; then
   printf "Y\n\n" | sudo /opt/zapret/uninstall_easy.sh &>"${log_redirects}"
   sudo rm -rf /opt/zapret
   sudo rm -rf /tmp/zapret
@@ -1199,11 +1194,11 @@ if echo "${installation_results}" | grep -q "could not start zapret service"; th
   sudo rm -rf /tmp/zapret
 
   if [ "${country_code}" = "RU" ]; then
-    echo -e "  ${red}Что-то пошло не так. Пожалуйста, свяжитесь с нами.${reset}"
+    echo -e "  ${red}Что-то пошло не так.${reset}"
   elif [ "${country_code}" = "TR" ]; then
-    echo -e "  ${red}Bir şeyler ters gitti. Lütfen bizimle iletişime geçin.${reset}"
+    echo -e "  ${red}Bir şeyler ters gitti.${reset}"
   else
-    echo -e "  ${red}Something went wrong. Please contact us.${reset}"
+    echo -e "  ${red}Something went wrong.${reset}"
   fi
 
   echo ""
@@ -1219,36 +1214,17 @@ echo "${installation_results}" | grep -q "system is not either systemd" && init_
 
 start_service zapret
 
-sudo sed -i "/^NFQWS_OPT=\"/,/^\"/c NFQWS_OPT=\"${nfqws_options} --hostlist=/opt/zapret/hostlist.txt --hostlist-auto=/opt/zapret/ipset/zapret-hostlist-auto.txt\"" /opt/zapret/config
-
 sudo touch /opt/zapret/hostlist.txt
+sudo touch /opt/zapret/ipset/zapret-hostlist-auto.txt
 
-sudo tee /opt/zapret/ipset/zapret-hostlist-auto.txt &>/dev/null << EOF
-# Discord
-discord.com
-discord.net
-discordapp.com
-discordapp.net
-discord.co
-discord.dev
-discord.gg
-discord.gift
-discord.media
-discord.new
-
-# Roblox
-roblox.com
-
-# Others
-EOF
+sudo sed -i "/^NFQWS_OPT=\"/,/^\"/c NFQWS_OPT=\"${nfqws_options} --hostlist=/opt/zapret/hostlist.txt --hostlist-auto=/opt/zapret/ipset/zapret-hostlist-auto.txt\"" /opt/zapret/config
 
 restart_service zapret
 
-i=1
-while [ "${i}" -le 10 ]; do
-  curl --max-time 10 https://"${blockcheck_domain}" &>/dev/null
-
-  ((i++))
+for domain in "${blockcheck_domains[@]}"; do
+  for i in {1..3}; do
+    curl --max-time 10 https://"${domain}" &>/dev/null
+  done
 done
 
 # 7. Finish the installation
