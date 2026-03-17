@@ -1223,7 +1223,7 @@ restart_service zapret
 
 for domain in "${blockcheck_domains[@]}"; do
   for i in {1..3}; do
-    curl --max-time 10 https://"${domain}" &>/dev/null
+    curl --max-time 1 https://"${domain}" &>/dev/null
   done
 done
 
