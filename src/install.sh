@@ -709,6 +709,19 @@ else
 fi
 echo ""
 
+if [ "$(uname)" != "Linux" ]; then
+  if [ "${country_code}" = "RU" ]; then
+    echo -e "  ${red}Неподдерживаемая система.${reset}"
+  elif [ "${country_code}" = "TR" ]; then
+    echo -e "  ${red}Desteklenmeyen sistem.${reset}"
+  else
+    echo -e "  ${red}Unsupported system.${reset}"
+  fi
+  echo ""
+
+  exit 1
+fi
+
 # 1. Install dependencies
 
 if [ "${country_code}" = "RU" ]; then
