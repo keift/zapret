@@ -786,7 +786,7 @@ EOF
 
     sudo chattr -i /etc/resolv.conf &>"${log_redirects}"
 
-    [ -e /run/systemd/resolve/stub-resolv.conf ] && sudo ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
+    [ -f /run/systemd/resolve/stub-resolv.conf ] && sudo ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
 
     restart_service systemd-resolved
   else
@@ -836,7 +836,7 @@ EOF
 
     sudo chattr -i /etc/resolv.conf &>"${log_redirects}"
 
-    [ -e /run/systemd/resolve/stub-resolv.conf ] && sudo ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
+    [ -f /run/systemd/resolve/stub-resolv.conf ] && sudo ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
 
     restart_service systemd-resolved
 
@@ -871,7 +871,7 @@ EOF
 
     sudo chattr -i /etc/resolv.conf &>"${log_redirects}"
 
-    [ -e /run/systemd/resolve/stub-resolv.conf ] && sudo ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
+    [ -f /run/systemd/resolve/stub-resolv.conf ] && sudo ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
 
     restart_service systemd-resolved
   fi
