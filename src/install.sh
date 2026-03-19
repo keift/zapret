@@ -824,6 +824,8 @@ EOF
       dnscrypt_path="/opt/etc/dnscrypt-proxy.toml"
     elif [ -f /usr/local/etc/dnscrypt-proxy/dnscrypt-proxy.toml ]; then
       dnscrypt_path="/usr/local/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
+    elif [ -f /usr/share/defaults/dnscrypt-proxy/dnscrypt-proxy.toml ]; then
+      dnscrypt_path="/usr/share/defaults/dnscrypt-proxy/dnscrypt-proxy.toml"
     else
       if [ "${country_code}" = "RU" ]; then
         echo -e "  ${red}Путь к DNSCrypt Proxy не найден.${reset}"
@@ -907,6 +909,8 @@ else
     dnscrypt_path="/opt/etc/dnscrypt-proxy.toml"
   elif [ -f /usr/local/etc/dnscrypt-proxy/dnscrypt-proxy.toml ]; then
     dnscrypt_path="/usr/local/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
+  elif [ -f /usr/share/defaults/dnscrypt-proxy/dnscrypt-proxy.toml ]; then
+    dnscrypt_path="/usr/share/defaults/dnscrypt-proxy/dnscrypt-proxy.toml"
   else
     if [ "${country_code}" = "RU" ]; then
       echo -e "  ${red}Путь к DNSCrypt Proxy не найден.${reset}"
