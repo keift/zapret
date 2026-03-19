@@ -825,7 +825,11 @@ EOF
     elif [ -f /usr/local/etc/dnscrypt-proxy/dnscrypt-proxy.toml ]; then
       dnscrypt_path="/usr/local/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
     elif [ -f /usr/share/defaults/dnscrypt-proxy/dnscrypt-proxy.toml ]; then
-      dnscrypt_path="/usr/share/defaults/dnscrypt-proxy/dnscrypt-proxy.toml"
+      sudo mkdir -p /etc/dnscrypt-proxy
+
+      sudo cp /usr/share/defaults/dnscrypt-proxy/dnscrypt-proxy.toml /etc/dnscrypt-proxy
+
+      dnscrypt_path="/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
     else
       if [ "${country_code}" = "RU" ]; then
         echo -e "  ${red}Путь к DNSCrypt Proxy не найден.${reset}"
@@ -839,8 +843,6 @@ EOF
 
       exit 1
     fi
-
-    sudo mkdir -p "$(dirname "${dnscrypt_path}")" /var/cache/dnscrypt-proxy
 
     sudo tee /etc/systemd/resolved.conf &>/dev/null <<< ""
 
@@ -910,7 +912,11 @@ else
   elif [ -f /usr/local/etc/dnscrypt-proxy/dnscrypt-proxy.toml ]; then
     dnscrypt_path="/usr/local/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
   elif [ -f /usr/share/defaults/dnscrypt-proxy/dnscrypt-proxy.toml ]; then
-    dnscrypt_path="/usr/share/defaults/dnscrypt-proxy/dnscrypt-proxy.toml"
+    sudo mkdir -p /etc/dnscrypt-proxy
+
+    sudo cp /usr/share/defaults/dnscrypt-proxy/dnscrypt-proxy.toml /etc/dnscrypt-proxy
+
+    dnscrypt_path="/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
   else
     if [ "${country_code}" = "RU" ]; then
       echo -e "  ${red}Путь к DNSCrypt Proxy не найден.${reset}"
@@ -924,8 +930,6 @@ else
 
     exit 1
   fi
-
-  sudo mkdir -p "$(dirname "${dnscrypt_path}")" /var/cache/dnscrypt-proxy
 
   sudo chattr -i /etc/resolv.conf &>"${log_redirects}"
 
