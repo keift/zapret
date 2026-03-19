@@ -134,6 +134,8 @@ send_metrics() {
       package_manager="emerge"
     elif command -v slackpkg &>/dev/null; then
       package_manager="slackpkg"
+    elif command -v eopkg &>/dev/null; then
+      package_manager="eopkg"
     elif command -v pkg &>/dev/null; then
       package_manager="pkg"
     elif command -v pkg_add &>/dev/null; then
