@@ -597,6 +597,8 @@ install_package() {
     sudo emerge --quiet "${package_name}" &>"${log_redirects}"
   elif command -v slackpkg &>/dev/null; then
     sudo slackpkg -batch=on -default_answer=y install "${package_name}" &>"${log_redirects}"
+  elif command -v eopkg &>/dev/null; then
+    sudo eopkg install -y "${package_name}" &>"${log_redirects}"
   elif command -v pkg &>/dev/null; then
     sudo pkg install -y "${package_name}" &>"${log_redirects}"
   elif command -v pkg_add &>/dev/null; then
@@ -638,6 +640,8 @@ remove_package() {
     sudo emerge --unmerge --quiet "${package_name}" &>"${log_redirects}"
   elif command -v slackpkg &>/dev/null; then
     sudo slackpkg -batch=on -default_answer=y remove "${package_name}" &>"${log_redirects}"
+  elif command -v eopkg &>/dev/null; then
+    sudo eopkg remove -y "${package_name}" &>"${log_redirects}"
   elif command -v pkg &>/dev/null; then
     sudo pkg delete -y "${package_name}" &>"${log_redirects}"
   elif command -v pkg_delete &>/dev/null; then
@@ -679,6 +683,8 @@ update_packages() {
     sudo emerge --sync --quiet &>"${log_redirects}"
   elif command -v slackpkg &>/dev/null; then
     sudo slackpkg -batch=on update &>"${log_redirects}"
+  elif command -v eopkg &>/dev/null; then
+    sudo eopkg update-repo -y &>"${log_redirects}"
   elif command -v pkg &>/dev/null; then
     sudo pkg update &>"${log_redirects}"
   elif command -v pkg_add &>/dev/null; then
