@@ -483,7 +483,7 @@ init_zapret() {
       local runit_sv_dir="/etc/runit/sv"
     fi
 
-    sudo ln -sf /opt/zapret/init.d/runit/zapret "${runit_sv_dir}"/zapret
+    sudo ln -sf /opt/zapret/init.d/runit/zapret "${runit_sv_dir}"/zapret &>"${log_redirects}"
 
     enable_service zapret
   # S6
@@ -494,7 +494,7 @@ init_zapret() {
       local s6_service_dir="/etc/s6-servicedirs"
     fi
 
-    sudo ln -sf /opt/zapret/init.d/s6/zapret "${s6_service_dir}"/zapret
+    sudo ln -sf /opt/zapret/init.d/s6/zapret "${s6_service_dir}"/zapret &>"${log_redirects}"
 
     enable_service zapret
   # OpenRC
@@ -526,22 +526,22 @@ EOF
     enable_service zapret
   # FreeBSD
   elif command -v sysrc &>/dev/null; then
-    sudo ln -sf /opt/zapret/init.d/sysv/zapret /usr/local/etc/rc.d/zapret
+    sudo ln -sf /opt/zapret/init.d/sysv/zapret /usr/local/etc/rc.d/zapret &>"${log_redirects}"
 
     enable_service zapret
   # pfSense
   elif [ -f /etc/pfsense-release ] || grep -qi "pfsense" /etc/platform 2>/dev/null; then
-    sudo ln -sf /opt/zapret/init.d/pfsense/zapret.sh /usr/local/etc/rc.d/zapret.sh
+    sudo ln -sf /opt/zapret/init.d/pfsense/zapret.sh /usr/local/etc/rc.d/zapret.sh &>"${log_redirects}"
 
     enable_service zapret
   # SysvInit
   elif command -v service &>/dev/null || [ -x /usr/sbin/service ] || [ -x /sbin/service ]; then
-    sudo ln -sf /opt/zapret/init.d/sysv/zapret /etc/init.d/zapret
+    sudo ln -sf /opt/zapret/init.d/sysv/zapret /etc/init.d/zapret &>"${log_redirects}"
 
     enable_service zapret
   # SysvInit
   elif [ -d /etc/init.d ]; then
-    sudo ln -sf /opt/zapret/init.d/sysv/zapret /etc/init.d/zapret
+    sudo ln -sf /opt/zapret/init.d/sysv/zapret /etc/init.d/zapret &>"${log_redirects}"
 
     enable_service zapret
   # Entware
@@ -568,7 +568,7 @@ EOF
     enable_service zapret
   # Rc
   elif [ -d /etc/rc.d ]; then
-    sudo ln -sf /opt/zapret/init.d/sysv/zapret /etc/rc.d/rc.zapret
+    sudo ln -sf /opt/zapret/init.d/sysv/zapret /etc/rc.d/rc.zapret &>"${log_redirects}"
 
     enable_service zapret
   # Launchd
@@ -794,7 +794,7 @@ EOF
 
     sudo chattr -i /etc/resolv.conf &>"${log_redirects}"
 
-    [ -f /run/systemd/resolve/stub-resolv.conf ] && sudo ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
+    [ -f /run/systemd/resolve/stub-resolv.conf ] && sudo ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf &>"${log_redirects}"
 
     restart_service systemd-resolved
   else
@@ -825,9 +825,9 @@ EOF
     elif [ -f /usr/local/etc/dnscrypt-proxy/dnscrypt-proxy.toml ]; then
       dnscrypt_path="/usr/local/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
     elif [ -f /usr/share/defaults/dnscrypt-proxy/dnscrypt-proxy.toml ]; then
-      sudo mkdir -p /etc/dnscrypt-proxy
+      sudo mkdir -p /etc/dnscrypt-proxy &>"${log_redirects}"
 
-      sudo cp /usr/share/defaults/dnscrypt-proxy/dnscrypt-proxy.toml /etc/dnscrypt-proxy
+      sudo cp /usr/share/defaults/dnscrypt-proxy/dnscrypt-proxy.toml /etc/dnscrypt-proxy &>"${log_redirects}"
 
       dnscrypt_path="/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
     else
@@ -848,7 +848,7 @@ EOF
 
     sudo chattr -i /etc/resolv.conf &>"${log_redirects}"
 
-    [ -f /run/systemd/resolve/stub-resolv.conf ] && sudo ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
+    [ -f /run/systemd/resolve/stub-resolv.conf ] && sudo ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf &>"${log_redirects}"
 
     restart_service systemd-resolved
 
@@ -883,7 +883,7 @@ EOF
 
     sudo chattr -i /etc/resolv.conf &>"${log_redirects}"
 
-    [ -f /run/systemd/resolve/stub-resolv.conf ] && sudo ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
+    [ -f /run/systemd/resolve/stub-resolv.conf ] && sudo ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf &>"${log_redirects}"
 
     restart_service systemd-resolved
   fi
@@ -912,9 +912,9 @@ else
   elif [ -f /usr/local/etc/dnscrypt-proxy/dnscrypt-proxy.toml ]; then
     dnscrypt_path="/usr/local/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
   elif [ -f /usr/share/defaults/dnscrypt-proxy/dnscrypt-proxy.toml ]; then
-    sudo mkdir -p /etc/dnscrypt-proxy
+    sudo mkdir -p /etc/dnscrypt-proxy &>"${log_redirects}"
 
-    sudo cp /usr/share/defaults/dnscrypt-proxy/dnscrypt-proxy.toml /etc/dnscrypt-proxy
+    sudo cp /usr/share/defaults/dnscrypt-proxy/dnscrypt-proxy.toml /etc/dnscrypt-proxy &>"${log_redirects}"
 
     dnscrypt_path="/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
   else
