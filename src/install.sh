@@ -78,72 +78,72 @@ send_metrics() {
 
     # Systemd
     if command -v systemctl &>/dev/null; then
-      init_system="systemd"
+      local init_system="systemd"
     # Runit
     elif command -v sv &>/dev/null; then
-      init_system="runit"
+      local init_system="runit"
     # S6
     elif command -v s6-svscan &>/dev/null || command -v s6-rc &>/dev/null; then
-      init_system="s6"
+      local init_system="s6"
     # OpenRC
     elif command -v rc-service &>/dev/null; then
-      init_system="openrc"
+      local init_system="openrc"
     # OpenBSD
     elif command -v rcctl &>/dev/null; then
-      init_system="openbsd"
+      local init_system="openbsd"
     # FreeBSD
     elif command -v sysrc &>/dev/null; then
-      init_system="freebsd"
+      local init_system="freebsd"
     # pfSense
     elif [ -f /etc/pfsense-release ] || grep -qi "pfsense" /etc/platform 2>/dev/null; then
-      init_system="pfsense"
+      local init_system="pfsense"
     # SysvInit
     elif command -v service &>/dev/null || [ -x /usr/sbin/service ] || [ -x /sbin/service ]; then
-      init_system="sysvinit"
+      local init_system="sysvinit"
     # SysvInit
     elif [ -d /etc/init.d ]; then
-      init_system="sysvinit"
+      local init_system="sysvinit"
     # Entware
     elif [ -d /opt/etc/init.d ]; then
-      init_system="entware"
+      local init_system="entware"
     # Rc
     elif [ -d /etc/rc.d ]; then
-      init_system="rc"
+      local init_system="rc"
     # Launchd
     elif command -v launchctl &>/dev/null; then
-      init_system="launchd"
+      local init_system="launchd"
     else
-      init_system="unknown"
+      local init_system="unknown"
     fi
 
     if command -v apt &>/dev/null; then
-      package_manager="apt"
+      local package_manager="apt"
     elif command -v rpm-ostree &>/dev/null; then
-      package_manager="rpm-ostree"
+      local package_manager="rpm-ostree"
     elif command -v dnf &>/dev/null; then
-      package_manager="dnf"
+      local package_manager="dnf"
     elif command -v pacman &>/dev/null; then
-      package_manager="pacman"
+      local package_manager="pacman"
     elif command -v zypper &>/dev/null; then
-      package_manager="zypper"
+      local package_manager="zypper"
     elif command -v xbps-install &>/dev/null; then
-      package_manager="xbps"
+      local package_manager="xbps"
     elif command -v apk &>/dev/null; then
-      package_manager="apk"
+      local package_manager="apk"
     elif command -v emerge &>/dev/null; then
-      package_manager="emerge"
+      local package_manager="emerge"
     elif command -v slackpkg &>/dev/null; then
-      package_manager="slackpkg"
+      local package_manager="slackpkg"
     elif command -v eopkg &>/dev/null; then
-      package_manager="eopkg"
+      local package_manager="eopkg"
     elif command -v pkg &>/dev/null; then
-      package_manager="pkg"
+      local package_manager="pkg"
     elif command -v pkg_add &>/dev/null; then
-      package_manager="pkg_add"
+      local package_manager="pkg_add"
     elif command -v opkg &>/dev/null; then
-      package_manager="opkg"
+      local package_manager="opkg"
     else
-      package_manager="unknown"
+      local package_manager="unknown"
     fi
 
     local payload=$(
