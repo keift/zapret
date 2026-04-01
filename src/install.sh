@@ -37,6 +37,16 @@ cyan="\e[36m"
 white="\e[37m"
 gray="\e[90m"
 
+bg_black="\x1b[40m"
+bg_red="\x1b[41m"
+bg_green="\x1b[42m"
+bg_yellow="\x1b[43m"
+bg_blue="\x1b[44m"
+bg_magenta="\x1b[45m"
+bg_cyan="\x1b[46m"
+bg_white="\x1b[47m"
+bg_gray="\x1b[100m"
+
 zapret_version="72.12"
 
 country_code=$(curl --max-time 10 -s https://ipinfo.io/country)
@@ -672,11 +682,13 @@ update_packages() {
   elif command -v dnf &>/dev/null; then
     sudo dnf makecache -y &>"${log_redirects}"
   elif command -v pacman &>/dev/null; then
-    sudo pacman -Syu --noconfirm &>"${log_redirects}"
+    # sudo pacman -Syu --noconfirm &>"${log_redirects}"
+    :
   elif command -v zypper &>/dev/null; then
     sudo zypper -n refresh &>"${log_redirects}"
   elif command -v xbps-install &>/dev/null; then
-    sudo xbps-install -Suy &>"${log_redirects}"
+    # sudo xbps-install -Suy &>"${log_redirects}"
+    :
   elif command -v apk &>/dev/null; then
     sudo apk update --quiet &>"${log_redirects}"
   elif command -v emerge &>/dev/null; then
@@ -688,7 +700,8 @@ update_packages() {
   elif command -v pkg &>/dev/null; then
     sudo pkg update &>"${log_redirects}"
   elif command -v pkg_add &>/dev/null; then
-    sudo pkg_add -u &>"${log_redirects}"
+    # sudo pkg_add -u &>"${log_redirects}"
+    :
   elif command -v opkg &>/dev/null; then
     sudo opkg update &>"${log_redirects}"
   else
@@ -702,6 +715,22 @@ update_packages() {
     echo ""
 
     exit 1
+  fi
+}
+
+print_upgrade_commands() {
+  if command -v pacman &>/dev/null; then
+    echo -e "  ${bg_gray}                                ${reset}"
+    echo -e "  ${bg_gray}  ${red}sudo ${blue}pacman ${white}-${cyan}Syu ${gray}--${cyan}noconfirm  ${reset}"
+    echo -e "  ${bg_gray}                                ${reset}"
+  elif command -v pkg_add &>/dev/null; then
+    echo -e "  ${bg_gray}                   ${reset}"
+    echo -e "  ${bg_gray}  ${red}sudo ${blue}pkg_add ${white}-${cyan}u  ${reset}"
+    echo -e "  ${bg_gray}                   ${reset}"
+  elif command -v xbps-install &>/dev/null; then
+    echo -e "  ${bg_gray}                          ${reset}"
+    echo -e "  ${bg_gray}  ${red}sudo ${blue}xbps-install ${white}-${cyan}Suy  ${reset}"
+    echo -e "  ${bg_gray}                          ${reset}"
   fi
 }
 
@@ -740,20 +769,32 @@ if command -v pacman &>/dev/null || \
   command -v pkg_add &>/dev/null || \
   command -v xbps-install &>/dev/null; then
   if [ "${country_code}" = "RU" ]; then
-    echo -e "  ${gray}Для стабильности установки этот инструмент выполнит полное обновление системы.${reset}"
-    echo -e "  ${gray}Время выполнения этого процесса может варьироваться в зависимости от того, когда вы в последний раз обновляли систему.${reset}"
-    echo -e "  ${gray}Прерывание этого процесса может привести к повреждению пакетов.${reset}"
-    echo -ne "  ${gray}Если вы всё поняли и хотите продолжить, нажмите ${blue}[ENTER]${gray}...${reset}"
+    echo -e "  ${gray}Для стабильности установки важно поддерживать систему в актуальном состоянии.${reset}"
+    echo -e "  ${gray}Вы можете обновить систему, выполнив следующие команды.${reset}"
+
+    echo ""
+    print_upgrade_commands
+    echo ""
+
+    echo -ne "  ${gray}Если вы готовы, нажмите ${blue}[ENTER]${gray}...${reset}"
   elif [ "${country_code}" = "TR" ]; then
-    echo -e "  ${gray}Kurulumun kararlılığı için bu araç tam kapsamlı bir sistem güncellemesi yapacaktır.${reset}"
-    echo -e "  ${gray}Bu işlemin süresi sisteminizi son güncellediğiniz zamana göre değişiklik gösterebilir.${reset}"
-    echo -e "  ${gray}Bu işlem sırasında işlemi yarıda kesmeniz paket kırılmalarına sebep olabilir.${reset}"
-    echo -ne "  ${gray}Her şeyi anladıysanız ve devam etmek istiyorsanız ${blue}[ENTER] ${gray}tuşuna basın...${reset}"
+    echo -e "  ${gray}Kurulumun kararlılığı açısından sisteminizi güncel tutmanız önemlidir.${reset}"
+    echo -e "  ${gray}Aşağıdaki komutları yürüterek sisteminizi güncelleyebilirsiniz.${reset}"
+
+    echo ""
+    print_upgrade_commands
+    echo ""
+
+    echo -ne "  ${gray}Hazırsanız ${blue}[ENTER] ${gray}tuşuna basın...${reset}"
   else
-    echo -e "  ${gray}For the stability of the installation, this tool will perform a full system upgrade.${reset}"
-    echo -e "  ${gray}The duration of this process may vary depending on when you last updated your system.${reset}"
-    echo -e "  ${gray}Interrupting this process may cause package breakages.${reset}"
-    echo -ne "  ${gray}If you understand everything and wish to continue, press ${blue}[ENTER]${gray}...${reset}"
+    echo -e "  ${gray}It is important to keep your system up to date for the stability of the installation.${reset}"
+    echo -e "  ${gray}You can update your system by running the following commands.${reset}"
+
+    echo ""
+    print_upgrade_commands
+    echo ""
+
+    echo -ne "  ${gray}If you are ready, press ${blue}[ENTER]${gray}...${reset}"
   fi
 
   if [ -t 0 ]; then
@@ -761,18 +802,6 @@ if command -v pacman &>/dev/null || \
   else
     read -r < /dev/tty
   fi
-
-  print_head
-
-  if [ "${country_code}" = "RU" ]; then
-    echo -e "  ${gray}Система обновляется...${reset}"
-  elif [ "${country_code}" = "TR" ]; then
-    echo -e "  ${gray}Sisteminiz güncelleniyor...${reset}"
-  else
-    echo -e "  ${gray}Updating your system...${reset}"
-  fi
-
-  update_packages
 
   print_head
 fi
