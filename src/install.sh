@@ -41,8 +41,6 @@ zapret_version="72.12"
 
 country_code=$(curl --max-time 10 -s https://ipinfo.io/country)
 
-clear
-
 send_metrics() {
   if [ "${country_code}" = "RU" ]; then
     echo -e "  ${gray}Вы хотите поделиться результатами с ${blue}Keift${gray}?${reset}"
@@ -707,15 +705,21 @@ update_packages() {
   fi
 }
 
-echo ""
-if [ "${country_code}" = "RU" ]; then
-  echo -e "  ${blue}Keift ${cyan}Установить Zapret${reset}"
-elif [ "${country_code}" = "TR" ]; then
-  echo -e "  ${blue}Keift ${cyan}Zapret Kurulumu${reset}"
-else
-  echo -e "  ${blue}Keift ${cyan}Install Zapret${reset}"
-fi
-echo ""
+print_head() {
+  clear
+
+  echo ""
+  if [ "${country_code}" = "RU" ]; then
+    echo -e "  ${blue}Keift ${cyan}Установить Zapret${reset}"
+  elif [ "${country_code}" = "TR" ]; then
+    echo -e "  ${blue}Keift ${cyan}Zapret Kurulumu${reset}"
+  else
+    echo -e "  ${blue}Keift ${cyan}Install Zapret${reset}"
+  fi
+  echo ""
+}
+
+print_head
 
 if [ "$(uname)" != "Linux" ]; then
   if [ "${country_code}" = "RU" ]; then
@@ -731,6 +735,47 @@ if [ "$(uname)" != "Linux" ]; then
 fi
 
 # 1. Install dependencies
+
+if command -v pacman &>/dev/null || \
+  command -v pkg_add &>/dev/null || \
+  command -v xbps-install &>/dev/null; then
+  if [ "${country_code}" = "RU" ]; then
+    echo -e "  ${gray}Для стабильности установки этот инструмент выполнит полное обновление системы.${reset}"
+    echo -e "  ${gray}Время выполнения этого процесса может варьироваться в зависимости от того, когда вы в последний раз обновляли систему.${reset}"
+    echo -e "  ${gray}Прерывание этого процесса может привести к повреждению пакетов.${reset}"
+    echo -ne "  ${gray}Если вы всё поняли и хотите продолжить, нажмите ${blue}[ENTER]${gray}...${reset}"
+  elif [ "${country_code}" = "TR" ]; then
+    echo -e "  ${gray}Kurulumun kararlılığı için bu araç tam kapsamlı bir sistem güncellemesi yapacaktır.${reset}"
+    echo -e "  ${gray}Bu işlemin süresi sisteminizi son güncellediğiniz zamana göre değişiklik gösterebilir.${reset}"
+    echo -e "  ${gray}Bu işlem sırasında işlemi yarıda kesmeniz paket kırılmalarına sebep olabilir.${reset}"
+    echo -ne "  ${gray}Her şeyi anladıysanız ve devam etmek istiyorsanız ${blue}[ENTER] ${gray}tuşuna basın...${reset}"
+  else
+    echo -e "  ${gray}For the stability of the installation, this tool will perform a full system upgrade.${reset}"
+    echo -e "  ${gray}The duration of this process may vary depending on when you last updated your system.${reset}"
+    echo -e "  ${gray}Interrupting this process may cause package breakages.${reset}"
+    echo -ne "  ${gray}If you understand everything and wish to continue, press ${blue}[ENTER]${gray}...${reset}"
+  fi
+
+  if [ -t 0 ]; then
+    read -r
+  else
+    read -r < /dev/tty
+  fi
+
+  print_head
+
+  if [ "${country_code}" = "RU" ]; then
+    echo -e "  ${gray}Система обновляется...${reset}"
+  elif [ "${country_code}" = "TR" ]; then
+    echo -e "  ${gray}Sisteminiz güncelleniyor...${reset}"
+  else
+    echo -e "  ${gray}Updating your system...${reset}"
+  fi
+
+  update_packages
+
+  print_head
+fi
 
 if [ "${country_code}" = "RU" ]; then
   echo -e "  ${gray}Установка зависимостей...${reset}"

@@ -36,17 +36,21 @@ gray="\e[90m"
 
 country_code=$(curl --max-time 10 -s https://ipinfo.io/country)
 
-clear
+print_head() {
+  clear
 
-echo ""
-if [ "${country_code}" = "RU" ]; then
-  echo -e "  ${blue}Keift ${cyan}Удалить Zapret${reset}"
-elif [ "${country_code}" = "TR" ]; then
-  echo -e "  ${blue}Keift ${cyan}Zapret Kaldırma${reset}"
-else
-  echo -e "  ${blue}Keift ${cyan}Uninstall Zapret${reset}"
-fi
-echo ""
+  echo ""
+  if [ "${country_code}" = "RU" ]; then
+    echo -e "  ${blue}Keift ${cyan}Установить Zapret${reset}"
+  elif [ "${country_code}" = "TR" ]; then
+    echo -e "  ${blue}Keift ${cyan}Zapret Kurulumu${reset}"
+  else
+    echo -e "  ${blue}Keift ${cyan}Install Zapret${reset}"
+  fi
+  echo ""
+}
+
+print_head
 
 if [ ! -d "/opt/zapret" ]; then
   if [ "${country_code}" = "RU" ]; then
