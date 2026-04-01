@@ -720,17 +720,17 @@ update_packages() {
 
 print_upgrade_commands() {
   if command -v pacman &>/dev/null; then
-    echo -e "  ${bg_gray}                                ${reset}"
-    echo -e "  ${bg_gray}  ${red}sudo ${blue}pacman ${white}-${cyan}Syu ${gray}--${cyan}noconfirm  ${reset}"
-    echo -e "  ${bg_gray}                                ${reset}"
+    echo ""
+    echo -e "  ${yellow}sudo ${green}pacman ${white}-${cyan}Syu ${white}--${cyan}noconfirm  ${reset}"
+    echo ""
   elif command -v pkg_add &>/dev/null; then
-    echo -e "  ${bg_gray}                   ${reset}"
-    echo -e "  ${bg_gray}  ${red}sudo ${blue}pkg_add ${white}-${cyan}u  ${reset}"
-    echo -e "  ${bg_gray}                   ${reset}"
+    echo ""
+    echo -e "  ${yellow}sudo ${green}pkg_add ${white}-${cyan}u  ${reset}"
+    echo ""
   elif command -v xbps-install &>/dev/null; then
-    echo -e "  ${bg_gray}                          ${reset}"
-    echo -e "  ${bg_gray}  ${red}sudo ${blue}xbps-install ${white}-${cyan}Suy  ${reset}"
-    echo -e "  ${bg_gray}                          ${reset}"
+    echo ""
+    echo -e "  ${yellow}sudo ${green}xbps-install ${white}-${cyan}Suy  ${reset}"
+    echo ""
   fi
 }
 
@@ -772,27 +772,21 @@ if command -v pacman &>/dev/null || \
     echo -e "  ${gray}Для стабильности установки важно поддерживать систему в актуальном состоянии.${reset}"
     echo -e "  ${gray}Вы можете обновить систему, выполнив следующие команды.${reset}"
 
-    echo ""
     print_upgrade_commands
-    echo ""
 
     echo -ne "  ${gray}Если вы готовы, нажмите ${blue}[ENTER]${gray}...${reset}"
   elif [ "${country_code}" = "TR" ]; then
     echo -e "  ${gray}Kurulumun kararlılığı açısından sisteminizi güncel tutmanız önemlidir.${reset}"
     echo -e "  ${gray}Aşağıdaki komutları yürüterek sisteminizi güncelleyebilirsiniz.${reset}"
 
-    echo ""
     print_upgrade_commands
-    echo ""
 
     echo -ne "  ${gray}Hazırsanız ${blue}[ENTER] ${gray}tuşuna basın...${reset}"
   else
     echo -e "  ${gray}It is important to keep your system up to date for the stability of the installation.${reset}"
     echo -e "  ${gray}You can update your system by running the following commands.${reset}"
 
-    echo ""
     print_upgrade_commands
-    echo ""
 
     echo -ne "  ${gray}If you are ready, press ${blue}[ENTER]${gray}...${reset}"
   fi
