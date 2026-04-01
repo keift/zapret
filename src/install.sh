@@ -721,15 +721,15 @@ update_packages() {
 print_upgrade_commands() {
   if command -v pacman &>/dev/null; then
     echo ""
-    echo -e "  ${yellow}sudo ${green}pacman ${white}-${cyan}Syu ${white}--${cyan}noconfirm  ${reset}"
+    echo -e "  ${yellow}sudo ${green}pacman ${white}-${cyan}Syu ${white}--${cyan}noconfirm${reset}"
     echo ""
   elif command -v pkg_add &>/dev/null; then
     echo ""
-    echo -e "  ${yellow}sudo ${green}pkg_add ${white}-${cyan}u  ${reset}"
+    echo -e "  ${yellow}sudo ${green}pkg_add ${white}-${cyan}u${reset}"
     echo ""
   elif command -v xbps-install &>/dev/null; then
     echo ""
-    echo -e "  ${yellow}sudo ${green}xbps-install ${white}-${cyan}Suy  ${reset}"
+    echo -e "  ${yellow}sudo ${green}xbps-install ${white}-${cyan}Suy${reset}"
     echo ""
   fi
 }
