@@ -802,15 +802,12 @@ if command -v pacman &>/dev/null || \
 fi
 
 if [ "${country_code}" = "RU" ]; then
-  echo -ne "  ${gray}Установка зависимостей...${reset}"
+  echo -e "  ${gray}Установка зависимостей...${reset}"
 elif [ "${country_code}" = "TR" ]; then
-  echo -ne "  ${gray}Bağımlılıklar yükleniyor...${reset}"
+  echo -e "  ${gray}Bağımlılıklar yükleniyor...${reset}"
 else
-  echo -ne "  ${gray}Installing dependencies...${reset}"
+  echo -e "  ${gray}Installing dependencies...${reset}"
 fi
-
-head_start_time="${SECONDS}"
-start_time="${SECONDS}"
 
 update_packages
 
@@ -827,27 +824,15 @@ install_package unzip
 install_package wget
 install_package wget-ssl
 
-elapsed_time=$((SECONDS - start_time))
-
-if [ "${country_code}" = "RU" ]; then
-  echo -e " ${gray}${italic}${elapsed_time} сек${reset}"
-elif [ "${country_code}" = "TR" ]; then
-  echo -e " ${gray}${italic}${elapsed_time} sn${reset}"
-else
-  echo -e " ${gray}${italic}${elapsed_time} sec${reset}"
-fi
-
 # 2. Change DNS settings
 
 if [ "${country_code}" = "RU" ]; then
-  echo -ne "  ${gray}Настройки DNS изменяются...${reset}"
+  echo -e "  ${gray}Настройки DNS изменяются...${reset}"
 elif [ "${country_code}" = "TR" ]; then
-  echo -ne "  ${gray}DNS ayarları değiştiriliyor...${reset}"
+  echo -e "  ${gray}DNS ayarları değiştiriliyor...${reset}"
 else
-  echo -ne "  ${gray}DNS settings are being changed...${reset}"
+  echo -e "  ${gray}DNS settings are being changed...${reset}"
 fi
-
-start_time="${SECONDS}"
 
 if command -v systemctl &>/dev/null && ! command -v pihole &>/dev/null && ! command -v pihole-FTL &>/dev/null; then
   if [ "${dnscrypt}" = false ] && \
@@ -1133,27 +1118,15 @@ EOF
   sudo chattr +i /etc/resolv.conf &>"${log_redirects}"
 fi
 
-elapsed_time=$((SECONDS - start_time))
-
-if [ "${country_code}" = "RU" ]; then
-  echo -e " ${gray}${italic}${elapsed_time} сек${reset}"
-elif [ "${country_code}" = "TR" ]; then
-  echo -e " ${gray}${italic}${elapsed_time} sn${reset}"
-else
-  echo -e " ${gray}${italic}${elapsed_time} sec${reset}"
-fi
-
 # 3. Download Zapret
 
 if [ "${country_code}" = "RU" ]; then
-  echo -ne "  ${gray}Скачивание Zapret...${reset}"
+  echo -e "  ${gray}Скачивание Zapret...${reset}"
 elif [ "${country_code}" = "TR" ]; then
-  echo -ne "  ${gray}Zapret indiriliyor...${reset}"
+  echo -e "  ${gray}Zapret indiriliyor...${reset}"
 else
-  echo -ne "  ${gray}Downloading Zapret...${reset}"
+  echo -e "  ${gray}Downloading Zapret...${reset}"
 fi
-
-start_time="${SECONDS}"
 
 sudo rm -rf /tmp/zapret
 sudo rm -rf /tmp/zapret.zip
@@ -1166,27 +1139,15 @@ sudo mv /tmp/zapret-v"${zapret_version}" /tmp/zapret
 
 sudo rm -rf /tmp/zapret.zip
 
-elapsed_time=$((SECONDS - start_time))
-
-if [ "${country_code}" = "RU" ]; then
-  echo -e " ${gray}${italic}${elapsed_time} сек${reset}"
-elif [ "${country_code}" = "TR" ]; then
-  echo -e " ${gray}${italic}${elapsed_time} sn${reset}"
-else
-  echo -e " ${gray}${italic}${elapsed_time} sec${reset}"
-fi
-
 # 4. Prepare for installation
 
 if [ "${country_code}" = "RU" ]; then
-  echo -ne "  ${gray}Подготовка к установке...${reset}"
+  echo -e "  ${gray}Подготовка к установке...${reset}"
 elif [ "${country_code}" = "TR" ]; then
-  echo -ne "  ${gray}Kuruluma hazırlanıyor...${reset}"
+  echo -e "  ${gray}Kuruluma hazırlanıyor...${reset}"
 else
-  echo -ne "  ${gray}Preparing for installation...${reset}"
+  echo -e "  ${gray}Preparing for installation...${reset}"
 fi
-
-start_time="${SECONDS}"
 
 printf "Y\n\n" | sudo /opt/zapret/uninstall_easy.sh &>"${log_redirects}"
 sudo rm -rf /opt/zapret
@@ -1194,27 +1155,15 @@ sudo rm -rf /opt/zapret
 printf "\n\n" | sudo /tmp/zapret/install_prereq.sh &>"${log_redirects}"
 sudo /tmp/zapret/install_bin.sh &>"${log_redirects}"
 
-elapsed_time=$((SECONDS - start_time))
-
-if [ "${country_code}" = "RU" ]; then
-  echo -e " ${gray}${italic}${elapsed_time} сек${reset}"
-elif [ "${country_code}" = "TR" ]; then
-  echo -e " ${gray}${italic}${elapsed_time} sn${reset}"
-else
-  echo -e " ${gray}${italic}${elapsed_time} sec${reset}"
-fi
-
 # 5. Do Blockcheck
 
 if [ "${country_code}" = "RU" ]; then
-  echo -ne "  ${gray}Выполняется Blockcheck, это может занять несколько минут...${reset}"
+  echo -e "  ${gray}Выполняется Blockcheck, это может занять несколько минут...${reset}"
 elif [ "${country_code}" = "TR" ]; then
-  echo -ne "  ${gray}Blockcheck yapılıyor, bu birkaç dakika sürebilir...${reset}"
+  echo -e "  ${gray}Blockcheck yapılıyor, bu birkaç dakika sürebilir...${reset}"
 else
-  echo -ne "  ${gray}Blockcheck is being performed, this may take a few minutes...${reset}"
+  echo -e "  ${gray}Blockcheck is being performed, this may take a few minutes...${reset}"
 fi
-
-start_time="${SECONDS}"
 
 blockcheck_domains=(
   "discord.com"
@@ -1309,27 +1258,15 @@ if echo "${blockcheck_results}" | grep -q "curl_test_http ipv4 ${blockcheck_doma
   exit 0
 fi
 
-elapsed_time=$((SECONDS - start_time))
-
-if [ "${country_code}" = "RU" ]; then
-  echo -e " ${gray}${italic}${elapsed_time} сек${reset}"
-elif [ "${country_code}" = "TR" ]; then
-  echo -e " ${gray}${italic}${elapsed_time} sn${reset}"
-else
-  echo -e " ${gray}${italic}${elapsed_time} sec${reset}"
-fi
-
 # 6. Install Zapret
 
 if [ "${country_code}" = "RU" ]; then
-  echo -ne "  ${gray}Установка Zapret...${reset}"
+  echo -e "  ${gray}Установка Zapret...${reset}"
 elif [ "${country_code}" = "TR" ]; then
-  echo -ne "  ${gray}Zapret kuruluyor...${reset}"
+  echo -e "  ${gray}Zapret kuruluyor...${reset}"
 else
-  echo -ne "  ${gray}Installing Zapret...${reset}"
+  echo -e "  ${gray}Installing Zapret...${reset}"
 fi
-
-start_time="${SECONDS}"
 
 prototype_installation_results=$(printf "\n\n" | sudo /tmp/zapret/install_easy.sh 2>"${log_redirects}")
 
@@ -1388,37 +1325,17 @@ for domain in "${blockcheck_domains[@]}"; do
   done
 done
 
-elapsed_time=$((SECONDS - start_time))
-
-if [ "${country_code}" = "RU" ]; then
-  echo -e " ${gray}${italic}${elapsed_time} сек${reset}"
-elif [ "${country_code}" = "TR" ]; then
-  echo -e " ${gray}${italic}${elapsed_time} sn${reset}"
-else
-  echo -e " ${gray}${italic}${elapsed_time} sec${reset}"
-fi
-
 # 7. Finish the installation
 
 if [ "${country_code}" = "RU" ]; then
-  echo -ne "  ${gray}Zapret успешно установлен.${reset}"
+  echo -e "  ${gray}Zapret успешно установлен.${reset}"
 elif [ "${country_code}" = "TR" ]; then
-  echo -ne "  ${gray}Zapret başarıyla kuruldu.${reset}"
+  echo -e "  ${gray}Zapret başarıyla kuruldu.${reset}"
 else
-  echo -ne "  ${gray}Zapret was successfully installed.${reset}"
+  echo -e "  ${gray}Zapret was successfully installed.${reset}"
 fi
 
 sudo rm -rf /tmp/zapret
-
-elapsed_time=$((SECONDS - head_start_time))
-
-if [ "${country_code}" = "RU" ]; then
-  echo -e " ${gray}${italic}${elapsed_time} сек${reset}"
-elif [ "${country_code}" = "TR" ]; then
-  echo -e " ${gray}${italic}${elapsed_time} sn${reset}"
-else
-  echo -e " ${gray}${italic}${elapsed_time} sec${reset}"
-fi
 
 echo ""
 
