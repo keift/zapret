@@ -54,10 +54,10 @@ country_code=$(curl --max-time 10 -s https://ipinfo.io/country)
 send_metrics() {
   if [ "${country_code}" = "RU" ]; then
     echo -e "  ${gray}Вы хотите поделиться результатами с ${blue}Keift${gray}?${reset}"
-    echo -ne "  ${gray}Это поможет нам улучшить этот инструмент. [${green}Y${gray}/${red}N${gray}] ${reset}"
+    echo -ne "  ${gray}Это поможет нам улучшить этот инструмент. [${green}Д${gray}/${red}Н${gray}] ${reset}"
   elif [ "${country_code}" = "TR" ]; then
     echo -e "  ${gray}Sonuçları ${blue}Keift${gray} ile paylaşmak ister misiniz?${reset}"
-    echo -ne "  ${gray}Bu, aracı geliştirmemize yardımcı olur. [${green}Y${gray}/${red}N${gray}] ${reset}"
+    echo -ne "  ${gray}Bu, aracı geliştirmemize yardımcı olur. [${green}E${gray}/${red}H${gray}] ${reset}"
   else
     echo -e "  ${gray}Would you like to share the results with ${blue}Keift${gray}?${reset}"
     echo -ne "  ${gray}This helps us improve this tool. [${green}Y${gray}/${red}N${gray}] ${reset}"
@@ -69,7 +69,15 @@ send_metrics() {
     read metrics_answer < /dev/tty
   fi
 
-  if [ "${metrics_answer,,}" = "y" ]; then
+  if [ "${country_code}" = "RU" ]; then
+    local acceptance_answer="д"
+  elif [ "${country_code}" = "TR" ]; then
+    local acceptance_answer="e"
+  else
+    local acceptance_answer="y"
+  fi
+
+  if [ "${metrics_answer,,}" = "${acceptance_answer}" ]; then
     echo ""
     if [ "${country_code}" = "RU" ]; then
       echo -e "  ${gray}Спасибо за ваш отзыв.${reset}"
@@ -682,13 +690,11 @@ update_packages() {
   elif command -v dnf &>/dev/null; then
     sudo dnf makecache -y &>"${log_redirects}"
   elif command -v pacman &>/dev/null; then
-    # sudo pacman -Syu --noconfirm &>"${log_redirects}"
-    :
+    sudo pacman -Syu --noconfirm &>"${log_redirects}"
   elif command -v zypper &>/dev/null; then
     sudo zypper -n refresh &>"${log_redirects}"
   elif command -v xbps-install &>/dev/null; then
-    # sudo xbps-install -Suy &>"${log_redirects}"
-    :
+    sudo xbps-install -Suy &>"${log_redirects}"
   elif command -v apk &>/dev/null; then
     sudo apk update --quiet &>"${log_redirects}"
   elif command -v emerge &>/dev/null; then
@@ -700,8 +706,7 @@ update_packages() {
   elif command -v pkg &>/dev/null; then
     sudo pkg update &>"${log_redirects}"
   elif command -v pkg_add &>/dev/null; then
-    # sudo pkg_add -u &>"${log_redirects}"
-    :
+    sudo pkg_add -u &>"${log_redirects}"
   elif command -v opkg &>/dev/null; then
     sudo opkg update &>"${log_redirects}"
   else
@@ -715,22 +720,6 @@ update_packages() {
     echo ""
 
     exit 1
-  fi
-}
-
-print_upgrade_commands() {
-  if command -v pacman &>/dev/null; then
-    echo ""
-    echo -e "  ${yellow}sudo ${green}pacman ${white}-${cyan}Syu ${white}--${cyan}noconfirm${reset}"
-    echo ""
-  elif command -v pkg_add &>/dev/null; then
-    echo ""
-    echo -e "  ${yellow}sudo ${green}pkg_add ${white}-${cyan}u${reset}"
-    echo ""
-  elif command -v xbps-install &>/dev/null; then
-    echo ""
-    echo -e "  ${yellow}sudo ${green}xbps-install ${white}-${cyan}Suy${reset}"
-    echo ""
   fi
 }
 
@@ -766,29 +755,29 @@ fi
 # 1. Install dependencies
 
 if command -v pacman &>/dev/null || \
-  command -v pkg_add &>/dev/null || \
-  command -v xbps-install &>/dev/null; then
+  command -v xbps-install &>/dev/null || \
+  command -v pkg_add &>/dev/null; then
   if [ "${country_code}" = "RU" ]; then
-    echo -e "  ${gray}Для стабильности установки важно поддерживать систему в актуальном состоянии.${reset}"
-    echo -e "  ${gray}Вы можете обновить систему, выполнив следующие команды.${reset}"
-
-    print_upgrade_commands
-
-    echo -ne "  ${gray}Если вы готовы, нажмите ${blue}[ENTER]${gray}...${reset}"
+    echo -e "  ${yellow}ВАЖНАЯ ИНФОРМАЦИЯ${reset}"
+    echo ""
+    echo -e "  ${gray}Для обеспечения стабильности установки этот инструмент выполнит полное обновление системы.${reset}"
+    echo -e "  ${gray}Время выполнения этого процесса может зависеть от того, когда вы в последний раз обновляли систему.${reset}"
+    echo -e "  ${gray}Прерывание этого процесса может привести к повреждению пакетов.${reset}"
+    echo -ne "  ${gray}Если вы все поняли и хотите продолжить, нажмите клавишу ${blue}[ENTER]${gray}...${reset}"
   elif [ "${country_code}" = "TR" ]; then
-    echo -e "  ${gray}Kurulumun kararlılığı açısından sisteminizi güncel tutmanız önemlidir.${reset}"
-    echo -e "  ${gray}Aşağıdaki komutları yürüterek sisteminizi güncelleyebilirsiniz.${reset}"
-
-    print_upgrade_commands
-
-    echo -ne "  ${gray}Hazırsanız ${blue}[ENTER] ${gray}tuşuna basın...${reset}"
+    echo -e "  ${yellow}ÖNEMLİ BİLGİLENDİRME${reset}"
+    echo ""
+    echo -e "  ${gray}Kurulumun kararlılığı açısından bu araç tam kapsamlı bir sistem güncellemesi yapacaktır.${reset}"
+    echo -e "  ${gray}Bu işlemin süresi sisteminizi son güncellediğiniz zamana göre değişiklik gösterebilir.${reset}"
+    echo -e "  ${gray}Bu işlem sırasında işlemi yarıda kesmeniz paket kırılmalarına sebep olabilir.${reset}"
+    echo -ne "  ${gray}Her şeyi anladıysanız ve devam etmek istiyorsanız ${blue}[ENTER] ${gray}tuşuna basın...${reset}"
   else
-    echo -e "  ${gray}It is important to keep your system up to date for the stability of the installation.${reset}"
-    echo -e "  ${gray}You can update your system by running the following commands.${reset}"
-
-    print_upgrade_commands
-
-    echo -ne "  ${gray}If you are ready, press ${blue}[ENTER]${gray}...${reset}"
+    echo -e "  ${yellow}IMPORTANT NOTICE${reset}"
+    echo ""
+    echo -e "  ${gray}For the stability of the installation, this tool will perform a full system update.${reset}"
+    echo -e "  ${gray}The duration of this process may vary depending on when you last updated your system.${reset}"
+    echo -e "  ${gray}Interrupting this process may cause package breakages.${reset}"
+    echo -ne "  ${gray}If you understand everything and want to continue, press ${blue}[ENTER]${gray}...${reset}"
   fi
 
   if [ -t 0 ]; then
@@ -798,15 +787,30 @@ if command -v pacman &>/dev/null || \
   fi
 
   print_head
+
+  if [ "${country_code}" = "RU" ]; then
+    echo -e "  ${gray}Система обновляется...${reset}"
+  elif [ "${country_code}" = "TR" ]; then
+    echo -e "  ${gray}Sisteminiz güncelleniyor...${reset}"
+  else
+    echo -e "  ${gray}Updating your system...${reset}"
+  fi
+
+  update_packages
+
+  print_head
 fi
 
 if [ "${country_code}" = "RU" ]; then
-  echo -e "  ${gray}Установка зависимостей...${reset}"
+  echo -ne "  ${gray}Установка зависимостей...${reset}"
 elif [ "${country_code}" = "TR" ]; then
-  echo -e "  ${gray}Bağımlılıklar yükleniyor...${reset}"
+  echo -ne "  ${gray}Bağımlılıklar yükleniyor...${reset}"
 else
-  echo -e "  ${gray}Installing dependencies...${reset}"
+  echo -ne "  ${gray}Installing dependencies...${reset}"
 fi
+
+head_start_time="${SECONDS}"
+start_time="${SECONDS}"
 
 update_packages
 
@@ -823,15 +827,27 @@ install_package unzip
 install_package wget
 install_package wget-ssl
 
+elapsed_time=$((SECONDS - start_time))
+
+if [ "${country_code}" = "RU" ]; then
+  echo -e " ${gray}${italic}${elapsed_time} сек${reset}"
+elif [ "${country_code}" = "TR" ]; then
+  echo -e " ${gray}${italic}${elapsed_time} sn${reset}"
+else
+  echo -e " ${gray}${italic}${elapsed_time} sec${reset}"
+fi
+
 # 2. Change DNS settings
 
 if [ "${country_code}" = "RU" ]; then
-  echo -e "  ${gray}Настройки DNS изменяются...${reset}"
+  echo -ne "  ${gray}Настройки DNS изменяются...${reset}"
 elif [ "${country_code}" = "TR" ]; then
-  echo -e "  ${gray}DNS ayarları değiştiriliyor...${reset}"
+  echo -ne "  ${gray}DNS ayarları değiştiriliyor...${reset}"
 else
-  echo -e "  ${gray}DNS settings are being changed...${reset}"
+  echo -ne "  ${gray}DNS settings are being changed...${reset}"
 fi
+
+start_time="${SECONDS}"
 
 if command -v systemctl &>/dev/null && ! command -v pihole &>/dev/null && ! command -v pihole-FTL &>/dev/null; then
   if [ "${dnscrypt}" = false ] && \
@@ -1117,15 +1133,27 @@ EOF
   sudo chattr +i /etc/resolv.conf &>"${log_redirects}"
 fi
 
+elapsed_time=$((SECONDS - start_time))
+
+if [ "${country_code}" = "RU" ]; then
+  echo -e " ${gray}${italic}${elapsed_time} сек${reset}"
+elif [ "${country_code}" = "TR" ]; then
+  echo -e " ${gray}${italic}${elapsed_time} sn${reset}"
+else
+  echo -e " ${gray}${italic}${elapsed_time} sec${reset}"
+fi
+
 # 3. Download Zapret
 
 if [ "${country_code}" = "RU" ]; then
-  echo -e "  ${gray}Скачивание Zapret...${reset}"
+  echo -ne "  ${gray}Скачивание Zapret...${reset}"
 elif [ "${country_code}" = "TR" ]; then
-  echo -e "  ${gray}Zapret indiriliyor...${reset}"
+  echo -ne "  ${gray}Zapret indiriliyor...${reset}"
 else
-  echo -e "  ${gray}Downloading Zapret...${reset}"
+  echo -ne "  ${gray}Downloading Zapret...${reset}"
 fi
+
+start_time="${SECONDS}"
 
 sudo rm -rf /tmp/zapret
 sudo rm -rf /tmp/zapret.zip
@@ -1138,15 +1166,27 @@ sudo mv /tmp/zapret-v"${zapret_version}" /tmp/zapret
 
 sudo rm -rf /tmp/zapret.zip
 
+elapsed_time=$((SECONDS - start_time))
+
+if [ "${country_code}" = "RU" ]; then
+  echo -e " ${gray}${italic}${elapsed_time} сек${reset}"
+elif [ "${country_code}" = "TR" ]; then
+  echo -e " ${gray}${italic}${elapsed_time} sn${reset}"
+else
+  echo -e " ${gray}${italic}${elapsed_time} sec${reset}"
+fi
+
 # 4. Prepare for installation
 
 if [ "${country_code}" = "RU" ]; then
-  echo -e "  ${gray}Подготовка к установке...${reset}"
+  echo -ne "  ${gray}Подготовка к установке...${reset}"
 elif [ "${country_code}" = "TR" ]; then
-  echo -e "  ${gray}Kuruluma hazırlanıyor...${reset}"
+  echo -ne "  ${gray}Kuruluma hazırlanıyor...${reset}"
 else
-  echo -e "  ${gray}Preparing for installation...${reset}"
+  echo -ne "  ${gray}Preparing for installation...${reset}"
 fi
+
+start_time="${SECONDS}"
 
 printf "Y\n\n" | sudo /opt/zapret/uninstall_easy.sh &>"${log_redirects}"
 sudo rm -rf /opt/zapret
@@ -1154,15 +1194,27 @@ sudo rm -rf /opt/zapret
 printf "\n\n" | sudo /tmp/zapret/install_prereq.sh &>"${log_redirects}"
 sudo /tmp/zapret/install_bin.sh &>"${log_redirects}"
 
+elapsed_time=$((SECONDS - start_time))
+
+if [ "${country_code}" = "RU" ]; then
+  echo -e " ${gray}${italic}${elapsed_time} сек${reset}"
+elif [ "${country_code}" = "TR" ]; then
+  echo -e " ${gray}${italic}${elapsed_time} sn${reset}"
+else
+  echo -e " ${gray}${italic}${elapsed_time} sec${reset}"
+fi
+
 # 5. Do Blockcheck
 
 if [ "${country_code}" = "RU" ]; then
-  echo -e "  ${gray}Выполняется Blockcheck, это может занять несколько минут...${reset}"
+  echo -ne "  ${gray}Выполняется Blockcheck, это может занять несколько минут...${reset}"
 elif [ "${country_code}" = "TR" ]; then
-  echo -e "  ${gray}Blockcheck yapılıyor, bu birkaç dakika sürebilir...${reset}"
+  echo -ne "  ${gray}Blockcheck yapılıyor, bu birkaç dakika sürebilir...${reset}"
 else
-  echo -e "  ${gray}Blockcheck is being performed, this may take a few minutes...${reset}"
+  echo -ne "  ${gray}Blockcheck is being performed, this may take a few minutes...${reset}"
 fi
+
+start_time="${SECONDS}"
 
 blockcheck_domains=(
   "discord.com"
@@ -1257,15 +1309,27 @@ if echo "${blockcheck_results}" | grep -q "curl_test_http ipv4 ${blockcheck_doma
   exit 0
 fi
 
+elapsed_time=$((SECONDS - start_time))
+
+if [ "${country_code}" = "RU" ]; then
+  echo -e " ${gray}${italic}${elapsed_time} сек${reset}"
+elif [ "${country_code}" = "TR" ]; then
+  echo -e " ${gray}${italic}${elapsed_time} sn${reset}"
+else
+  echo -e " ${gray}${italic}${elapsed_time} sec${reset}"
+fi
+
 # 6. Install Zapret
 
 if [ "${country_code}" = "RU" ]; then
-  echo -e "  ${gray}Установка Zapret...${reset}"
+  echo -ne "  ${gray}Установка Zapret...${reset}"
 elif [ "${country_code}" = "TR" ]; then
-  echo -e "  ${gray}Zapret kuruluyor...${reset}"
+  echo -ne "  ${gray}Zapret kuruluyor...${reset}"
 else
-  echo -e "  ${gray}Installing Zapret...${reset}"
+  echo -ne "  ${gray}Installing Zapret...${reset}"
 fi
+
+start_time="${SECONDS}"
 
 prototype_installation_results=$(printf "\n\n" | sudo /tmp/zapret/install_easy.sh 2>"${log_redirects}")
 
@@ -1324,17 +1388,37 @@ for domain in "${blockcheck_domains[@]}"; do
   done
 done
 
+elapsed_time=$((SECONDS - start_time))
+
+if [ "${country_code}" = "RU" ]; then
+  echo -e " ${gray}${italic}${elapsed_time} сек${reset}"
+elif [ "${country_code}" = "TR" ]; then
+  echo -e " ${gray}${italic}${elapsed_time} sn${reset}"
+else
+  echo -e " ${gray}${italic}${elapsed_time} sec${reset}"
+fi
+
 # 7. Finish the installation
 
 if [ "${country_code}" = "RU" ]; then
-  echo -e "  ${gray}Zapret успешно установлен.${reset}"
+  echo -ne "  ${gray}Zapret успешно установлен.${reset}"
 elif [ "${country_code}" = "TR" ]; then
-  echo -e "  ${gray}Zapret başarıyla kuruldu.${reset}"
+  echo -ne "  ${gray}Zapret başarıyla kuruldu.${reset}"
 else
-  echo -e "  ${gray}Zapret was successfully installed.${reset}"
+  echo -ne "  ${gray}Zapret was successfully installed.${reset}"
 fi
 
 sudo rm -rf /tmp/zapret
+
+elapsed_time=$((SECONDS - head_start_time))
+
+if [ "${country_code}" = "RU" ]; then
+  echo -e " ${gray}${italic}${elapsed_time} сек${reset}"
+elif [ "${country_code}" = "TR" ]; then
+  echo -e " ${gray}${italic}${elapsed_time} sn${reset}"
+else
+  echo -e " ${gray}${italic}${elapsed_time} sec${reset}"
+fi
 
 echo ""
 
