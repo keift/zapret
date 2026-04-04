@@ -51,18 +51,18 @@ print_head() {
 
   echo ""
   if [ "${country_code}" = "RU" ]; then
-    echo -e "  ${blue}Keift ${cyan}Установить Zapret${reset}"
+    echo -e "  ${blue}Keift ${cyan}Удалить Zapret${reset}"
   elif [ "${country_code}" = "TR" ]; then
-    echo -e "  ${blue}Keift ${cyan}Zapret Kurulumu${reset}"
+    echo -e "  ${blue}Keift ${cyan}Zapret'i Kaldır${reset}"
   else
-    echo -e "  ${blue}Keift ${cyan}Install Zapret${reset}"
+    echo -e "  ${blue}Keift ${cyan}Uninstall Zapret${reset}"
   fi
   echo ""
 }
 
 print_head
 
-if [ ! -d "/opt/zapret" ]; then
+if [ ! -d /opt/zapret ]; then
   if [ "${country_code}" = "RU" ]; then
     echo -e "  ${gray}Zapret уже не установлен.${reset}"
   elif [ "${country_code}" = "TR" ]; then
