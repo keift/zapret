@@ -56,7 +56,7 @@ send_metrics() {
     echo -e "  ${gray}Вы хотите поделиться результатами с ${blue}Keift${gray}?${reset}"
     echo -ne "  ${gray}Это поможет нам улучшить этот инструмент. [${green}Д${gray}/${red}Н${gray}] ${reset}"
   elif [ "${country_code}" = "TR" ]; then
-    echo -e "  ${gray}Sonuçları ${blue}Keift${gray} ile paylaşmak ister misiniz?${reset}"
+    echo -e "  ${gray}Sonuçları ${blue}Keift ${gray}ile paylaşmak ister misiniz?${reset}"
     echo -ne "  ${gray}Bu, aracı geliştirmemize yardımcı olur. [${green}E${gray}/${red}H${gray}] ${reset}"
   else
     echo -e "  ${gray}Would you like to share the results with ${blue}Keift${gray}?${reset}"
