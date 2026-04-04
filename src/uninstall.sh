@@ -53,7 +53,7 @@ print_head() {
   if [ "${country_code}" = "RU" ]; then
     echo -e "  ${blue}Keift ${cyan}Удалить Zapret${reset}"
   elif [ "${country_code}" = "TR" ]; then
-    echo -e "  ${blue}Keift ${cyan}Zapret'i Kaldır${reset}"
+    echo -e "  ${blue}Keift ${cyan}Zapret Kaldırma${reset}"
   else
     echo -e "  ${blue}Keift ${cyan}Uninstall Zapret${reset}"
   fi
