@@ -19,7 +19,7 @@
   - **RPM-OSTREE package manager support.** Respect for RPM-OSTREE package manager.
   - **XBPS package manager support.** Respect for XBPS package manager.
   - **Emerge package manager support.** Respect for Emerge package manager.
-  - **Slacpkg package manager support.** Respect for Slackpkg package manager.
+  - **Slackpkg package manager support.** Respect for Slackpkg package manager.
   - **EOPKG package manager support.** Respect for EOPKG package manager.
   - **PKG package manager support.** Respect for PKG package manager.
   - **PKG_ADD package manager support.** Respect for PKG_ADD package manager.
