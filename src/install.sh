@@ -842,8 +842,6 @@ if command -v systemctl &>/dev/null && ! command -v pihole &>/dev/null && ! comm
     dig -p 853 +tls +tls-hostname=one.one.one.one +tries=1 +time=10 @2606:4700:4700::1001 &>"${log_redirects}" ); then
     dns_resolver="systemd-resolved"
 
-    update_packages
-
     install_package systemd-resolved
     remove_package dnscrypt-proxy
     remove_package dnscrypt-proxy2
@@ -868,8 +866,6 @@ EOF
     restart_service systemd-resolved
   else
     dns_resolver="dnscrypt-proxy"
-
-    update_packages
 
     install_package systemd-resolved
 
@@ -960,8 +956,6 @@ EOF
   fi
 else
   dns_resolver="dnscrypt-proxy"
-
-  update_packages
 
   if command -v pkg &>/dev/null || command -v opkg &>/dev/null; then
     install_package dnscrypt-proxy2
