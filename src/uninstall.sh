@@ -62,6 +62,56 @@ print_head() {
 
 print_head
 
+if [ "${country_code}" = "RU" ]; then
+  echo -e "  ${gray}Настройки DNS удаляются...${reset}"
+elif [ "${country_code}" = "TR" ]; then
+  echo -e "  ${gray}DNS ayarları kaldırılıyor...${reset}"
+else
+  echo -e "  ${gray}DNS settings are being removed...${reset}"
+fi
+
+if command -v systemctl &>/dev/null && ! command -v pihole &>/dev/null && ! command -v pihole-FTL &>/dev/null; then
+  install_package systemd-resolved
+  remove_package dnscrypt-proxy
+  remove_package dnscrypt-proxy2
+
+  enable_service systemd-resolved
+  start_service systemd-resolved
+
+  sudo tee /etc/systemd/resolved.conf &>/dev/null <<< ""
+
+  sudo chattr -i /etc/resolv.conf &>"${log_redirects}"
+
+  [ -f /run/systemd/resolve/stub-resolv.conf ] && sudo ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf &>"${log_redirects}"
+
+  restart_service systemd-resolved
+else
+  remove_package dnscrypt-proxy
+  remove_package dnscrypt-proxy2
+
+  sudo chattr -i /etc/resolv.conf &>"${log_redirects}"
+
+  local_resolver=$(ip route show default | awk "{print \$3}" | head -n 1)
+
+  if dig -p 53 +tries=1 +time=10 @"${local_resolver}" &>/dev/null; then
+    sudo tee /etc/resolv.conf &>/dev/null << EOF
+nameserver ${local_resolver}
+
+nameserver 1.1.1.1
+nameserver 2606:4700:4700::1111
+nameserver 1.0.0.1
+nameserver 2606:4700:4700::1001
+EOF
+  else
+    sudo tee /etc/resolv.conf &>/dev/null << EOF
+nameserver 1.1.1.1
+nameserver 2606:4700:4700::1111
+nameserver 1.0.0.1
+nameserver 2606:4700:4700::1001
+EOF
+  fi
+fi
+
 if [ ! -d /opt/zapret ]; then
   if [ "${country_code}" = "RU" ]; then
     echo -e "  ${gray}Zapret уже не установлен.${reset}"
