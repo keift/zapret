@@ -46,6 +46,92 @@ bg_gray="\x1b[100m"
 
 country_code=$(curl --max-time 10 -s https://ipinfo.io/country)
 
+install_package() {
+  local package_name="${1}"
+
+  if command -v apt &>/dev/null; then
+    sudo apt install -y "${package_name}" &>"${log_redirects}"
+  elif command -v rpm-ostree &>/dev/null; then
+    sudo rpm-ostree install --idempotent --apply-live "${package_name}" &>"${log_redirects}"
+  elif command -v dnf &>/dev/null; then
+    sudo dnf install -y "${package_name}" &>"${log_redirects}"
+  elif command -v pacman &>/dev/null; then
+    sudo pacman -S --noconfirm "${package_name}" &>"${log_redirects}"
+  elif command -v zypper &>/dev/null; then
+    sudo zypper -n install "${package_name}" &>"${log_redirects}"
+  elif command -v xbps-install &>/dev/null; then
+    sudo xbps-install -y "${package_name}" &>"${log_redirects}"
+  elif command -v apk &>/dev/null; then
+    sudo apk add --quiet "${package_name}" &>"${log_redirects}"
+  elif command -v emerge &>/dev/null; then
+    sudo emerge --quiet "${package_name}" &>"${log_redirects}"
+  elif command -v slackpkg &>/dev/null; then
+    sudo slackpkg -batch=on -default_answer=y install "${package_name}" &>"${log_redirects}"
+  elif command -v eopkg &>/dev/null; then
+    sudo eopkg install -y "${package_name}" &>"${log_redirects}"
+  elif command -v pkg &>/dev/null; then
+    sudo pkg install -y "${package_name}" &>"${log_redirects}"
+  elif command -v pkg_add &>/dev/null; then
+    sudo pkg_add -I "${package_name}" &>"${log_redirects}"
+  elif command -v opkg &>/dev/null; then
+    sudo opkg install "${package_name}" &>"${log_redirects}"
+  else
+    if [ "${country_code}" = "RU" ]; then
+      echo -e "  ${red}Неподдерживаемый менеджер пакетов.${reset}"
+    elif [ "${country_code}" = "TR" ]; then
+      echo -e "  ${red}Desteklenmeyen paket yöneticisi.${reset}"
+    else
+      echo -e "  ${red}Unsupported package manager.${reset}"
+    fi
+    echo ""
+
+    exit 1
+  fi
+}
+
+remove_package() {
+  local package_name="${1}"
+
+  if command -v apt &>/dev/null; then
+    sudo apt purge -y "${package_name}" &>"${log_redirects}"
+  elif command -v rpm-ostree &>/dev/null; then
+    sudo rpm-ostree uninstall "${package_name}" &>"${log_redirects}"
+  elif command -v dnf &>/dev/null; then
+    sudo dnf remove -y "${package_name}" &>"${log_redirects}"
+  elif command -v pacman &>/dev/null; then
+    sudo pacman -Rns --noconfirm "${package_name}" &>"${log_redirects}"
+  elif command -v zypper &>/dev/null; then
+    sudo zypper -n remove "${package_name}" &>"${log_redirects}"
+  elif command -v xbps-remove &>/dev/null; then
+    sudo xbps-remove -y "${package_name}" &>"${log_redirects}"
+  elif command -v apk &>/dev/null; then
+    sudo apk del --quiet "${package_name}" &>"${log_redirects}"
+  elif command -v emerge &>/dev/null; then
+    sudo emerge --unmerge --quiet "${package_name}" &>"${log_redirects}"
+  elif command -v slackpkg &>/dev/null; then
+    sudo slackpkg -batch=on -default_answer=y remove "${package_name}" &>"${log_redirects}"
+  elif command -v eopkg &>/dev/null; then
+    sudo eopkg remove -y "${package_name}" &>"${log_redirects}"
+  elif command -v pkg &>/dev/null; then
+    sudo pkg delete -y "${package_name}" &>"${log_redirects}"
+  elif command -v pkg_delete &>/dev/null; then
+    sudo pkg_delete "${package_name}" &>"${log_redirects}"
+  elif command -v opkg &>/dev/null; then
+    sudo opkg remove "${package_name}" &>"${log_redirects}"
+  else
+    if [ "${country_code}" = "RU" ]; then
+      echo -e "  ${red}Неподдерживаемый менеджер пакетов.${reset}"
+    elif [ "${country_code}" = "TR" ]; then
+      echo -e "  ${red}Desteklenmeyen paket yöneticisi.${reset}"
+    else
+      echo -e "  ${red}Unsupported package manager.${reset}"
+    fi
+    echo ""
+
+    exit 1
+  fi
+}
+
 print_head() {
   clear
 
