@@ -2,7 +2,7 @@
 
 sudo -v
 
-dnscrypt=false
+dnscrypt=true
 dev=false
 debug=false
 
