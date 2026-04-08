@@ -361,6 +361,7 @@ fi
 
 if command -v systemctl &>/dev/null && ! command -v pihole &>/dev/null && ! command -v pihole-FTL &>/dev/null; then
   install_package systemd-resolved
+
   remove_package dnscrypt-proxy
   remove_package dnscrypt-proxy2
 
