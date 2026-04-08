@@ -871,6 +871,8 @@ EOF
 
     update_packages
 
+    install_package systemd-resolved
+
     if command -v pkg &>/dev/null || command -v opkg &>/dev/null; then
       install_package dnscrypt-proxy2
     else
