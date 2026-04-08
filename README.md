@@ -28,13 +28,12 @@ Here it is.
 
 Installation settings can be changed in the following ways.
 
-> | Parameter             | Default     | Description                                                                                                                                                                                     |
-> | --------------------- | ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-> | `--dnscrypt`          | _automatic_ | This tool first checks if DNS-Over-TLS is available. If the DNS-Over-TLS protocol is unavailable, it uses the DNSCrypt protocol. This parameter specifies that it must use DNSCrypt regardless. |
-> | `--blockcheck-domain` | _automatic_ | This tool finds the correct domain name by sequentially testing blocked websites in different countries for blockcheck. This parameter allows you to specify this domain name yourself.         |
+> | Parameter             | Default     | Description                                                                                                                                                                             |
+> | --------------------- | ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+> | `--blockcheck-domain` | _automatic_ | This tool finds the correct domain name by sequentially testing blocked websites in different countries for blockcheck. This parameter allows you to specify this domain name yourself. |
 >
 > Example:
 >
 > ```shell
-> curl -fsSL https://raw.github.com/keift/zapret/refs/heads/main/src/install.sh | bash -s -- --dnscrypt --blockcheck-domain discord.com
+> curl -fsSL https://raw.github.com/keift/zapret/refs/heads/main/src/install.sh | bash -s -- --blockcheck-domain discord.com
 > ```

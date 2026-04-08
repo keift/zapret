@@ -2,12 +2,10 @@
 
 sudo -v
 
-dnscrypt=true
 dev=false
 debug=false
 
 for arg in "${@}"; do
-  [ "${arg}" = "--dnscrypt" ] && dnscrypt=true
   [ "${arg}" = "--dev" ] && dev=true
   [ "${arg}" = "--debug" ] && debug=true
 done
@@ -835,91 +833,61 @@ else
 fi
 
 if command -v systemctl &>/dev/null && ! command -v pihole &>/dev/null && ! command -v pihole-FTL &>/dev/null; then
-  if [ "${dnscrypt}" = false ] && \
-    ( dig -p 853 +tls +tls-hostname=one.one.one.one +tries=1 +time=10 @1.1.1.1 &>"${log_redirects}" || \
-    dig -p 853 +tls +tls-hostname=one.one.one.one +tries=1 +time=10 @2606:4700:4700::1111 &>"${log_redirects}" || \
-    dig -p 853 +tls +tls-hostname=one.one.one.one +tries=1 +time=10 @1.0.0.1 &>"${log_redirects}" || \
-    dig -p 853 +tls +tls-hostname=one.one.one.one +tries=1 +time=10 @2606:4700:4700::1001 &>"${log_redirects}" ); then
-    dns_resolver="systemd-resolved"
+  dns_resolver="dnscrypt-proxy"
 
-    install_package systemd-resolved
-    remove_package dnscrypt-proxy
-    remove_package dnscrypt-proxy2
+  install_package systemd-resolved
 
-    enable_service systemd-resolved
-    start_service systemd-resolved
-
-    sudo tee /etc/systemd/resolved.conf &>/dev/null << EOF
-[Resolve]
-DNS=1.1.1.1#one.one.one.one
-DNS=2606:4700:4700::1111#one.one.one.one
-DNS=1.0.0.1#one.one.one.one
-DNS=2606:4700:4700::1001#one.one.one.one
-
-DNSOverTLS=yes
-EOF
-
-    sudo chattr -i /etc/resolv.conf &>"${log_redirects}"
-
-    [ -f /run/systemd/resolve/stub-resolv.conf ] && sudo ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf &>"${log_redirects}"
-
-    restart_service systemd-resolved
+  if command -v pkg &>/dev/null || command -v opkg &>/dev/null; then
+    install_package dnscrypt-proxy2
   else
-    dns_resolver="dnscrypt-proxy"
+    install_package dnscrypt-proxy
+  fi
 
-    install_package systemd-resolved
+  enable_service systemd-resolved
+  start_service systemd-resolved
 
-    if command -v pkg &>/dev/null || command -v opkg &>/dev/null; then
-      install_package dnscrypt-proxy2
+  enable_service dnscrypt-proxy
+  enable_service dnscrypt-proxy2
+  start_service dnscrypt-proxy
+  start_service dnscrypt-proxy2
+
+  if [ -f /etc/dnscrypt-proxy/dnscrypt-proxy.toml ]; then
+    dnscrypt_path="/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
+  elif [ -f /etc/dnscrypt-proxy.toml ]; then
+    dnscrypt_path="/etc/dnscrypt-proxy.toml"
+  elif [ -f /opt/etc/dnscrypt-proxy.toml ]; then
+    dnscrypt_path="/opt/etc/dnscrypt-proxy.toml"
+  elif [ -f /usr/local/etc/dnscrypt-proxy/dnscrypt-proxy.toml ]; then
+    dnscrypt_path="/usr/local/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
+  elif [ -f /usr/share/defaults/dnscrypt-proxy/dnscrypt-proxy.toml ]; then
+    sudo mkdir -p /etc/dnscrypt-proxy &>"${log_redirects}"
+
+    sudo cp /usr/share/defaults/dnscrypt-proxy/dnscrypt-proxy.toml /etc/dnscrypt-proxy &>"${log_redirects}"
+
+    dnscrypt_path="/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
+  else
+    if [ "${country_code}" = "RU" ]; then
+      echo -e "  ${red}Путь к DNSCrypt Proxy не найден.${reset}"
+    elif [ "${country_code}" = "TR" ]; then
+      echo -e "  ${red}DNSCrypt Proxy yolu bulunamadı.${reset}"
     else
-      install_package dnscrypt-proxy
+      echo -e "  ${red}DNSCrypt Proxy path could not be found.${reset}"
     fi
 
-    enable_service systemd-resolved
-    start_service systemd-resolved
+    echo ""
 
-    enable_service dnscrypt-proxy
-    enable_service dnscrypt-proxy2
-    start_service dnscrypt-proxy
-    start_service dnscrypt-proxy2
+    exit 1
+  fi
 
-    if [ -f /etc/dnscrypt-proxy/dnscrypt-proxy.toml ]; then
-      dnscrypt_path="/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
-    elif [ -f /etc/dnscrypt-proxy.toml ]; then
-      dnscrypt_path="/etc/dnscrypt-proxy.toml"
-    elif [ -f /opt/etc/dnscrypt-proxy.toml ]; then
-      dnscrypt_path="/opt/etc/dnscrypt-proxy.toml"
-    elif [ -f /usr/local/etc/dnscrypt-proxy/dnscrypt-proxy.toml ]; then
-      dnscrypt_path="/usr/local/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
-    elif [ -f /usr/share/defaults/dnscrypt-proxy/dnscrypt-proxy.toml ]; then
-      sudo mkdir -p /etc/dnscrypt-proxy &>"${log_redirects}"
+  sudo tee /etc/systemd/resolved.conf &>/dev/null <<< ""
 
-      sudo cp /usr/share/defaults/dnscrypt-proxy/dnscrypt-proxy.toml /etc/dnscrypt-proxy &>"${log_redirects}"
+  sudo chattr -i /etc/resolv.conf &>"${log_redirects}"
 
-      dnscrypt_path="/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
-    else
-      if [ "${country_code}" = "RU" ]; then
-        echo -e "  ${red}Путь к DNSCrypt Proxy не найден.${reset}"
-      elif [ "${country_code}" = "TR" ]; then
-        echo -e "  ${red}DNSCrypt Proxy yolu bulunamadı.${reset}"
-      else
-        echo -e "  ${red}DNSCrypt Proxy path could not be found.${reset}"
-      fi
+  [ -f /run/systemd/resolve/stub-resolv.conf ] && sudo ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf &>"${log_redirects}"
 
-      echo ""
+  restart_service systemd-resolved
 
-      exit 1
-    fi
-
-    sudo tee /etc/systemd/resolved.conf &>/dev/null <<< ""
-
-    sudo chattr -i /etc/resolv.conf &>"${log_redirects}"
-
-    [ -f /run/systemd/resolve/stub-resolv.conf ] && sudo ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf &>"${log_redirects}"
-
-    restart_service systemd-resolved
-
-    sudo tee "${dnscrypt_path}" &>/dev/null << EOF
+  sudo tee "${dnscrypt_path}" &>/dev/null << EOF
 listen_addresses = ["127.0.0.1:5300", "[::1]:5300"]
 
 [sources]
@@ -929,17 +897,17 @@ listen_addresses = ["127.0.0.1:5300", "[::1]:5300"]
   cache_file = "public-resolvers-v3.md"
 EOF
 
+  restart_service dnscrypt-proxy
+  restart_service dnscrypt-proxy2
+
+  while ! dig -p 5300 +tries=1 +time=10 @127.0.0.1 &>/dev/null; do
     restart_service dnscrypt-proxy
     restart_service dnscrypt-proxy2
 
-    while ! dig -p 5300 +tries=1 +time=10 @127.0.0.1 &>/dev/null; do
-      restart_service dnscrypt-proxy
-      restart_service dnscrypt-proxy2
+    sleep 10
+  done
 
-      sleep 10
-    done
-
-    sudo tee /etc/systemd/resolved.conf &>/dev/null << EOF
+  sudo tee /etc/systemd/resolved.conf &>/dev/null << EOF
 [Resolve]
 DNS=127.0.0.1:5300
 DNS=[::1]:5300
@@ -948,12 +916,11 @@ Domains=~.
 DNSOverTLS=no
 EOF
 
-    sudo chattr -i /etc/resolv.conf &>"${log_redirects}"
+  sudo chattr -i /etc/resolv.conf &>"${log_redirects}"
 
-    [ -f /run/systemd/resolve/stub-resolv.conf ] && sudo ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf &>"${log_redirects}"
+  [ -f /run/systemd/resolve/stub-resolv.conf ] && sudo ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf &>"${log_redirects}"
 
-    restart_service systemd-resolved
-  fi
+  restart_service systemd-resolved
 else
   dns_resolver="dnscrypt-proxy"
 
