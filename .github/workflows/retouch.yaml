@@ -19,6 +19,9 @@ jobs:
       - name: Install Prettier
         run: bun add -g prettier prettier-plugin-sh
 
+      - name: Install Prettier plugins
+        run: bun add prettier-plugin-sh
+
       - name: Run Prettier
         run: prettier --write ./
 
