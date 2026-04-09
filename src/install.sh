@@ -620,7 +620,7 @@ EOF
   fi
 }
 
-print_upgrade_commands() {
+print_update_commands() {
   if [ "${package_manager}" = "apt" ]; then
     echo -e "  ${yellow}sudo ${green}apt ${cyan}update${reset}"
     echo -e "  ${yellow}sudo ${green}apt ${cyan}upgrade ${white}-${cyan}y${reset}"
@@ -724,7 +724,7 @@ if ! command -v dig &> /dev/null \
 
   echo ""
 
-  print_upgrade_commands
+  print_update_commands
 
   echo ""
 
@@ -1085,7 +1085,7 @@ if echo "${blockcheck_results}" | grep -q "nftables queue support is not availab
 
   echo ""
 
-  print_upgrade_commands
+  print_update_commands
 
   echo ""
 
