@@ -771,7 +771,7 @@ EOF
 else
   dns_resolver="dnscrypt-proxy"
 
-  if command -v pkg &>/dev/null || command -v opkg &>/dev/null; then
+  if [ "${package_manager}" = "pkg" ] || [ "${package_manager}" = "opkg" ]; then
     install_package dnscrypt-proxy2
   else
     install_package dnscrypt-proxy
