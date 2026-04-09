@@ -812,25 +812,12 @@ else
 
   sudo chattr -i /etc/resolv.conf &>"${log_redirects}"
 
-  local_resolver=$(ip route show default | awk "{print \$3}" | head -n 1)
-
-  if dig -p 53 +tries=1 +time=10 @"${local_resolver}" &>/dev/null; then
-    sudo tee /etc/resolv.conf &>/dev/null << EOF
-nameserver ${local_resolver}
-
+  sudo tee /etc/resolv.conf &>/dev/null << EOF
 nameserver 1.1.1.1
 nameserver 2606:4700:4700::1111
 nameserver 1.0.0.1
 nameserver 2606:4700:4700::1001
 EOF
-  else
-    sudo tee /etc/resolv.conf &>/dev/null << EOF
-nameserver 1.1.1.1
-nameserver 2606:4700:4700::1111
-nameserver 1.0.0.1
-nameserver 2606:4700:4700::1001
-EOF
-  fi
 
   if command -v pihole &>/dev/null || command -v pihole-FTL &>/dev/null; then
     dns_resolver="pihole"
@@ -901,20 +888,7 @@ EOF
 
   sudo chattr -i /etc/resolv.conf &>"${log_redirects}"
 
-  if dig -p 53 +tries=1 +time=10 @"${local_resolver}" &>/dev/null; then
-    sudo tee /etc/resolv.conf &>/dev/null << EOF
-nameserver 127.0.0.1
-nameserver ::1
-
-nameserver ${local_resolver}
-
-nameserver 1.1.1.1
-nameserver 2606:4700:4700::1111
-nameserver 1.0.0.1
-nameserver 2606:4700:4700::1001
-EOF
-  else
-    sudo tee /etc/resolv.conf &>/dev/null << EOF
+  sudo tee /etc/resolv.conf &>/dev/null << EOF
 nameserver 127.0.0.1
 nameserver ::1
 
@@ -923,7 +897,6 @@ nameserver 2606:4700:4700::1111
 nameserver 1.0.0.1
 nameserver 2606:4700:4700::1001
 EOF
-  fi
 
   sudo chattr +i /etc/resolv.conf &>"${log_redirects}"
 fi
