@@ -678,49 +678,6 @@ remove_package() {
   fi
 }
 
-update_packages() {
-  if command -v apt &>/dev/null; then
-    export DEBIAN_FRONTEND="noninteractive"
-
-    sudo apt update -y &>"${log_redirects}"
-  elif command -v rpm-ostree &>/dev/null; then
-    sudo rpm-ostree refresh-md &>"${log_redirects}"
-  elif command -v dnf &>/dev/null; then
-    sudo dnf makecache -y &>"${log_redirects}"
-  elif command -v pacman &>/dev/null; then
-    sudo pacman -Syu --noconfirm &>"${log_redirects}"
-  elif command -v zypper &>/dev/null; then
-    sudo zypper -n refresh &>"${log_redirects}"
-  elif command -v xbps-install &>/dev/null; then
-    sudo xbps-install -Suy &>"${log_redirects}"
-  elif command -v apk &>/dev/null; then
-    sudo apk update --quiet &>"${log_redirects}"
-  elif command -v emerge &>/dev/null; then
-    sudo emerge --sync --quiet &>"${log_redirects}"
-  elif command -v slackpkg &>/dev/null; then
-    sudo slackpkg -batch=on update &>"${log_redirects}"
-  elif command -v eopkg &>/dev/null; then
-    sudo eopkg update-repo -y &>"${log_redirects}"
-  elif command -v pkg &>/dev/null; then
-    sudo pkg update &>"${log_redirects}"
-  elif command -v pkg_add &>/dev/null; then
-    sudo pkg_add -u &>"${log_redirects}"
-  elif command -v opkg &>/dev/null; then
-    sudo opkg update &>"${log_redirects}"
-  else
-    if [ "${country_code}" = "RU" ]; then
-      echo -e "  ${red}Неподдерживаемый менеджер пакетов.${reset}"
-    elif [ "${country_code}" = "TR" ]; then
-      echo -e "  ${red}Desteklenmeyen paket yöneticisi.${reset}"
-    else
-      echo -e "  ${red}Unsupported package manager.${reset}"
-    fi
-    echo ""
-
-    exit 1
-  fi
-}
-
 print_head() {
   clear
 
@@ -752,53 +709,6 @@ fi
 
 # 1. Install dependencies
 
-if command -v pacman &>/dev/null || \
-  command -v xbps-install &>/dev/null || \
-  command -v pkg_add &>/dev/null; then
-  if [ "${country_code}" = "RU" ]; then
-    echo -e "  ${yellow}ВАЖНАЯ ИНФОРМАЦИЯ${reset}"
-    echo ""
-    echo -e "  ${gray}Для обеспечения стабильности установки этот инструмент выполнит полное обновление системы.${reset}"
-    echo -e "  ${gray}Время выполнения этого процесса может зависеть от того, когда вы в последний раз обновляли систему.${reset}"
-    echo -e "  ${gray}Прерывание этого процесса может привести к повреждению пакетов.${reset}"
-    echo -ne "  ${gray}Если вы все поняли и хотите продолжить, нажмите клавишу ${blue}[ENTER]${gray}...${reset}"
-  elif [ "${country_code}" = "TR" ]; then
-    echo -e "  ${yellow}ÖNEMLİ BİLGİLENDİRME${reset}"
-    echo ""
-    echo -e "  ${gray}Kurulumun kararlılığı açısından bu araç tam kapsamlı bir sistem güncellemesi yapacaktır.${reset}"
-    echo -e "  ${gray}Bu işlemin süresi sisteminizi son güncellediğiniz zamana göre değişiklik gösterebilir.${reset}"
-    echo -e "  ${gray}Bu işlem sırasında işlemi yarıda kesmeniz paket kırılmalarına sebep olabilir.${reset}"
-    echo -ne "  ${gray}Her şeyi anladıysanız ve devam etmek istiyorsanız ${blue}[ENTER] ${gray}tuşuna basın...${reset}"
-  else
-    echo -e "  ${yellow}IMPORTANT NOTICE${reset}"
-    echo ""
-    echo -e "  ${gray}For the stability of the installation, this tool will perform a full system update.${reset}"
-    echo -e "  ${gray}The duration of this process may vary depending on when you last updated your system.${reset}"
-    echo -e "  ${gray}Interrupting this process may cause package breakages.${reset}"
-    echo -ne "  ${gray}If you understand everything and want to continue, press ${blue}[ENTER]${gray}...${reset}"
-  fi
-
-  if [ -t 0 ]; then
-    read -r
-  else
-    read -r < /dev/tty
-  fi
-
-  print_head
-
-  if [ "${country_code}" = "RU" ]; then
-    echo -e "  ${gray}Система обновляется...${reset}"
-  elif [ "${country_code}" = "TR" ]; then
-    echo -e "  ${gray}Sisteminiz güncelleniyor...${reset}"
-  else
-    echo -e "  ${gray}Updating your system...${reset}"
-  fi
-
-  update_packages
-
-  print_head
-fi
-
 if [ "${country_code}" = "RU" ]; then
   echo -e "  ${gray}Установка зависимостей...${reset}"
 elif [ "${country_code}" = "TR" ]; then
@@ -806,8 +716,6 @@ elif [ "${country_code}" = "TR" ]; then
 else
   echo -e "  ${gray}Installing dependencies...${reset}"
 fi
-
-update_packages
 
 install_package bind
 install_package bind-tools
@@ -867,11 +775,11 @@ if command -v systemctl &>/dev/null && ! command -v pihole &>/dev/null && ! comm
     dnscrypt_path="/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
   else
     if [ "${country_code}" = "RU" ]; then
-      echo -e "  ${red}Путь к DNSCrypt Proxy не найден.${reset}"
+      echo -e "  ${red}Путь к DNS-резолверу не найден.${reset}"
     elif [ "${country_code}" = "TR" ]; then
-      echo -e "  ${red}DNSCrypt Proxy yolu bulunamadı.${reset}"
+      echo -e "  ${red}DNS çözümleyici yolu bulunamadı.${reset}"
     else
-      echo -e "  ${red}DNSCrypt Proxy path could not be found.${reset}"
+      echo -e "  ${red}DNS resolver path could not be found.${reset}"
     fi
 
     echo ""
@@ -951,11 +859,11 @@ else
     dnscrypt_path="/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
   else
     if [ "${country_code}" = "RU" ]; then
-      echo -e "  ${red}Путь к DNSCrypt Proxy не найден.${reset}"
+      echo -e "  ${red}Путь к DNS-резолверу не найден.${reset}"
     elif [ "${country_code}" = "TR" ]; then
-      echo -e "  ${red}DNSCrypt Proxy yolu bulunamadı.${reset}"
+      echo -e "  ${red}DNS çözümleyici yolu bulunamadı.${reset}"
     else
-      echo -e "  ${red}DNSCrypt Proxy path could not be found.${reset}"
+      echo -e "  ${red}DNS resolver path could not be found.${reset}"
     fi
 
     echo ""
