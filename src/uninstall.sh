@@ -48,28 +48,28 @@ country_code=$(curl --max-time 10 -s https://ipinfo.io/country)
 
 detect_system() {
   # Systemd
-  if command -v systemctl &>/dev/null; then
+  if command -v systemctl &> /dev/null; then
     init_system="systemd"
   # Runit
-  elif command -v sv &>/dev/null; then
+  elif command -v sv &> /dev/null; then
     init_system="runit"
   # S6
-  elif command -v s6-svscan &>/dev/null || command -v s6-rc &>/dev/null; then
+  elif command -v s6-svscan &> /dev/null || command -v s6-rc &> /dev/null; then
     init_system="s6"
   # OpenRC
-  elif command -v rc-service &>/dev/null; then
+  elif command -v rc-service &> /dev/null; then
     init_system="openrc"
   # OpenBSD
-  elif command -v rcctl &>/dev/null; then
+  elif command -v rcctl &> /dev/null; then
     init_system="openbsd"
   # FreeBSD
-  elif command -v sysrc &>/dev/null; then
+  elif command -v sysrc &> /dev/null; then
     init_system="freebsd"
   # pfSense
-  elif sudo test -f /etc/pfsense-release || grep -qi "pfsense" /etc/platform 2>/dev/null; then
+  elif sudo test -f /etc/pfsense-release || grep -qi "pfsense" /etc/platform 2> /dev/null; then
     init_system="pfsense"
   # SysvInit
-  elif command -v service &>/dev/null || sudo test -x /usr/sbin/service || sudo test -x /sbin/service; then
+  elif command -v service &> /dev/null || sudo test -x /usr/sbin/service || sudo test -x /sbin/service; then
     init_system="sysvinit"
   # SysvInit (Old)
   elif sudo test -d /etc/init.d; then
@@ -81,37 +81,37 @@ detect_system() {
   elif sudo test -d /etc/rc.d; then
     init_system="rc"
   # Launchd
-  elif command -v launchctl &>/dev/null; then
+  elif command -v launchctl &> /dev/null; then
     init_system="launchd"
   else
     init_system="unknown"
   fi
 
-  if command -v apt &>/dev/null; then
+  if command -v apt &> /dev/null; then
     package_manager="apt"
-  elif command -v rpm-ostree &>/dev/null; then
+  elif command -v rpm-ostree &> /dev/null; then
     package_manager="rpm-ostree"
-  elif command -v dnf &>/dev/null; then
+  elif command -v dnf &> /dev/null; then
     package_manager="dnf"
-  elif command -v pacman &>/dev/null; then
+  elif command -v pacman &> /dev/null; then
     package_manager="pacman"
-  elif command -v zypper &>/dev/null; then
+  elif command -v zypper &> /dev/null; then
     package_manager="zypper"
-  elif command -v xbps-install &>/dev/null; then
+  elif command -v xbps-install &> /dev/null; then
     package_manager="xbps"
-  elif command -v apk &>/dev/null; then
+  elif command -v apk &> /dev/null; then
     package_manager="apk"
-  elif command -v emerge &>/dev/null; then
+  elif command -v emerge &> /dev/null; then
     package_manager="emerge"
-  elif command -v slackpkg &>/dev/null; then
+  elif command -v slackpkg &> /dev/null; then
     package_manager="slackpkg"
-  elif command -v eopkg &>/dev/null; then
+  elif command -v eopkg &> /dev/null; then
     package_manager="eopkg"
-  elif command -v pkg &>/dev/null; then
+  elif command -v pkg &> /dev/null; then
     package_manager="pkg"
-  elif command -v pkg_add &>/dev/null; then
+  elif command -v pkg_add &> /dev/null; then
     package_manager="pkg_add"
-  elif command -v opkg &>/dev/null; then
+  elif command -v opkg &> /dev/null; then
     package_manager="opkg"
   else
     package_manager="unknown"
@@ -125,14 +125,14 @@ start_service() {
 
   # Systemd
   if [ "${init_system}" = "systemd" ]; then
-    sudo systemctl start "${service_name}" &>"${log_redirects}"
+    sudo systemctl start "${service_name}" &> "${log_redirects}"
   # Runit
   elif [ "${init_system}" = "runit" ]; then
-    sudo sv start "${service_name}" &>"${log_redirects}"
+    sudo sv start "${service_name}" &> "${log_redirects}"
   # S6
   elif [ "${init_system}" = "s6" ]; then
-    if command -v s6-rc &>/dev/null; then
-      sudo s6-rc -u change "${service_name}" &>"${log_redirects}"
+    if command -v s6-rc &> /dev/null; then
+      sudo s6-rc -u change "${service_name}" &> "${log_redirects}"
     else
       if sudo test -d /etc/s6/sv; then
         local s6_service_dir="/etc/s6/sv"
@@ -140,37 +140,37 @@ start_service() {
         local s6_service_dir="/etc/s6-servicedirs"
       fi
 
-      sudo s6-svc -u "${s6_service_dir}"/"${service_name}" &>"${log_redirects}"
+      sudo s6-svc -u "${s6_service_dir}"/"${service_name}" &> "${log_redirects}"
     fi
   # OpenRC
   elif [ "${init_system}" = "openrc" ]; then
-    sudo rc-service "${service_name}" start &>"${log_redirects}"
+    sudo rc-service "${service_name}" start &> "${log_redirects}"
   # OpenBSD
   elif [ "${init_system}" = "openbsd" ]; then
-    sudo rcctl start "${service_name}" &>"${log_redirects}"
+    sudo rcctl start "${service_name}" &> "${log_redirects}"
   # FreeBSD
   elif [ "${init_system}" = "freebsd" ]; then
-    sudo service "${service_name}" start &>"${log_redirects}"
+    sudo service "${service_name}" start &> "${log_redirects}"
   # pfSense
   elif [ "${init_system}" = "pfsense" ]; then
-    sudo /usr/local/etc/rc.d/"${service_name}".sh start &>"${log_redirects}"
+    sudo /usr/local/etc/rc.d/"${service_name}".sh start &> "${log_redirects}"
   # SysvInit
   elif [ "${init_system}" = "sysvinit" ]; then
-    sudo service "${service_name}" start &>"${log_redirects}"
+    sudo service "${service_name}" start &> "${log_redirects}"
   # SysvInit (Old)
   elif [ "${init_system}" = "sysvinit-old" ]; then
-    sudo /etc/init.d/"${service_name}" start &>"${log_redirects}"
+    sudo /etc/init.d/"${service_name}" start &> "${log_redirects}"
   # Entware
   elif [ "${init_system}" = "entware" ]; then
-    local entware_script=$(ls /opt/etc/init.d/*"${service_name}" 2>/dev/null | head -n 1)
+    local entware_script=$(ls /opt/etc/init.d/*"${service_name}" 2> /dev/null | head -n 1)
 
-    sudo "${entware_script}" start &>"${log_redirects}"
+    sudo "${entware_script}" start &> "${log_redirects}"
   # Rc
   elif [ "${init_system}" = "rc" ]; then
-    sudo /etc/rc.d/rc."${service_name}" start &>"${log_redirects}"
+    sudo /etc/rc.d/rc."${service_name}" start &> "${log_redirects}"
   # Launchd
   elif [ "${init_system}" = "launchd" ]; then
-    sudo launchctl start "${service_name}" &>"${log_redirects}"
+    sudo launchctl start "${service_name}" &> "${log_redirects}"
   else
     if [ "${country_code}" = "RU" ]; then
       echo -e "  ${red}Неподдерживаемая система инициализации.${reset}"
@@ -190,15 +190,15 @@ restart_service() {
 
   # Systemd
   if [ "${init_system}" = "systemd" ]; then
-    sudo systemctl restart "${service_name}" &>"${log_redirects}"
+    sudo systemctl restart "${service_name}" &> "${log_redirects}"
   # Runit
   elif [ "${init_system}" = "runit" ]; then
-    sudo sv restart "${service_name}" &>"${log_redirects}"
+    sudo sv restart "${service_name}" &> "${log_redirects}"
   # S6
   elif [ "${init_system}" = "s6" ]; then
-    if command -v s6-rc &>/dev/null; then
-      sudo s6-rc -d change "${service_name}" &>"${log_redirects}"
-      sudo s6-rc -u change "${service_name}" &>"${log_redirects}"
+    if command -v s6-rc &> /dev/null; then
+      sudo s6-rc -d change "${service_name}" &> "${log_redirects}"
+      sudo s6-rc -u change "${service_name}" &> "${log_redirects}"
     else
       if sudo test -d /etc/s6/sv; then
         local s6_service_dir="/etc/s6/sv"
@@ -206,38 +206,38 @@ restart_service() {
         local s6_service_dir="/etc/s6-servicedirs"
       fi
 
-      sudo s6-svc -r "${s6_service_dir}"/"${service_name}" &>"${log_redirects}"
+      sudo s6-svc -r "${s6_service_dir}"/"${service_name}" &> "${log_redirects}"
     fi
   # OpenRC
   elif [ "${init_system}" = "openrc" ]; then
-    sudo rc-service "${service_name}" restart &>"${log_redirects}"
+    sudo rc-service "${service_name}" restart &> "${log_redirects}"
   # OpenBSD
   elif [ "${init_system}" = "openbsd" ]; then
-    sudo rcctl restart "${service_name}" &>"${log_redirects}"
+    sudo rcctl restart "${service_name}" &> "${log_redirects}"
   # FreeBSD
   elif [ "${init_system}" = "freebsd" ]; then
-    sudo service "${service_name}" restart &>"${log_redirects}"
+    sudo service "${service_name}" restart &> "${log_redirects}"
   # pfSense
   elif [ "${init_system}" = "pfsense" ]; then
-    sudo /usr/local/etc/rc.d/"${service_name}".sh restart &>"${log_redirects}"
+    sudo /usr/local/etc/rc.d/"${service_name}".sh restart &> "${log_redirects}"
   # SysvInit
   elif [ "${init_system}" = "sysvinit" ]; then
-    sudo service "${service_name}" restart &>"${log_redirects}"
+    sudo service "${service_name}" restart &> "${log_redirects}"
   # SysvInit (Old)
   elif [ "${init_system}" = "sysvinit-old" ]; then
-    sudo /etc/init.d/"${service_name}" restart &>"${log_redirects}"
+    sudo /etc/init.d/"${service_name}" restart &> "${log_redirects}"
   # Entware
   elif [ "${init_system}" = "entware" ]; then
-    local entware_script=$(ls /opt/etc/init.d/*"${service_name}" 2>/dev/null | head -n 1)
+    local entware_script=$(ls /opt/etc/init.d/*"${service_name}" 2> /dev/null | head -n 1)
 
-    sudo "${entware_script}" restart &>"${log_redirects}"
+    sudo "${entware_script}" restart &> "${log_redirects}"
   # Rc
   elif [ "${init_system}" = "rc" ]; then
-    sudo /etc/rc.d/rc."${service_name}" restart &>"${log_redirects}"
+    sudo /etc/rc.d/rc."${service_name}" restart &> "${log_redirects}"
   # Launchd
   elif [ "${init_system}" = "launchd" ]; then
-    sudo launchctl stop "${service_name}" &>"${log_redirects}"
-    sudo launchctl start "${service_name}" &>"${log_redirects}"
+    sudo launchctl stop "${service_name}" &> "${log_redirects}"
+    sudo launchctl start "${service_name}" &> "${log_redirects}"
   else
     if [ "${country_code}" = "RU" ]; then
       echo -e "  ${red}Неподдерживаемая система инициализации.${reset}"
@@ -257,7 +257,7 @@ enable_service() {
 
   # Systemd
   if [ "${init_system}" = "systemd" ]; then
-    sudo systemctl enable "${service_name}" &>"${log_redirects}"
+    sudo systemctl enable "${service_name}" &> "${log_redirects}"
   # Runit
   elif [ "${init_system}" = "runit" ]; then
     if sudo test -d /etc/sv; then
@@ -274,28 +274,28 @@ enable_service() {
       local runit_service_dir="/service"
     fi
 
-    sudo ln -sf "${runit_sv_dir}"/"${service_name}" "${runit_service_dir}" &>"${log_redirects}"
+    sudo ln -sf "${runit_sv_dir}"/"${service_name}" "${runit_service_dir}" &> "${log_redirects}"
   # S6
   elif [ "${init_system}" = "s6" ]; then
     :
   # OpenRC
   elif [ "${init_system}" = "openrc" ]; then
-    sudo rc-update add "${service_name}" default &>"${log_redirects}"
+    sudo rc-update add "${service_name}" default &> "${log_redirects}"
   # OpenBSD
   elif [ "${init_system}" = "openbsd" ]; then
-    sudo rcctl enable "${service_name}" &>"${log_redirects}"
+    sudo rcctl enable "${service_name}" &> "${log_redirects}"
   # FreeBSD
   elif [ "${init_system}" = "freebsd" ]; then
-    sudo sysrc "${service_name}_enable=YES" &>"${log_redirects}"
+    sudo sysrc "${service_name}_enable=YES" &> "${log_redirects}"
   # pfSense
   elif [ "${init_system}" = "pfsense" ]; then
     :
   # SysvInit
   elif [ "${init_system}" = "sysvinit" ]; then
-    if command -v update-rc.d &>/dev/null || sudo test -x /usr/sbin/update-rc.d || sudo test -x /sbin/update-rc.d; then
-      sudo update-rc.d "${service_name}" defaults &>"${log_redirects}"
-    elif command -v chkconfig &>/dev/null || sudo test -x /usr/sbin/chkconfig || sudo test -x /sbin/chkconfig; then
-      sudo chkconfig "${service_name}" on &>"${log_redirects}"
+    if command -v update-rc.d &> /dev/null || sudo test -x /usr/sbin/update-rc.d || sudo test -x /sbin/update-rc.d; then
+      sudo update-rc.d "${service_name}" defaults &> "${log_redirects}"
+    elif command -v chkconfig &> /dev/null || sudo test -x /usr/sbin/chkconfig || sudo test -x /sbin/chkconfig; then
+      sudo chkconfig "${service_name}" on &> "${log_redirects}"
     fi
   # SysvInit (Old)
   elif [ "${init_system}" = "sysvinit-old" ]; then
@@ -308,7 +308,7 @@ enable_service() {
     :
   # Launchd
   elif [ "${init_system}" = "launchd" ]; then
-    sudo launchctl load -w /Library/LaunchDaemons/"${service_name}".plist &>"${log_redirects}"
+    sudo launchctl load -w /Library/LaunchDaemons/"${service_name}".plist &> "${log_redirects}"
   else
     if [ "${country_code}" = "RU" ]; then
       echo -e "  ${red}Неподдерживаемая система инициализации.${reset}"
@@ -327,31 +327,31 @@ install_package() {
   local package_name="${1}"
 
   if [ "${package_manager}" = "apt" ]; then
-    sudo apt install -y "${package_name}" &>"${log_redirects}"
+    sudo apt install -y "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "rpm-ostree" ]; then
-    sudo rpm-ostree install --idempotent --apply-live "${package_name}" &>"${log_redirects}"
+    sudo rpm-ostree install --idempotent --apply-live "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "dnf" ]; then
-    sudo dnf install -y "${package_name}" &>"${log_redirects}"
+    sudo dnf install -y "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "pacman" ]; then
-    sudo pacman -S --noconfirm "${package_name}" &>"${log_redirects}"
+    sudo pacman -S --noconfirm "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "zypper" ]; then
-    sudo zypper -n install "${package_name}" &>"${log_redirects}"
+    sudo zypper -n install "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "xbps" ]; then
-    sudo xbps-install -y "${package_name}" &>"${log_redirects}"
+    sudo xbps-install -y "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "apk" ]; then
-    sudo apk add --quiet "${package_name}" &>"${log_redirects}"
+    sudo apk add --quiet "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "emerge" ]; then
-    sudo emerge --quiet "${package_name}" &>"${log_redirects}"
+    sudo emerge --quiet "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "slackpkg" ]; then
-    sudo slackpkg -batch=on -default_answer=y install "${package_name}" &>"${log_redirects}"
+    sudo slackpkg -batch=on -default_answer=y install "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "eopkg" ]; then
-    sudo eopkg install -y "${package_name}" &>"${log_redirects}"
+    sudo eopkg install -y "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "pkg" ]; then
-    sudo pkg install -y "${package_name}" &>"${log_redirects}"
+    sudo pkg install -y "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "pkg_add" ]; then
-    sudo pkg_add -I "${package_name}" &>"${log_redirects}"
+    sudo pkg_add -I "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "opkg" ]; then
-    sudo opkg install "${package_name}" &>"${log_redirects}"
+    sudo opkg install "${package_name}" &> "${log_redirects}"
   else
     if [ "${country_code}" = "RU" ]; then
       echo -e "  ${red}Неподдерживаемый менеджер пакетов.${reset}"
@@ -370,31 +370,31 @@ remove_package() {
   local package_name="${1}"
 
   if [ "${package_manager}" = "apt" ]; then
-    sudo apt purge -y "${package_name}" &>"${log_redirects}"
+    sudo apt purge -y "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "rpm-ostree" ]; then
-    sudo rpm-ostree uninstall "${package_name}" &>"${log_redirects}"
+    sudo rpm-ostree uninstall "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "dnf" ]; then
-    sudo dnf remove -y "${package_name}" &>"${log_redirects}"
+    sudo dnf remove -y "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "pacman" ]; then
-    sudo pacman -Rns --noconfirm "${package_name}" &>"${log_redirects}"
+    sudo pacman -Rns --noconfirm "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "zypper" ]; then
-    sudo zypper -n remove "${package_name}" &>"${log_redirects}"
+    sudo zypper -n remove "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "xbps" ]; then
-    sudo xbps-remove -y "${package_name}" &>"${log_redirects}"
+    sudo xbps-remove -y "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "apk" ]; then
-    sudo apk del --quiet "${package_name}" &>"${log_redirects}"
+    sudo apk del --quiet "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "emerge" ]; then
-    sudo emerge --unmerge --quiet "${package_name}" &>"${log_redirects}"
+    sudo emerge --unmerge --quiet "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "slackpkg" ]; then
-    sudo slackpkg -batch=on -default_answer=y remove "${package_name}" &>"${log_redirects}"
+    sudo slackpkg -batch=on -default_answer=y remove "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "eopkg" ]; then
-    sudo eopkg remove -y "${package_name}" &>"${log_redirects}"
+    sudo eopkg remove -y "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "pkg" ]; then
-    sudo pkg delete -y "${package_name}" &>"${log_redirects}"
+    sudo pkg delete -y "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "pkg_add" ]; then
-    sudo pkg_delete "${package_name}" &>"${log_redirects}"
+    sudo pkg_delete "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "opkg" ]; then
-    sudo opkg remove "${package_name}" &>"${log_redirects}"
+    sudo opkg remove "${package_name}" &> "${log_redirects}"
   else
     if [ "${country_code}" = "RU" ]; then
       echo -e "  ${red}Неподдерживаемый менеджер пакетов.${reset}"
@@ -433,7 +433,7 @@ else
   echo -e "  ${gray}DNS settings are being removed...${reset}"
 fi
 
-if [ "${init_system}" = "systemd" ] && ! command -v pihole &>/dev/null && ! command -v pihole-FTL &>/dev/null; then
+if [ "${init_system}" = "systemd" ] && ! command -v pihole &> /dev/null && ! command -v pihole-FTL &> /dev/null; then
   install_package systemd-resolved
 
   remove_package dnscrypt-proxy
@@ -442,20 +442,20 @@ if [ "${init_system}" = "systemd" ] && ! command -v pihole &>/dev/null && ! comm
   enable_service systemd-resolved
   start_service systemd-resolved
 
-  sudo tee /etc/systemd/resolved.conf &>/dev/null <<< ""
+  sudo tee /etc/systemd/resolved.conf &> /dev/null <<< ""
 
-  sudo chattr -i /etc/resolv.conf &>"${log_redirects}"
+  sudo chattr -i /etc/resolv.conf &> "${log_redirects}"
 
-  sudo test -f /run/systemd/resolve/stub-resolv.conf && sudo ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf &>"${log_redirects}"
+  sudo test -f /run/systemd/resolve/stub-resolv.conf && sudo ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf &> "${log_redirects}"
 
   restart_service systemd-resolved
 else
   remove_package dnscrypt-proxy
   remove_package dnscrypt-proxy2
 
-  sudo chattr -i /etc/resolv.conf &>"${log_redirects}"
+  sudo chattr -i /etc/resolv.conf &> "${log_redirects}"
 
-  sudo tee /etc/resolv.conf &>/dev/null << EOF
+  sudo tee /etc/resolv.conf &> /dev/null << EOF
 nameserver 1.1.1.1
 nameserver 2606:4700:4700::1111
 nameserver 1.0.0.1
@@ -484,7 +484,7 @@ else
   echo -e "  ${gray}Uninstalling Zapret...${reset}"
 fi
 
-printf "Y\n\n" | sudo /opt/zapret/uninstall_easy.sh &>"${log_redirects}"
+printf "Y\n\n" | sudo /opt/zapret/uninstall_easy.sh &> "${log_redirects}"
 
 sudo rm -rf /opt/zapret
 

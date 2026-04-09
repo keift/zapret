@@ -5,5 +5,7 @@
   "printWidth": 9999,
   "tabWidth": 2,
 
-  "trailingComma": "none"
+  "trailingComma": "none",
+
+  "plugins": ["prettier-plugin-sh"]
 }

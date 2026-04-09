@@ -51,28 +51,28 @@ country_code=$(curl --max-time 10 -s https://ipinfo.io/country)
 
 detect_system() {
   # Systemd
-  if command -v systemctl &>/dev/null; then
+  if command -v systemctl &> /dev/null; then
     init_system="systemd"
   # Runit
-  elif command -v sv &>/dev/null; then
+  elif command -v sv &> /dev/null; then
     init_system="runit"
   # S6
-  elif command -v s6-svscan &>/dev/null || command -v s6-rc &>/dev/null; then
+  elif command -v s6-svscan &> /dev/null || command -v s6-rc &> /dev/null; then
     init_system="s6"
   # OpenRC
-  elif command -v rc-service &>/dev/null; then
+  elif command -v rc-service &> /dev/null; then
     init_system="openrc"
   # OpenBSD
-  elif command -v rcctl &>/dev/null; then
+  elif command -v rcctl &> /dev/null; then
     init_system="openbsd"
   # FreeBSD
-  elif command -v sysrc &>/dev/null; then
+  elif command -v sysrc &> /dev/null; then
     init_system="freebsd"
   # pfSense
-  elif sudo test -f /etc/pfsense-release || grep -qi "pfsense" /etc/platform 2>/dev/null; then
+  elif sudo test -f /etc/pfsense-release || grep -qi "pfsense" /etc/platform 2> /dev/null; then
     init_system="pfsense"
   # SysvInit
-  elif command -v service &>/dev/null || sudo test -x /usr/sbin/service || sudo test -x /sbin/service; then
+  elif command -v service &> /dev/null || sudo test -x /usr/sbin/service || sudo test -x /sbin/service; then
     init_system="sysvinit"
   # SysvInit (Old)
   elif sudo test -d /etc/init.d; then
@@ -84,37 +84,37 @@ detect_system() {
   elif sudo test -d /etc/rc.d; then
     init_system="rc"
   # Launchd
-  elif command -v launchctl &>/dev/null; then
+  elif command -v launchctl &> /dev/null; then
     init_system="launchd"
   else
     init_system="unknown"
   fi
 
-  if command -v apt &>/dev/null; then
+  if command -v apt &> /dev/null; then
     package_manager="apt"
-  elif command -v rpm-ostree &>/dev/null; then
+  elif command -v rpm-ostree &> /dev/null; then
     package_manager="rpm-ostree"
-  elif command -v dnf &>/dev/null; then
+  elif command -v dnf &> /dev/null; then
     package_manager="dnf"
-  elif command -v pacman &>/dev/null; then
+  elif command -v pacman &> /dev/null; then
     package_manager="pacman"
-  elif command -v zypper &>/dev/null; then
+  elif command -v zypper &> /dev/null; then
     package_manager="zypper"
-  elif command -v xbps-install &>/dev/null; then
+  elif command -v xbps-install &> /dev/null; then
     package_manager="xbps"
-  elif command -v apk &>/dev/null; then
+  elif command -v apk &> /dev/null; then
     package_manager="apk"
-  elif command -v emerge &>/dev/null; then
+  elif command -v emerge &> /dev/null; then
     package_manager="emerge"
-  elif command -v slackpkg &>/dev/null; then
+  elif command -v slackpkg &> /dev/null; then
     package_manager="slackpkg"
-  elif command -v eopkg &>/dev/null; then
+  elif command -v eopkg &> /dev/null; then
     package_manager="eopkg"
-  elif command -v pkg &>/dev/null; then
+  elif command -v pkg &> /dev/null; then
     package_manager="pkg"
-  elif command -v pkg_add &>/dev/null; then
+  elif command -v pkg_add &> /dev/null; then
     package_manager="pkg_add"
-  elif command -v opkg &>/dev/null; then
+  elif command -v opkg &> /dev/null; then
     package_manager="opkg"
   else
     package_manager="unknown"
@@ -122,6 +122,9 @@ detect_system() {
 }
 
 detect_system
+
+dns_resolver="unknown"
+blockcheck_domain="unknown"
 
 send_metrics() {
   if [ "${country_code}" = "RU" ]; then
@@ -196,7 +199,7 @@ send_metrics() {
 
     curl --max-time 10 -X POST https://metrics--api.keift.co/zapret \
       -H "Content-Type: application/json" \
-      -d "${payload}" &>"${log_redirects}"
+      -d "${payload}" &> "${log_redirects}"
   else
     echo ""
     if [ "${country_code}" = "RU" ]; then
@@ -225,14 +228,14 @@ start_service() {
 
   # Systemd
   if [ "${init_system}" = "systemd" ]; then
-    sudo systemctl start "${service_name}" &>"${log_redirects}"
+    sudo systemctl start "${service_name}" &> "${log_redirects}"
   # Runit
   elif [ "${init_system}" = "runit" ]; then
-    sudo sv start "${service_name}" &>"${log_redirects}"
+    sudo sv start "${service_name}" &> "${log_redirects}"
   # S6
   elif [ "${init_system}" = "s6" ]; then
-    if command -v s6-rc &>/dev/null; then
-      sudo s6-rc -u change "${service_name}" &>"${log_redirects}"
+    if command -v s6-rc &> /dev/null; then
+      sudo s6-rc -u change "${service_name}" &> "${log_redirects}"
     else
       if sudo test -d /etc/s6/sv; then
         local s6_service_dir="/etc/s6/sv"
@@ -240,37 +243,37 @@ start_service() {
         local s6_service_dir="/etc/s6-servicedirs"
       fi
 
-      sudo s6-svc -u "${s6_service_dir}"/"${service_name}" &>"${log_redirects}"
+      sudo s6-svc -u "${s6_service_dir}"/"${service_name}" &> "${log_redirects}"
     fi
   # OpenRC
   elif [ "${init_system}" = "openrc" ]; then
-    sudo rc-service "${service_name}" start &>"${log_redirects}"
+    sudo rc-service "${service_name}" start &> "${log_redirects}"
   # OpenBSD
   elif [ "${init_system}" = "openbsd" ]; then
-    sudo rcctl start "${service_name}" &>"${log_redirects}"
+    sudo rcctl start "${service_name}" &> "${log_redirects}"
   # FreeBSD
   elif [ "${init_system}" = "freebsd" ]; then
-    sudo service "${service_name}" start &>"${log_redirects}"
+    sudo service "${service_name}" start &> "${log_redirects}"
   # pfSense
   elif [ "${init_system}" = "pfsense" ]; then
-    sudo /usr/local/etc/rc.d/"${service_name}".sh start &>"${log_redirects}"
+    sudo /usr/local/etc/rc.d/"${service_name}".sh start &> "${log_redirects}"
   # SysvInit
   elif [ "${init_system}" = "sysvinit" ]; then
-    sudo service "${service_name}" start &>"${log_redirects}"
+    sudo service "${service_name}" start &> "${log_redirects}"
   # SysvInit (Old)
   elif [ "${init_system}" = "sysvinit-old" ]; then
-    sudo /etc/init.d/"${service_name}" start &>"${log_redirects}"
+    sudo /etc/init.d/"${service_name}" start &> "${log_redirects}"
   # Entware
   elif [ "${init_system}" = "entware" ]; then
-    local entware_script=$(ls /opt/etc/init.d/*"${service_name}" 2>/dev/null | head -n 1)
+    local entware_script=$(ls /opt/etc/init.d/*"${service_name}" 2> /dev/null | head -n 1)
 
-    sudo "${entware_script}" start &>"${log_redirects}"
+    sudo "${entware_script}" start &> "${log_redirects}"
   # Rc
   elif [ "${init_system}" = "rc" ]; then
-    sudo /etc/rc.d/rc."${service_name}" start &>"${log_redirects}"
+    sudo /etc/rc.d/rc."${service_name}" start &> "${log_redirects}"
   # Launchd
   elif [ "${init_system}" = "launchd" ]; then
-    sudo launchctl start "${service_name}" &>"${log_redirects}"
+    sudo launchctl start "${service_name}" &> "${log_redirects}"
   else
     if [ "${country_code}" = "RU" ]; then
       echo -e "  ${red}Неподдерживаемая система инициализации.${reset}"
@@ -290,15 +293,15 @@ restart_service() {
 
   # Systemd
   if [ "${init_system}" = "systemd" ]; then
-    sudo systemctl restart "${service_name}" &>"${log_redirects}"
+    sudo systemctl restart "${service_name}" &> "${log_redirects}"
   # Runit
   elif [ "${init_system}" = "runit" ]; then
-    sudo sv restart "${service_name}" &>"${log_redirects}"
+    sudo sv restart "${service_name}" &> "${log_redirects}"
   # S6
   elif [ "${init_system}" = "s6" ]; then
-    if command -v s6-rc &>/dev/null; then
-      sudo s6-rc -d change "${service_name}" &>"${log_redirects}"
-      sudo s6-rc -u change "${service_name}" &>"${log_redirects}"
+    if command -v s6-rc &> /dev/null; then
+      sudo s6-rc -d change "${service_name}" &> "${log_redirects}"
+      sudo s6-rc -u change "${service_name}" &> "${log_redirects}"
     else
       if sudo test -d /etc/s6/sv; then
         local s6_service_dir="/etc/s6/sv"
@@ -306,38 +309,38 @@ restart_service() {
         local s6_service_dir="/etc/s6-servicedirs"
       fi
 
-      sudo s6-svc -r "${s6_service_dir}"/"${service_name}" &>"${log_redirects}"
+      sudo s6-svc -r "${s6_service_dir}"/"${service_name}" &> "${log_redirects}"
     fi
   # OpenRC
   elif [ "${init_system}" = "openrc" ]; then
-    sudo rc-service "${service_name}" restart &>"${log_redirects}"
+    sudo rc-service "${service_name}" restart &> "${log_redirects}"
   # OpenBSD
   elif [ "${init_system}" = "openbsd" ]; then
-    sudo rcctl restart "${service_name}" &>"${log_redirects}"
+    sudo rcctl restart "${service_name}" &> "${log_redirects}"
   # FreeBSD
   elif [ "${init_system}" = "freebsd" ]; then
-    sudo service "${service_name}" restart &>"${log_redirects}"
+    sudo service "${service_name}" restart &> "${log_redirects}"
   # pfSense
   elif [ "${init_system}" = "pfsense" ]; then
-    sudo /usr/local/etc/rc.d/"${service_name}".sh restart &>"${log_redirects}"
+    sudo /usr/local/etc/rc.d/"${service_name}".sh restart &> "${log_redirects}"
   # SysvInit
   elif [ "${init_system}" = "sysvinit" ]; then
-    sudo service "${service_name}" restart &>"${log_redirects}"
+    sudo service "${service_name}" restart &> "${log_redirects}"
   # SysvInit (Old)
   elif [ "${init_system}" = "sysvinit-old" ]; then
-    sudo /etc/init.d/"${service_name}" restart &>"${log_redirects}"
+    sudo /etc/init.d/"${service_name}" restart &> "${log_redirects}"
   # Entware
   elif [ "${init_system}" = "entware" ]; then
-    local entware_script=$(ls /opt/etc/init.d/*"${service_name}" 2>/dev/null | head -n 1)
+    local entware_script=$(ls /opt/etc/init.d/*"${service_name}" 2> /dev/null | head -n 1)
 
-    sudo "${entware_script}" restart &>"${log_redirects}"
+    sudo "${entware_script}" restart &> "${log_redirects}"
   # Rc
   elif [ "${init_system}" = "rc" ]; then
-    sudo /etc/rc.d/rc."${service_name}" restart &>"${log_redirects}"
+    sudo /etc/rc.d/rc."${service_name}" restart &> "${log_redirects}"
   # Launchd
   elif [ "${init_system}" = "launchd" ]; then
-    sudo launchctl stop "${service_name}" &>"${log_redirects}"
-    sudo launchctl start "${service_name}" &>"${log_redirects}"
+    sudo launchctl stop "${service_name}" &> "${log_redirects}"
+    sudo launchctl start "${service_name}" &> "${log_redirects}"
   else
     if [ "${country_code}" = "RU" ]; then
       echo -e "  ${red}Неподдерживаемая система инициализации.${reset}"
@@ -357,7 +360,7 @@ enable_service() {
 
   # Systemd
   if [ "${init_system}" = "systemd" ]; then
-    sudo systemctl enable "${service_name}" &>"${log_redirects}"
+    sudo systemctl enable "${service_name}" &> "${log_redirects}"
   # Runit
   elif [ "${init_system}" = "runit" ]; then
     if sudo test -d /etc/sv; then
@@ -374,28 +377,28 @@ enable_service() {
       local runit_service_dir="/service"
     fi
 
-    sudo ln -sf "${runit_sv_dir}"/"${service_name}" "${runit_service_dir}" &>"${log_redirects}"
+    sudo ln -sf "${runit_sv_dir}"/"${service_name}" "${runit_service_dir}" &> "${log_redirects}"
   # S6
   elif [ "${init_system}" = "s6" ]; then
     :
   # OpenRC
   elif [ "${init_system}" = "openrc" ]; then
-    sudo rc-update add "${service_name}" default &>"${log_redirects}"
+    sudo rc-update add "${service_name}" default &> "${log_redirects}"
   # OpenBSD
   elif [ "${init_system}" = "openbsd" ]; then
-    sudo rcctl enable "${service_name}" &>"${log_redirects}"
+    sudo rcctl enable "${service_name}" &> "${log_redirects}"
   # FreeBSD
   elif [ "${init_system}" = "freebsd" ]; then
-    sudo sysrc "${service_name}_enable=YES" &>"${log_redirects}"
+    sudo sysrc "${service_name}_enable=YES" &> "${log_redirects}"
   # pfSense
   elif [ "${init_system}" = "pfsense" ]; then
     :
   # SysvInit
   elif [ "${init_system}" = "sysvinit" ]; then
-    if command -v update-rc.d &>/dev/null || sudo test -x /usr/sbin/update-rc.d || sudo test -x /sbin/update-rc.d; then
-      sudo update-rc.d "${service_name}" defaults &>"${log_redirects}"
-    elif command -v chkconfig &>/dev/null || sudo test -x /usr/sbin/chkconfig || sudo test -x /sbin/chkconfig; then
-      sudo chkconfig "${service_name}" on &>"${log_redirects}"
+    if command -v update-rc.d &> /dev/null || sudo test -x /usr/sbin/update-rc.d || sudo test -x /sbin/update-rc.d; then
+      sudo update-rc.d "${service_name}" defaults &> "${log_redirects}"
+    elif command -v chkconfig &> /dev/null || sudo test -x /usr/sbin/chkconfig || sudo test -x /sbin/chkconfig; then
+      sudo chkconfig "${service_name}" on &> "${log_redirects}"
     fi
   # SysvInit (Old)
   elif [ "${init_system}" = "sysvinit-old" ]; then
@@ -408,7 +411,7 @@ enable_service() {
     :
   # Launchd
   elif [ "${init_system}" = "launchd" ]; then
-    sudo launchctl load -w /Library/LaunchDaemons/"${service_name}".plist &>"${log_redirects}"
+    sudo launchctl load -w /Library/LaunchDaemons/"${service_name}".plist &> "${log_redirects}"
   else
     if [ "${country_code}" = "RU" ]; then
       echo -e "  ${red}Неподдерживаемая система инициализации.${reset}"
@@ -427,31 +430,31 @@ install_package() {
   local package_name="${1}"
 
   if [ "${package_manager}" = "apt" ]; then
-    sudo apt install -y "${package_name}" &>"${log_redirects}"
+    sudo apt install -y "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "rpm-ostree" ]; then
-    sudo rpm-ostree install --idempotent --apply-live "${package_name}" &>"${log_redirects}"
+    sudo rpm-ostree install --idempotent --apply-live "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "dnf" ]; then
-    sudo dnf install -y "${package_name}" &>"${log_redirects}"
+    sudo dnf install -y "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "pacman" ]; then
-    sudo pacman -S --noconfirm "${package_name}" &>"${log_redirects}"
+    sudo pacman -S --noconfirm "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "zypper" ]; then
-    sudo zypper -n install "${package_name}" &>"${log_redirects}"
+    sudo zypper -n install "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "xbps" ]; then
-    sudo xbps-install -y "${package_name}" &>"${log_redirects}"
+    sudo xbps-install -y "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "apk" ]; then
-    sudo apk add --quiet "${package_name}" &>"${log_redirects}"
+    sudo apk add --quiet "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "emerge" ]; then
-    sudo emerge --quiet "${package_name}" &>"${log_redirects}"
+    sudo emerge --quiet "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "slackpkg" ]; then
-    sudo slackpkg -batch=on -default_answer=y install "${package_name}" &>"${log_redirects}"
+    sudo slackpkg -batch=on -default_answer=y install "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "eopkg" ]; then
-    sudo eopkg install -y "${package_name}" &>"${log_redirects}"
+    sudo eopkg install -y "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "pkg" ]; then
-    sudo pkg install -y "${package_name}" &>"${log_redirects}"
+    sudo pkg install -y "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "pkg_add" ]; then
-    sudo pkg_add -I "${package_name}" &>"${log_redirects}"
+    sudo pkg_add -I "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "opkg" ]; then
-    sudo opkg install "${package_name}" &>"${log_redirects}"
+    sudo opkg install "${package_name}" &> "${log_redirects}"
   else
     if [ "${country_code}" = "RU" ]; then
       echo -e "  ${red}Неподдерживаемый менеджер пакетов.${reset}"
@@ -470,31 +473,31 @@ remove_package() {
   local package_name="${1}"
 
   if [ "${package_manager}" = "apt" ]; then
-    sudo apt purge -y "${package_name}" &>"${log_redirects}"
+    sudo apt purge -y "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "rpm-ostree" ]; then
-    sudo rpm-ostree uninstall "${package_name}" &>"${log_redirects}"
+    sudo rpm-ostree uninstall "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "dnf" ]; then
-    sudo dnf remove -y "${package_name}" &>"${log_redirects}"
+    sudo dnf remove -y "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "pacman" ]; then
-    sudo pacman -Rns --noconfirm "${package_name}" &>"${log_redirects}"
+    sudo pacman -Rns --noconfirm "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "zypper" ]; then
-    sudo zypper -n remove "${package_name}" &>"${log_redirects}"
+    sudo zypper -n remove "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "xbps" ]; then
-    sudo xbps-remove -y "${package_name}" &>"${log_redirects}"
+    sudo xbps-remove -y "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "apk" ]; then
-    sudo apk del --quiet "${package_name}" &>"${log_redirects}"
+    sudo apk del --quiet "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "emerge" ]; then
-    sudo emerge --unmerge --quiet "${package_name}" &>"${log_redirects}"
+    sudo emerge --unmerge --quiet "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "slackpkg" ]; then
-    sudo slackpkg -batch=on -default_answer=y remove "${package_name}" &>"${log_redirects}"
+    sudo slackpkg -batch=on -default_answer=y remove "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "eopkg" ]; then
-    sudo eopkg remove -y "${package_name}" &>"${log_redirects}"
+    sudo eopkg remove -y "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "pkg" ]; then
-    sudo pkg delete -y "${package_name}" &>"${log_redirects}"
+    sudo pkg delete -y "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "pkg_add" ]; then
-    sudo pkg_delete "${package_name}" &>"${log_redirects}"
+    sudo pkg_delete "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "opkg" ]; then
-    sudo opkg remove "${package_name}" &>"${log_redirects}"
+    sudo opkg remove "${package_name}" &> "${log_redirects}"
   else
     if [ "${country_code}" = "RU" ]; then
       echo -e "  ${red}Неподдерживаемый менеджер пакетов.${reset}"
@@ -522,7 +525,7 @@ init_zapret() {
       local runit_sv_dir="/etc/runit/sv"
     fi
 
-    sudo ln -sf /opt/zapret/init.d/runit/zapret "${runit_sv_dir}"/zapret &>"${log_redirects}"
+    sudo ln -sf /opt/zapret/init.d/runit/zapret "${runit_sv_dir}"/zapret &> "${log_redirects}"
 
     enable_service zapret
   # S6
@@ -533,7 +536,7 @@ init_zapret() {
       local s6_service_dir="/etc/s6-servicedirs"
     fi
 
-    sudo ln -sf /opt/zapret/init.d/s6/zapret "${s6_service_dir}"/zapret &>"${log_redirects}"
+    sudo ln -sf /opt/zapret/init.d/s6/zapret "${s6_service_dir}"/zapret &> "${log_redirects}"
 
     enable_service zapret
   # OpenRC
@@ -542,7 +545,7 @@ init_zapret() {
     :
   # OpenBSD
   elif [ "${init_system}" = "openbsd" ]; then
-    sudo tee /etc/rc.d/zapret &>/dev/null << 'EOF'
+    sudo tee /etc/rc.d/zapret &> /dev/null << 'EOF'
 #!/bin/ksh
 
 daemon="/opt/zapret/init.d/sysv/zapret"
@@ -565,27 +568,27 @@ EOF
     enable_service zapret
   # FreeBSD
   elif [ "${init_system}" = "freebsd" ]; then
-    sudo ln -sf /opt/zapret/init.d/sysv/zapret /usr/local/etc/rc.d/zapret &>"${log_redirects}"
+    sudo ln -sf /opt/zapret/init.d/sysv/zapret /usr/local/etc/rc.d/zapret &> "${log_redirects}"
 
     enable_service zapret
   # pfSense
   elif [ "${init_system}" = "pfsense" ]; then
-    sudo ln -sf /opt/zapret/init.d/pfsense/zapret.sh /usr/local/etc/rc.d/zapret.sh &>"${log_redirects}"
+    sudo ln -sf /opt/zapret/init.d/pfsense/zapret.sh /usr/local/etc/rc.d/zapret.sh &> "${log_redirects}"
 
     enable_service zapret
   # SysvInit
   elif [ "${init_system}" = "sysvinit" ]; then
-    sudo ln -sf /opt/zapret/init.d/sysv/zapret /etc/init.d/zapret &>"${log_redirects}"
+    sudo ln -sf /opt/zapret/init.d/sysv/zapret /etc/init.d/zapret &> "${log_redirects}"
 
     enable_service zapret
   # SysvInit (Old)
   elif [ "${init_system}" = "sysvinit-old" ]; then
-    sudo ln -sf /opt/zapret/init.d/sysv/zapret /etc/init.d/zapret &>"${log_redirects}"
+    sudo ln -sf /opt/zapret/init.d/sysv/zapret /etc/init.d/zapret &> "${log_redirects}"
 
     enable_service zapret
   # Entware
   elif [ "${init_system}" = "entware" ]; then
-    sudo tee /opt/etc/init.d/S90zapret &>/dev/null << 'EOF'
+    sudo tee /opt/etc/init.d/S90zapret &> /dev/null << 'EOF'
 #!/bin/sh
 
 if [ "${1}" = "start" ]; then
@@ -607,13 +610,50 @@ EOF
     enable_service zapret
   # Rc
   elif [ "${init_system}" = "rc" ]; then
-    sudo ln -sf /opt/zapret/init.d/sysv/zapret /etc/rc.d/rc.zapret &>"${log_redirects}"
+    sudo ln -sf /opt/zapret/init.d/sysv/zapret /etc/rc.d/rc.zapret &> "${log_redirects}"
 
     enable_service zapret
   # Launchd
   elif [ "${init_system}" = "launchd" ]; then
     # Being set up by Zapret.
     :
+  fi
+}
+
+print_upgrade_commands() {
+  if [ "${package_manager}" = "apt" ]; then
+    echo -e "  ${yellow}sudo ${green}apt ${cyan}update${reset}"
+    echo -e "  ${yellow}sudo ${green}apt ${cyan}upgrade ${white}-${cyan}y${reset}"
+  elif [ "${package_manager}" = "rpm-ostree" ]; then
+    echo -e "  ${yellow}sudo ${green}rpm-ostree ${cyan}upgrade${reset}"
+  elif [ "${package_manager}" = "dnf" ]; then
+    echo -e "  ${yellow}sudo ${green}dnf ${cyan}upgrade ${white}-${cyan}y${reset}"
+  elif [ "${package_manager}" = "pacman" ]; then
+    echo -e "  ${yellow}sudo ${green}pacman ${white}-${cyan}Syu ${white}--${cyan}noconfirm${reset}"
+  elif [ "${package_manager}" = "zypper" ]; then
+    echo -e "  ${yellow}sudo ${green}zypper ${cyan}refresh${reset}"
+    echo -e "  ${yellow}sudo ${green}zypper ${white}--${cyan}non-interactive ${cyan}update${reset}"
+  elif [ "${package_manager}" = "xbps" ]; then
+    echo -e "  ${yellow}sudo ${green}xbps-install ${white}-${cyan}Suy${reset}"
+  elif [ "${package_manager}" = "apk" ]; then
+    echo -e "  ${yellow}sudo ${green}apk ${cyan}update${reset}"
+    echo -e "  ${yellow}sudo ${green}apk ${cyan}upgrade${reset}"
+  elif [ "${package_manager}" = "emerge" ]; then
+    echo -e "  ${yellow}sudo ${green}emerge ${white}--${cyan}sync${reset}"
+    echo -e "  ${yellow}sudo ${green}emerge ${white}-${cyan}uDN ${cyan}@world${reset}"
+  elif [ "${package_manager}" = "slackpkg" ]; then
+    echo -e "  ${yellow}sudo ${green}slackpkg ${white}-${cyan}batch=on ${white}-${cyan}default_answer=y ${cyan}update${reset}"
+    echo -e "  ${yellow}sudo ${green}slackpkg ${white}-${cyan}batch=on ${white}-${cyan}default_answer=y ${cyan}upgrade-all${reset}"
+  elif [ "${package_manager}" = "eopkg" ]; then
+    echo -e "  ${yellow}sudo ${green}eopkg ${cyan}upgrade ${white}-${cyan}y${reset}"
+  elif [ "${package_manager}" = "pkg" ]; then
+    echo -e "  ${yellow}sudo ${green}pkg ${cyan}update${reset}"
+    echo -e "  ${yellow}sudo ${green}pkg ${cyan}upgrade ${white}-${cyan}y${reset}"
+  elif [ "${package_manager}" = "pkg_add" ]; then
+    echo -e "  ${yellow}sudo ${green}pkg_add ${white}-${cyan}uI${reset}"
+  elif [ "${package_manager}" = "opkg" ]; then
+    echo -e "  ${yellow}sudo ${green}opkg ${cyan}update${reset}"
+    echo -e "  ${yellow}sudo ${green}opkg ${cyan}upgrade${reset}"
   fi
 }
 
@@ -669,6 +709,32 @@ install_package unzip
 install_package wget
 install_package wget-ssl
 
+if ! command -v dig &> /dev/null \
+  || ! command -v jq &> /dev/null \
+  || ! command -v wget &> /dev/null; then
+  print_head
+
+  if [ "${country_code}" = "RU" ]; then
+    echo -e "  ${red}Ваша система слишком устарела. Пожалуйста, обновите вашу систему.${reset}"
+  elif [ "${country_code}" = "TR" ]; then
+    echo -e "  ${red}Sisteminiz çok eski. Lütfen sisteminizi güncelleyin.${reset}"
+  else
+    echo -e "  ${red}Your system is too old. Please update your system.${reset}"
+  fi
+
+  echo ""
+
+  print_upgrade_commands
+
+  echo ""
+
+  send_metrics ZAPRET_UPDATE_REQUIRED
+
+  echo ""
+
+  exit 1
+fi
+
 # 2. Change DNS settings
 
 if [ "${country_code}" = "RU" ]; then
@@ -679,7 +745,7 @@ else
   echo -e "  ${gray}DNS settings are being changed...${reset}"
 fi
 
-if [ "${init_system}" = "systemd" ] && ! command -v pihole &>/dev/null && ! command -v pihole-FTL &>/dev/null; then
+if [ "${init_system}" = "systemd" ] && ! command -v pihole &> /dev/null && ! command -v pihole-FTL &> /dev/null; then
   dns_resolver="dnscrypt-proxy"
 
   install_package systemd-resolved
@@ -707,9 +773,9 @@ if [ "${init_system}" = "systemd" ] && ! command -v pihole &>/dev/null && ! comm
   elif sudo test -f /usr/local/etc/dnscrypt-proxy/dnscrypt-proxy.toml; then
     dnscrypt_path="/usr/local/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
   elif sudo test -f /usr/share/defaults/dnscrypt-proxy/dnscrypt-proxy.toml; then
-    sudo mkdir -p /etc/dnscrypt-proxy &>"${log_redirects}"
+    sudo mkdir -p /etc/dnscrypt-proxy &> "${log_redirects}"
 
-    sudo cp /usr/share/defaults/dnscrypt-proxy/dnscrypt-proxy.toml /etc/dnscrypt-proxy &>"${log_redirects}"
+    sudo cp /usr/share/defaults/dnscrypt-proxy/dnscrypt-proxy.toml /etc/dnscrypt-proxy &> "${log_redirects}"
 
     dnscrypt_path="/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
   else
@@ -723,18 +789,22 @@ if [ "${init_system}" = "systemd" ] && ! command -v pihole &>/dev/null && ! comm
 
     echo ""
 
+    send_metrics ZAPRET_DNS_RESOLVER_PATH_COULD_NOT_BE_FOUND
+
+    echo ""
+
     exit 1
   fi
 
-  sudo tee /etc/systemd/resolved.conf &>/dev/null <<< ""
+  sudo tee /etc/systemd/resolved.conf &> /dev/null <<< ""
 
-  sudo chattr -i /etc/resolv.conf &>"${log_redirects}"
+  sudo chattr -i /etc/resolv.conf &> "${log_redirects}"
 
-  sudo test -f /run/systemd/resolve/stub-resolv.conf && sudo ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf &>"${log_redirects}"
+  sudo test -f /run/systemd/resolve/stub-resolv.conf && sudo ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf &> "${log_redirects}"
 
   restart_service systemd-resolved
 
-  sudo tee "${dnscrypt_path}" &>/dev/null << EOF
+  sudo tee "${dnscrypt_path}" &> /dev/null << EOF
 listen_addresses = ["127.0.0.1:5300", "[::1]:5300"]
 
 [sources]
@@ -747,14 +817,14 @@ EOF
   restart_service dnscrypt-proxy
   restart_service dnscrypt-proxy2
 
-  while ! dig -p 5300 +tries=1 +time=10 @127.0.0.1 &>/dev/null; do
+  while ! dig -p 5300 +tries=1 +time=10 @127.0.0.1 &> /dev/null; do
     restart_service dnscrypt-proxy
     restart_service dnscrypt-proxy2
 
     sleep 10
   done
 
-  sudo tee /etc/systemd/resolved.conf &>/dev/null << EOF
+  sudo tee /etc/systemd/resolved.conf &> /dev/null << EOF
 [Resolve]
 DNS=127.0.0.1:5300
 DNS=[::1]:5300
@@ -763,9 +833,9 @@ Domains=~.
 DNSOverTLS=no
 EOF
 
-  sudo chattr -i /etc/resolv.conf &>"${log_redirects}"
+  sudo chattr -i /etc/resolv.conf &> "${log_redirects}"
 
-  sudo test -f /run/systemd/resolve/stub-resolv.conf && sudo ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf &>"${log_redirects}"
+  sudo test -f /run/systemd/resolve/stub-resolv.conf && sudo ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf &> "${log_redirects}"
 
   restart_service systemd-resolved
 else
@@ -791,9 +861,9 @@ else
   elif sudo test -f /usr/local/etc/dnscrypt-proxy/dnscrypt-proxy.toml; then
     dnscrypt_path="/usr/local/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
   elif sudo test -f /usr/share/defaults/dnscrypt-proxy/dnscrypt-proxy.toml; then
-    sudo mkdir -p /etc/dnscrypt-proxy &>"${log_redirects}"
+    sudo mkdir -p /etc/dnscrypt-proxy &> "${log_redirects}"
 
-    sudo cp /usr/share/defaults/dnscrypt-proxy/dnscrypt-proxy.toml /etc/dnscrypt-proxy &>"${log_redirects}"
+    sudo cp /usr/share/defaults/dnscrypt-proxy/dnscrypt-proxy.toml /etc/dnscrypt-proxy &> "${log_redirects}"
 
     dnscrypt_path="/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
   else
@@ -807,22 +877,26 @@ else
 
     echo ""
 
+    send_metrics ZAPRET_DNS_RESOLVER_PATH_COULD_NOT_BE_FOUND
+
+    echo ""
+
     exit 1
   fi
 
-  sudo chattr -i /etc/resolv.conf &>"${log_redirects}"
+  sudo chattr -i /etc/resolv.conf &> "${log_redirects}"
 
-  sudo tee /etc/resolv.conf &>/dev/null << EOF
+  sudo tee /etc/resolv.conf &> /dev/null << EOF
 nameserver 1.1.1.1
 nameserver 2606:4700:4700::1111
 nameserver 1.0.0.1
 nameserver 2606:4700:4700::1001
 EOF
 
-  if command -v pihole &>/dev/null || command -v pihole-FTL &>/dev/null; then
+  if command -v pihole &> /dev/null || command -v pihole-FTL &> /dev/null; then
     dns_resolver="pihole"
 
-    sudo tee "${dnscrypt_path}" &>/dev/null << EOF
+    sudo tee "${dnscrypt_path}" &> /dev/null << EOF
 listen_addresses = ["127.0.0.1:5300", "[::1]:5300"]
 
 [sources]
@@ -835,7 +909,7 @@ EOF
     restart_service dnscrypt-proxy
     restart_service dnscrypt-proxy2
 
-    while ! dig -p 5300 +tries=1 +time=10 @127.0.0.1 &>/dev/null; do
+    while ! dig -p 5300 +tries=1 +time=10 @127.0.0.1 &> /dev/null; do
       restart_service dnscrypt-proxy
       restart_service dnscrypt-proxy2
 
@@ -865,7 +939,7 @@ EOF
 
     echo ""
   else
-    sudo tee "${dnscrypt_path}" &>/dev/null << EOF
+    sudo tee "${dnscrypt_path}" &> /dev/null << EOF
 listen_addresses = ["127.0.0.1:53", "[::1]:53"]
 
 [sources]
@@ -878,7 +952,7 @@ EOF
     restart_service dnscrypt-proxy
     restart_service dnscrypt-proxy2
 
-    while ! dig -p 53 +tries=1 +time=10 @127.0.0.1 &>/dev/null; do
+    while ! dig -p 53 +tries=1 +time=10 @127.0.0.1 &> /dev/null; do
       restart_service dnscrypt-proxy
       restart_service dnscrypt-proxy2
 
@@ -886,9 +960,9 @@ EOF
     done
   fi
 
-  sudo chattr -i /etc/resolv.conf &>"${log_redirects}"
+  sudo chattr -i /etc/resolv.conf &> "${log_redirects}"
 
-  sudo tee /etc/resolv.conf &>/dev/null << EOF
+  sudo tee /etc/resolv.conf &> /dev/null << EOF
 nameserver 127.0.0.1
 nameserver ::1
 
@@ -898,7 +972,7 @@ nameserver 1.0.0.1
 nameserver 2606:4700:4700::1001
 EOF
 
-  sudo chattr +i /etc/resolv.conf &>"${log_redirects}"
+  sudo chattr +i /etc/resolv.conf &> "${log_redirects}"
 fi
 
 # 3. Download Zapret
@@ -914,9 +988,9 @@ fi
 sudo rm -rf /tmp/zapret
 sudo rm -rf /tmp/zapret.zip
 
-sudo wget -O /tmp/zapret.zip https://github.com/bol-van/zapret/releases/download/v"${zapret_version}"/zapret-v"${zapret_version}".zip &>"${log_redirects}"
+sudo wget -O /tmp/zapret.zip https://github.com/bol-van/zapret/releases/download/v"${zapret_version}"/zapret-v"${zapret_version}".zip &> "${log_redirects}"
 
-sudo unzip -d /tmp /tmp/zapret.zip &>"${log_redirects}"
+sudo unzip -d /tmp /tmp/zapret.zip &> "${log_redirects}"
 
 sudo mv /tmp/zapret-v"${zapret_version}" /tmp/zapret
 
@@ -932,11 +1006,11 @@ else
   echo -e "  ${gray}Preparing for installation...${reset}"
 fi
 
-printf "Y\n\n" | sudo /opt/zapret/uninstall_easy.sh &>"${log_redirects}"
+printf "Y\n\n" | sudo /opt/zapret/uninstall_easy.sh &> "${log_redirects}"
 sudo rm -rf /opt/zapret
 
-printf "\n\n" | sudo /tmp/zapret/install_prereq.sh &>"${log_redirects}"
-sudo /tmp/zapret/install_bin.sh &>"${log_redirects}"
+printf "\n\n" | sudo /tmp/zapret/install_prereq.sh &> "${log_redirects}"
+sudo /tmp/zapret/install_bin.sh &> "${log_redirects}"
 
 # 5. Do Blockcheck
 
@@ -962,10 +1036,8 @@ blockcheck_domains=(
   "youtube.com"
 )
 
-blockcheck_domain="google.com"
-
 for domain in "${blockcheck_domains[@]}"; do
-  if ! curl --max-time 10 https://"${domain}" &>/dev/null; then
+  if ! curl --max-time 10 https://"${domain}" &> /dev/null; then
     blockcheck_domain="${domain}"
 
     break
@@ -989,7 +1061,7 @@ done
 if [ "${dev}" = true ]; then
   nfqws_options="--dpi-desync=fakeddisorder --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=1"
 else
-  blockcheck_results=$(printf "${blockcheck_domain}\n\n\n\n\n\n\n\n" | sudo /tmp/zapret/blockcheck.sh 2>"${log_redirects}")
+  blockcheck_results=$(printf "${blockcheck_domain}\n\n\n\n\n\n\n\n" | sudo /tmp/zapret/blockcheck.sh 2> "${log_redirects}")
 
   [ "${debug}" = true ] && echo "${blockcheck_results}"
 
@@ -997,30 +1069,36 @@ else
 fi
 
 if echo "${blockcheck_results}" | grep -q "nftables queue support is not available"; then
-  printf "Y\n\n" | sudo /opt/zapret/uninstall_easy.sh &>"${log_redirects}"
+  printf "Y\n\n" | sudo /opt/zapret/uninstall_easy.sh &> "${log_redirects}"
   sudo rm -rf /opt/zapret
   sudo rm -rf /tmp/zapret
 
+  print_head
+
   if [ "${country_code}" = "RU" ]; then
-    echo -e "  ${red}Вам необходимо обновить и перезагрузить систему.${reset}"
+    echo -e "  ${red}Ваша система слишком устарела. Пожалуйста, обновите вашу систему.${reset}"
   elif [ "${country_code}" = "TR" ]; then
-    echo -e "  ${red}Sisteminizi güncellemeniz ve yeniden başlatmanız gerekiyor.${reset}"
+    echo -e "  ${red}Sisteminiz çok eski. Lütfen sisteminizi güncelleyin.${reset}"
   else
-    echo -e "  ${red}You need to update and reboot your system.${reset}"
+    echo -e "  ${red}Your system is too old. Please update your system.${reset}"
   fi
 
   echo ""
 
-  send_metrics ZAPRET_UPDATE_AND_REBOOT_REQUIRED
+  print_upgrade_commands
+
+  echo ""
+
+  send_metrics ZAPRET_UPDATE_REQUIRED
 
   echo ""
 
   exit 1
 fi
 
-if echo "${blockcheck_results}" | grep -q "curl_test_http ipv4 ${blockcheck_domain} : working without bypass" && \
-  echo "${blockcheck_results}" | grep -q "curl_test_https_tls12 ipv4 ${blockcheck_domain} : working without bypass"; then
-  printf "Y\n\n" | sudo /opt/zapret/uninstall_easy.sh &>"${log_redirects}"
+if echo "${blockcheck_results}" | grep -q "curl_test_http ipv4 ${blockcheck_domain} : working without bypass" \
+  && echo "${blockcheck_results}" | grep -q "curl_test_https_tls12 ipv4 ${blockcheck_domain} : working without bypass"; then
+  printf "Y\n\n" | sudo /opt/zapret/uninstall_easy.sh &> "${log_redirects}"
   sudo rm -rf /opt/zapret
   sudo rm -rf /tmp/zapret
 
@@ -1051,26 +1129,26 @@ else
   echo -e "  ${gray}Installing Zapret...${reset}"
 fi
 
-prototype_installation_results=$(printf "\n\n" | sudo /tmp/zapret/install_easy.sh 2>"${log_redirects}")
+prototype_installation_results=$(printf "\n\n" | sudo /tmp/zapret/install_easy.sh 2> "${log_redirects}")
 
 if echo "${prototype_installation_results}" | grep -q "system is not either systemd"; then
   if sudo test -w /bin; then
-    installation_results=$(printf "Y\nY\nY\n\n\n\n\n\n\nY\n\n\n\n\n" | sudo /tmp/zapret/install_easy.sh 2>"${log_redirects}")
+    installation_results=$(printf "Y\nY\nY\n\n\n\n\n\n\nY\n\n\n\n\n" | sudo /tmp/zapret/install_easy.sh 2> "${log_redirects}")
   else
-    installation_results=$(printf "Y\nY\nY\nY\nY\n\n\n\n\n\n\nY\n\n\n\n\n" | sudo /tmp/zapret/install_easy.sh 2>"${log_redirects}")
+    installation_results=$(printf "Y\nY\nY\nY\nY\n\n\n\n\n\n\nY\n\n\n\n\n" | sudo /tmp/zapret/install_easy.sh 2> "${log_redirects}")
   fi
 else
   if sudo test -w /bin; then
-    installation_results=$(printf "Y\n\n\n\n\n\n\nY\n\n\n\n\n" | sudo /tmp/zapret/install_easy.sh 2>"${log_redirects}")
+    installation_results=$(printf "Y\n\n\n\n\n\n\nY\n\n\n\n\n" | sudo /tmp/zapret/install_easy.sh 2> "${log_redirects}")
   else
-    installation_results=$(printf "Y\nY\nY\n\n\n\n\n\n\nY\n\n\n\n\n" | sudo /tmp/zapret/install_easy.sh 2>"${log_redirects}")
+    installation_results=$(printf "Y\nY\nY\n\n\n\n\n\n\nY\n\n\n\n\n" | sudo /tmp/zapret/install_easy.sh 2> "${log_redirects}")
   fi
 fi
 
 [ "${debug}" = true ] && echo "${installation_results}"
 
 if echo "${installation_results}" | grep -q "could not start zapret service"; then
-  printf "Y\n\n" | sudo /opt/zapret/uninstall_easy.sh &>"${log_redirects}"
+  printf "Y\n\n" | sudo /opt/zapret/uninstall_easy.sh &> "${log_redirects}"
   sudo rm -rf /opt/zapret
   sudo rm -rf /tmp/zapret
 
@@ -1104,7 +1182,7 @@ restart_service zapret
 
 for domain in "${blockcheck_domains[@]}"; do
   for i in {1..3}; do
-    curl --max-time 1 https://"${domain}" &>/dev/null
+    curl --max-time 1 https://"${domain}" &> /dev/null
   done
 done
 

@@ -1,0 +1,9 @@
+{
+  "scripts": {
+    "prettier": "prettier --write ./"
+  },
+  "dependencies": {
+    "prettier": "^3.8.1",
+    "prettier-plugin-sh": "^0.18.1"
+  }
+}
