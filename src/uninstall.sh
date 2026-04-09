@@ -433,7 +433,7 @@ else
   echo -e "  ${gray}DNS settings are being removed...${reset}"
 fi
 
-if command -v systemctl &>/dev/null && ! command -v pihole &>/dev/null && ! command -v pihole-FTL &>/dev/null; then
+if [ "${init_system}" = "systemd" ] && ! command -v pihole &>/dev/null && ! command -v pihole-FTL &>/dev/null; then
   install_package systemd-resolved
 
   remove_package dnscrypt-proxy

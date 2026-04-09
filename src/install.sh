@@ -135,7 +135,7 @@ send_metrics() {
     echo -ne "  ${gray}This helps us improve this tool. [${green}Y${gray}/${red}N${gray}] ${reset}"
   fi
 
-  if sudo test -t 0; then
+  if [ -t 0 ]; then
     read metrics_answer
   else
     read metrics_answer < /dev/tty
@@ -679,12 +679,12 @@ else
   echo -e "  ${gray}DNS settings are being changed...${reset}"
 fi
 
-if [ "${init_system}" = "systemd" ] &>/dev/null && ! command -v pihole &>/dev/null && ! command -v pihole-FTL &>/dev/null; then
+if [ "${init_system}" = "systemd" ] && ! command -v pihole &>/dev/null && ! command -v pihole-FTL &>/dev/null; then
   dns_resolver="dnscrypt-proxy"
 
   install_package systemd-resolved
 
-  if command -v pkg &>/dev/null || command -v opkg &>/dev/null; then
+  if [ "${package_manager}" = "pkg" ] || [ "${package_manager}" = "opkg" ]; then
     install_package dnscrypt-proxy2
   else
     install_package dnscrypt-proxy
@@ -870,7 +870,7 @@ EOF
       echo -ne "  ${gray}Press ${blue}[ENTER] ${gray}after you have made this change to continue...${reset}"
     fi
 
-    if sudo test -t 0; then
+    if [ -t 0 ]; then
       read -r
     else
       read -r < /dev/tty
