@@ -847,6 +847,9 @@ else
     install_package dnscrypt-proxy
   fi
 
+  install_package dnscrypt-proxy-"${init_system}"
+  install_package dnscrypt-proxy2-"${init_system}"
+
   enable_service dnscrypt-proxy
   enable_service dnscrypt-proxy2
   start_service dnscrypt-proxy
