@@ -50,6 +50,9 @@ detect_system() {
   # Systemd
   if command -v systemctl &> /dev/null; then
     init_system="systemd"
+  # Dinit
+  elif command -v dinitctl &> /dev/null; then
+    init_system="dinit"
   # Runit
   elif command -v sv &> /dev/null; then
     init_system="runit"
@@ -126,6 +129,9 @@ start_service() {
   # Systemd
   if [ "${init_system}" = "systemd" ]; then
     sudo systemctl start "${service_name}" &> "${log_redirects}"
+  # Dinit
+  elif [ "${init_system}" = "dinit" ]; then
+    sudo dinitctl start "${service_name}" &> "${log_redirects}"
   # Runit
   elif [ "${init_system}" = "runit" ]; then
     sudo sv start "${service_name}" &> "${log_redirects}"
@@ -191,6 +197,9 @@ restart_service() {
   # Systemd
   if [ "${init_system}" = "systemd" ]; then
     sudo systemctl restart "${service_name}" &> "${log_redirects}"
+  # Dinit
+  elif [ "${init_system}" = "dinit" ]; then
+    sudo dinitctl restart "${service_name}" &> "${log_redirects}"
   # Runit
   elif [ "${init_system}" = "runit" ]; then
     sudo sv restart "${service_name}" &> "${log_redirects}"
@@ -258,6 +267,9 @@ enable_service() {
   # Systemd
   if [ "${init_system}" = "systemd" ]; then
     sudo systemctl enable "${service_name}" &> "${log_redirects}"
+  # Dinit
+  elif [ "${init_system}" = "dinit" ]; then
+    sudo dinitctl enable "${service_name}" &> "${log_redirects}"
   # Runit
   elif [ "${init_system}" = "runit" ]; then
     if sudo test -d /etc/sv; then

@@ -49,80 +49,6 @@ zapret_version="72.12"
 
 country_code=$(curl --max-time 10 -s https://ipinfo.io/country)
 
-detect_system() {
-  # Systemd
-  if command -v systemctl &> /dev/null; then
-    init_system="systemd"
-  # Runit
-  elif command -v sv &> /dev/null; then
-    init_system="runit"
-  # S6
-  elif command -v s6-svscan &> /dev/null || command -v s6-rc &> /dev/null; then
-    init_system="s6"
-  # OpenRC
-  elif command -v rc-service &> /dev/null; then
-    init_system="openrc"
-  # OpenBSD
-  elif command -v rcctl &> /dev/null; then
-    init_system="openbsd"
-  # FreeBSD
-  elif command -v sysrc &> /dev/null; then
-    init_system="freebsd"
-  # pfSense
-  elif sudo test -f /etc/pfsense-release || grep -qi "pfsense" /etc/platform 2> /dev/null; then
-    init_system="pfsense"
-  # SysvInit
-  elif command -v service &> /dev/null || sudo test -x /usr/sbin/service || sudo test -x /sbin/service; then
-    init_system="sysvinit"
-  # SysvInit (Old)
-  elif sudo test -d /etc/init.d; then
-    init_system="sysvinit-old"
-  # Entware
-  elif sudo test -d /opt/etc/init.d; then
-    init_system="entware"
-  # Rc
-  elif sudo test -d /etc/rc.d; then
-    init_system="rc"
-  # Launchd
-  elif command -v launchctl &> /dev/null; then
-    init_system="launchd"
-  else
-    init_system="unknown"
-  fi
-
-  if command -v apt &> /dev/null; then
-    package_manager="apt"
-  elif command -v rpm-ostree &> /dev/null; then
-    package_manager="rpm-ostree"
-  elif command -v dnf &> /dev/null; then
-    package_manager="dnf"
-  elif command -v pacman &> /dev/null; then
-    package_manager="pacman"
-  elif command -v zypper &> /dev/null; then
-    package_manager="zypper"
-  elif command -v xbps-install &> /dev/null; then
-    package_manager="xbps"
-  elif command -v apk &> /dev/null; then
-    package_manager="apk"
-  elif command -v emerge &> /dev/null; then
-    package_manager="emerge"
-  elif command -v slackpkg &> /dev/null; then
-    package_manager="slackpkg"
-  elif command -v eopkg &> /dev/null; then
-    package_manager="eopkg"
-  elif command -v pkg &> /dev/null; then
-    package_manager="pkg"
-  elif command -v pkg_add &> /dev/null; then
-    package_manager="pkg_add"
-  elif command -v opkg &> /dev/null; then
-    package_manager="opkg"
-  else
-    package_manager="unknown"
-  fi
-}
-
-detect_system
-
 dns_resolver="unknown"
 blockcheck_domain="unknown"
 
@@ -223,12 +149,92 @@ send_metrics() {
   echo -e "  ${cyan}Telegram  ${white}https://t.me/keiftco${reset}"
 }
 
+detect_system() {
+  # Systemd
+  if command -v systemctl &> /dev/null; then
+    init_system="systemd"
+  # Dinit
+  elif command -v dinitctl &> /dev/null; then
+    init_system="dinit"
+  # Runit
+  elif command -v sv &> /dev/null; then
+    init_system="runit"
+  # S6
+  elif command -v s6-svscan &> /dev/null || command -v s6-rc &> /dev/null; then
+    init_system="s6"
+  # OpenRC
+  elif command -v rc-service &> /dev/null; then
+    init_system="openrc"
+  # OpenBSD
+  elif command -v rcctl &> /dev/null; then
+    init_system="openbsd"
+  # FreeBSD
+  elif command -v sysrc &> /dev/null; then
+    init_system="freebsd"
+  # pfSense
+  elif sudo test -f /etc/pfsense-release || grep -qi "pfsense" /etc/platform 2> /dev/null; then
+    init_system="pfsense"
+  # SysvInit
+  elif command -v service &> /dev/null || sudo test -x /usr/sbin/service || sudo test -x /sbin/service; then
+    init_system="sysvinit"
+  # SysvInit (Old)
+  elif sudo test -d /etc/init.d; then
+    init_system="sysvinit-old"
+  # Entware
+  elif sudo test -d /opt/etc/init.d; then
+    init_system="entware"
+  # Rc
+  elif sudo test -d /etc/rc.d; then
+    init_system="rc"
+  # Launchd
+  elif command -v launchctl &> /dev/null; then
+    init_system="launchd"
+  else
+    init_system="unknown"
+  fi
+
+  if command -v apt &> /dev/null; then
+    package_manager="apt"
+  elif command -v rpm-ostree &> /dev/null; then
+    package_manager="rpm-ostree"
+  elif command -v dnf &> /dev/null; then
+    package_manager="dnf"
+  elif command -v pacman &> /dev/null; then
+    package_manager="pacman"
+  elif command -v zypper &> /dev/null; then
+    package_manager="zypper"
+  elif command -v xbps-install &> /dev/null; then
+    package_manager="xbps"
+  elif command -v apk &> /dev/null; then
+    package_manager="apk"
+  elif command -v emerge &> /dev/null; then
+    package_manager="emerge"
+  elif command -v slackpkg &> /dev/null; then
+    package_manager="slackpkg"
+  elif command -v eopkg &> /dev/null; then
+    package_manager="eopkg"
+  elif command -v pkg &> /dev/null; then
+    package_manager="pkg"
+  elif command -v pkg_add &> /dev/null; then
+    package_manager="pkg_add"
+  elif command -v opkg &> /dev/null; then
+    package_manager="opkg"
+  else
+    package_manager="unknown"
+  fi
+}
+
+detect_system
+
 start_service() {
   local service_name="${1}"
 
   # Systemd
   if [ "${init_system}" = "systemd" ]; then
     sudo systemctl start "${service_name}" &> "${log_redirects}"
+  # Dinit
+  elif [ "${init_system}" = "dinit" ]; then
+    sudo dinitctl start "${service_name}" &> "${log_redirects}"
   # Runit
   elif [ "${init_system}" = "runit" ]; then
     sudo sv start "${service_name}" &> "${log_redirects}"
@@ -294,6 +300,9 @@ restart_service() {
   # Systemd
   if [ "${init_system}" = "systemd" ]; then
     sudo systemctl restart "${service_name}" &> "${log_redirects}"
+  # Dinit
+  elif [ "${init_system}" = "dinit" ]; then
+    sudo dinitctl restart "${service_name}" &> "${log_redirects}"
   # Runit
   elif [ "${init_system}" = "runit" ]; then
     sudo sv restart "${service_name}" &> "${log_redirects}"
@@ -361,6 +370,9 @@ enable_service() {
   # Systemd
   if [ "${init_system}" = "systemd" ]; then
     sudo systemctl enable "${service_name}" &> "${log_redirects}"
+  # Dinit
+  elif [ "${init_system}" = "dinit" ]; then
+    sudo dinitctl enable "${service_name}" &> "${log_redirects}"
   # Runit
   elif [ "${init_system}" = "runit" ]; then
     if sudo test -d /etc/sv; then
@@ -517,6 +529,18 @@ init_zapret() {
   if [ "${init_system}" = "systemd" ]; then
     # Being set up by Zapret.
     :
+  # Dinit
+  elif [ "${init_system}" = "dinit" ]; then
+    sudo mkdir -p /etc/dinit.d &> "${log_redirects}"
+
+    sudo tee /etc/dinit.d/zapret &> /dev/null << EOF
+type = scripted
+command = /opt/zapret/init.d/sysv/zapret start
+stop-command = /opt/zapret/init.d/sysv/zapret stop
+restart = false
+EOF
+
+    enable_service zapret
   # Runit
   elif [ "${init_system}" = "runit" ]; then
     if sudo test -d /etc/sv; then
