@@ -17,7 +17,7 @@ jobs:
         uses: oven-sh/setup-bun@v2
 
       - name: Install Prettier
-        run: bun add -g prettier prettier-plugin-sh
+        run: bun add -g prettier
 
       - name: Install Prettier plugins
         run: bun add prettier-plugin-sh
