@@ -1064,11 +1064,9 @@ blockcheck_domains=(
 )
 
 for domain in "${blockcheck_domains[@]}"; do
-  if ! curl --max-time 10 https://"${domain}" &> /dev/null; then
-    blockcheck_domain="${domain}"
+  blockcheck_domain="${domain}"
 
-    break
-  fi
+  curl --max-time 10 https://"${domain}" &> /dev/null || break
 done
 
 while [ $# -gt 0 ]; do
