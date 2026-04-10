@@ -752,7 +752,7 @@ if ! command -v dig &> /dev/null \
 
   echo ""
 
-  send_metrics ZAPRET_UPDATE_REQUIRED
+  send_metrics ZAPRET_SYSTEM_IS_TOO_OLD
 
   echo ""
 
@@ -1114,7 +1114,7 @@ if echo "${blockcheck_results}" | grep -q "nftables queue support is not availab
 
   echo ""
 
-  send_metrics ZAPRET_UPDATE_REQUIRED
+  send_metrics ZAPRET_SYSTEM_IS_TOO_OLD
 
   echo ""
 
