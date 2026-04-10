@@ -390,9 +390,9 @@ remove_package() {
   elif [ "${package_manager}" = "pacman" ]; then
     sudo pacman -Rns --noconfirm "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "zypper" ]; then
-    sudo zypper -n remove "${package_name}" &> "${log_redirects}"
+    sudo zypper -n remove -u "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "xbps" ]; then
-    sudo xbps-remove -y "${package_name}" &> "${log_redirects}"
+    sudo xbps-remove -Ry "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "apk" ]; then
     sudo apk del --quiet "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "emerge" ]; then
@@ -400,13 +400,13 @@ remove_package() {
   elif [ "${package_manager}" = "slackpkg" ]; then
     sudo slackpkg -batch=on -default_answer=y remove "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "eopkg" ]; then
-    sudo eopkg remove -y "${package_name}" &> "${log_redirects}"
+    sudo eopkg remove --purge -y "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "pkg" ]; then
     sudo pkg delete -y "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "pkg_add" ]; then
-    sudo pkg_delete "${package_name}" &> "${log_redirects}"
+    sudo pkg_delete -I "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "opkg" ]; then
-    sudo opkg remove "${package_name}" &> "${log_redirects}"
+    sudo opkg remove --autoremove "${package_name}" &> "${log_redirects}"
   else
     if [ "${country_code}" = "RU" ]; then
       echo -e "  ${red}Неподдерживаемый менеджер пакетов.${reset}"
