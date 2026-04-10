@@ -1198,6 +1198,7 @@ fi
 
 echo "${installation_results}" | grep -q "system is not either systemd" && init_zapret
 
+enable_service zapret
 start_service zapret
 
 sudo touch /opt/zapret/hostlist.txt
