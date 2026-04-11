@@ -665,18 +665,15 @@ print_update_commands() {
   elif [ "${package_manager}" = "rpm-ostree" ]; then
     echo -e "  ${yellow}sudo ${green}rpm-ostree ${cyan}upgrade${reset}"
   elif [ "${package_manager}" = "dnf" ]; then
-    echo -e "  ${yellow}sudo ${green}dnf ${cyan}makecache${reset}"
     echo -e "  ${yellow}sudo ${green}dnf ${cyan}upgrade ${white}-${cyan}y${reset}"
   elif [ "${package_manager}" = "pacman" ]; then
     echo -e "  ${yellow}sudo ${green}pacman ${white}-${cyan}Syu ${white}--${cyan}noconfirm${reset}"
   elif [ "${package_manager}" = "zypper" ]; then
-    echo -e "  ${yellow}sudo ${green}zypper ${cyan}refresh${reset}"
     echo -e "  ${yellow}sudo ${green}zypper ${white}--${cyan}non-interactive ${cyan}update${reset}"
   elif [ "${package_manager}" = "xbps" ]; then
     echo -e "  ${yellow}sudo ${green}xbps-install ${white}-${cyan}Suy${reset}"
   elif [ "${package_manager}" = "apk" ]; then
-    echo -e "  ${yellow}sudo ${green}apk ${cyan}update${reset}"
-    echo -e "  ${yellow}sudo ${green}apk ${cyan}upgrade${reset}"
+    echo -e "  ${yellow}sudo ${green}apk ${cyan}upgrade ${white}-${cyan}U${reset}"
   elif [ "${package_manager}" = "emerge" ]; then
     echo -e "  ${yellow}sudo ${green}emerge ${white}--${cyan}sync${reset}"
     echo -e "  ${yellow}sudo ${green}emerge ${white}-${cyan}uDNq ${cyan}@world${reset}"
@@ -686,7 +683,6 @@ print_update_commands() {
   elif [ "${package_manager}" = "eopkg" ]; then
     echo -e "  ${yellow}sudo ${green}eopkg ${cyan}upgrade ${white}-${cyan}y${reset}"
   elif [ "${package_manager}" = "pkg" ]; then
-    echo -e "  ${yellow}sudo ${green}pkg ${cyan}update${reset}"
     echo -e "  ${yellow}sudo ${green}pkg ${cyan}upgrade ${white}-${cyan}y${reset}"
   elif [ "${package_manager}" = "pkg_add" ]; then
     echo -e "  ${yellow}sudo ${green}pkg_add ${white}-${cyan}uI${reset}"
