@@ -341,7 +341,7 @@ install_package() {
   if [ "${package_manager}" = "apt" ]; then
     sudo apt install -y "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "rpm-ostree" ]; then
-    sudo rpm-ostree install --idempotent --apply-live "${package_name}" &> "${log_redirects}"
+    sudo rpm-ostree install --apply-live "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "dnf" ]; then
     sudo dnf install -y "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "pacman" ]; then
@@ -351,9 +351,9 @@ install_package() {
   elif [ "${package_manager}" = "xbps" ]; then
     sudo xbps-install -y "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "apk" ]; then
-    sudo apk add --quiet "${package_name}" &> "${log_redirects}"
+    sudo apk add "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "emerge" ]; then
-    sudo emerge --quiet "${package_name}" &> "${log_redirects}"
+    sudo emerge "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "slackpkg" ]; then
     sudo slackpkg -batch=on -default_answer=y install "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "eopkg" ]; then
@@ -382,9 +382,9 @@ remove_package() {
   local package_name="${1}"
 
   if [ "${package_manager}" = "apt" ]; then
-    sudo apt purge -y "${package_name}" &> "${log_redirects}"
+    sudo apt purge -y --autoremove "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "rpm-ostree" ]; then
-    sudo rpm-ostree uninstall "${package_name}" &> "${log_redirects}"
+    sudo rpm-ostree uninstall --apply-live "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "dnf" ]; then
     sudo dnf remove -y "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "pacman" ]; then
@@ -394,9 +394,9 @@ remove_package() {
   elif [ "${package_manager}" = "xbps" ]; then
     sudo xbps-remove -Ry "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "apk" ]; then
-    sudo apk del --quiet "${package_name}" &> "${log_redirects}"
+    sudo apk del "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "emerge" ]; then
-    sudo emerge --unmerge --quiet "${package_name}" &> "${log_redirects}"
+    sudo emerge --unmerge "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "slackpkg" ]; then
     sudo slackpkg -batch=on -default_answer=y remove "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "eopkg" ]; then
