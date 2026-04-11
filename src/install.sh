@@ -503,7 +503,7 @@ remove_package() {
   elif [ "${package_manager}" = "slackpkg" ]; then
     sudo slackpkg -batch=on -default_answer=y remove "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "eopkg" ]; then
-    sudo eopkg remove --purge -y "${package_name}" &> "${log_redirects}"
+    sudo eopkg remove -y --purge "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "pkg" ]; then
     sudo pkg delete -y "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "pkg_add" ]; then
