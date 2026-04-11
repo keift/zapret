@@ -805,12 +805,16 @@ if [ "${init_system}" = "systemd" ] && ! command -v pihole &> /dev/null && ! com
     dnscrypt_path="/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
   else
     if [ "${country_code}" = "RU" ]; then
-      echo -e "  ${red}Путь к DNS-резолверу не найден.${reset}"
+      echo -e "  ${red}Путь к DNS-резолверу не найден. Обновите систему и повторите попытку.${reset}"
     elif [ "${country_code}" = "TR" ]; then
-      echo -e "  ${red}DNS çözümleyici yolu bulunamadı.${reset}"
+      echo -e "  ${red}DNS çözümleyici yolu bulunamadı. Sisteminizi güncelleyin ve tekrar deneyin.${reset}"
     else
-      echo -e "  ${red}DNS resolver path could not be found.${reset}"
+      echo -e "  ${red}DNS resolver path could not be found. Update your system and try again.${reset}"
     fi
+
+    echo ""
+
+    print_update_commands
 
     echo ""
 
@@ -896,12 +900,16 @@ else
     dnscrypt_path="/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
   else
     if [ "${country_code}" = "RU" ]; then
-      echo -e "  ${red}Путь к DNS-резолверу не найден.${reset}"
+      echo -e "  ${red}Путь к DNS-резолверу не найден. Обновите систему и повторите попытку.${reset}"
     elif [ "${country_code}" = "TR" ]; then
-      echo -e "  ${red}DNS çözümleyici yolu bulunamadı.${reset}"
+      echo -e "  ${red}DNS çözümleyici yolu bulunamadı. Sisteminizi güncelleyin ve tekrar deneyin.${reset}"
     else
-      echo -e "  ${red}DNS resolver path could not be found.${reset}"
+      echo -e "  ${red}DNS resolver path could not be found. Update your system and try again.${reset}"
     fi
+
+    echo ""
+
+    print_update_commands
 
     echo ""
 
