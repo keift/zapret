@@ -644,6 +644,20 @@ EOF
   fi
 }
 
+print_head() {
+  clear
+
+  echo ""
+  if [ "${country_code}" = "RU" ]; then
+    echo -e "  ${blue}Keift ${cyan}Установить Zapret${reset}"
+  elif [ "${country_code}" = "TR" ]; then
+    echo -e "  ${blue}Keift ${cyan}Zapret Kurulumu${reset}"
+  else
+    echo -e "  ${blue}Keift ${cyan}Install Zapret${reset}"
+  fi
+  echo ""
+}
+
 print_update_commands() {
   if [ "${package_manager}" = "apt" ]; then
     echo -e "  ${yellow}sudo ${green}apt ${cyan}update${reset}"
@@ -682,18 +696,28 @@ print_update_commands() {
   fi
 }
 
-print_head() {
-  clear
+throw_system_is_too_old() {
+  print_head
+
+  if [ "${country_code}" = "RU" ]; then
+    echo -e "  ${red}Ваша система слишком устарела. Пожалуйста, обновите вашу систему.${reset}"
+  elif [ "${country_code}" = "TR" ]; then
+    echo -e "  ${red}Sisteminiz çok eski. Lütfen sisteminizi güncelleyin.${reset}"
+  else
+    echo -e "  ${red}Your system is too old. Please update your system.${reset}"
+  fi
 
   echo ""
-  if [ "${country_code}" = "RU" ]; then
-    echo -e "  ${blue}Keift ${cyan}Установить Zapret${reset}"
-  elif [ "${country_code}" = "TR" ]; then
-    echo -e "  ${blue}Keift ${cyan}Zapret Kurulumu${reset}"
-  else
-    echo -e "  ${blue}Keift ${cyan}Install Zapret${reset}"
-  fi
+
+  print_update_commands
+
   echo ""
+
+  send_metrics ZAPRET_SYSTEM_IS_TOO_OLD
+
+  echo ""
+
+  exit 1
 }
 
 print_head
@@ -734,30 +758,8 @@ install_package unzip
 install_package wget
 install_package wget-ssl
 
-if ! command -v dig &> /dev/null \
-  || ! command -v jq &> /dev/null \
-  || ! command -v wget &> /dev/null; then
-  print_head
-
-  if [ "${country_code}" = "RU" ]; then
-    echo -e "  ${red}Ваша система слишком устарела. Пожалуйста, обновите вашу систему.${reset}"
-  elif [ "${country_code}" = "TR" ]; then
-    echo -e "  ${red}Sisteminiz çok eski. Lütfen sisteminizi güncelleyin.${reset}"
-  else
-    echo -e "  ${red}Your system is too old. Please update your system.${reset}"
-  fi
-
-  echo ""
-
-  print_update_commands
-
-  echo ""
-
-  send_metrics ZAPRET_SYSTEM_IS_TOO_OLD
-
-  echo ""
-
-  exit 1
+if ! command -v dig &> /dev/null || ! command -v jq &> /dev/null || ! command -v wget &> /dev/null; then
+  throw_system_is_too_old
 fi
 
 # 2. Change DNS settings
@@ -789,6 +791,10 @@ if [ "${init_system}" = "systemd" ] && ! command -v pihole &> /dev/null && ! com
   start_service dnscrypt-proxy
   start_service dnscrypt-proxy2
 
+  if ! command -v dnscrypt-proxy &> /dev/null && ! command -v dnscrypt-proxy2 &> /dev/null; then
+    throw_system_is_too_old
+  fi
+
   if sudo test -f /etc/dnscrypt-proxy/dnscrypt-proxy.toml; then
     dnscrypt_path="/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
   elif sudo test -f /etc/dnscrypt-proxy.toml; then
@@ -805,16 +811,12 @@ if [ "${init_system}" = "systemd" ] && ! command -v pihole &> /dev/null && ! com
     dnscrypt_path="/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
   else
     if [ "${country_code}" = "RU" ]; then
-      echo -e "  ${red}Путь к DNS-резолверу не найден. Обновите систему и повторите попытку.${reset}"
+      echo -e "  ${red}Путь к DNS-резолверу не найден.${reset}"
     elif [ "${country_code}" = "TR" ]; then
-      echo -e "  ${red}DNS çözümleyici yolu bulunamadı. Sisteminizi güncelleyin ve tekrar deneyin.${reset}"
+      echo -e "  ${red}DNS çözümleyici yolu bulunamadı.${reset}"
     else
-      echo -e "  ${red}DNS resolver path could not be found. Update your system and try again.${reset}"
+      echo -e "  ${red}DNS resolver path could not be found.${reset}"
     fi
-
-    echo ""
-
-    print_update_commands
 
     echo ""
 
@@ -884,6 +886,10 @@ else
   start_service dnscrypt-proxy
   start_service dnscrypt-proxy2
 
+  if ! command -v dnscrypt-proxy &> /dev/null && ! command -v dnscrypt-proxy2 &> /dev/null; then
+    throw_system_is_too_old
+  fi
+
   if sudo test -f /etc/dnscrypt-proxy/dnscrypt-proxy.toml; then
     dnscrypt_path="/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
   elif sudo test -f /etc/dnscrypt-proxy.toml; then
@@ -900,16 +906,12 @@ else
     dnscrypt_path="/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
   else
     if [ "${country_code}" = "RU" ]; then
-      echo -e "  ${red}Путь к DNS-резолверу не найден. Обновите систему и повторите попытку.${reset}"
+      echo -e "  ${red}Путь к DNS-резолверу не найден.${reset}"
     elif [ "${country_code}" = "TR" ]; then
-      echo -e "  ${red}DNS çözümleyici yolu bulunamadı. Sisteminizi güncelleyin ve tekrar deneyin.${reset}"
+      echo -e "  ${red}DNS çözümleyici yolu bulunamadı.${reset}"
     else
-      echo -e "  ${red}DNS resolver path could not be found. Update your system and try again.${reset}"
+      echo -e "  ${red}DNS resolver path could not be found.${reset}"
     fi
-
-    echo ""
-
-    print_update_commands
 
     echo ""
 
@@ -1107,27 +1109,7 @@ if echo "${blockcheck_results}" | grep -q "nftables queue support is not availab
   sudo rm -rf /opt/zapret
   sudo rm -rf /tmp/zapret
 
-  print_head
-
-  if [ "${country_code}" = "RU" ]; then
-    echo -e "  ${red}Ваша система слишком устарела. Пожалуйста, обновите вашу систему.${reset}"
-  elif [ "${country_code}" = "TR" ]; then
-    echo -e "  ${red}Sisteminiz çok eski. Lütfen sisteminizi güncelleyin.${reset}"
-  else
-    echo -e "  ${red}Your system is too old. Please update your system.${reset}"
-  fi
-
-  echo ""
-
-  print_update_commands
-
-  echo ""
-
-  send_metrics ZAPRET_SYSTEM_IS_TOO_OLD
-
-  echo ""
-
-  exit 1
+  throw_system_is_too_old
 fi
 
 if echo "${blockcheck_results}" | grep -q "curl_test_http ipv4 ${blockcheck_domain} : working without bypass" \
