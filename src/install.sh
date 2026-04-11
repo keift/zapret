@@ -669,7 +669,7 @@ print_update_commands() {
   elif [ "${package_manager}" = "pacman" ]; then
     echo -e "  ${yellow}sudo ${green}pacman ${white}-${cyan}Syu ${white}--${cyan}noconfirm${reset}"
   elif [ "${package_manager}" = "zypper" ]; then
-    echo -e "  ${yellow}sudo ${green}zypper ${white}--${cyan}non-interactive ${cyan}update${reset}"
+    echo -e "  ${yellow}sudo ${green}zypper ${white}-${cyan}n ${cyan}update${reset}"
   elif [ "${package_manager}" = "xbps" ]; then
     echo -e "  ${yellow}sudo ${green}xbps-install ${white}-${cyan}Suy${reset}"
   elif [ "${package_manager}" = "apk" ]; then
