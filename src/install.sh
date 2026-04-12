@@ -1003,11 +1003,6 @@ EOF
   sudo tee /etc/resolv.conf &> /dev/null << EOF
 nameserver 127.0.0.1
 nameserver ::1
-
-nameserver 1.1.1.1
-nameserver 2606:4700:4700::1111
-nameserver 1.0.0.1
-nameserver 2606:4700:4700::1001
 EOF
 
   sudo chattr +i /etc/resolv.conf &> "${log_redirects}"
