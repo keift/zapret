@@ -754,7 +754,11 @@ install_package unzip
 install_package wget
 install_package wget-ssl
 
-if ! command -v dig &> /dev/null || ! command -v jq &> /dev/null || ! command -v wget &> /dev/null; then
+if ! command -v dig &> /dev/null \
+  || ! command -v curl &> /dev/null \
+  || ! command -v jq &> /dev/null \
+  || ! command -v unzip &> /dev/null \
+  || ! command -v wget &> /dev/null; then
   throw_system_is_too_old
 fi
 
