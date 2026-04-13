@@ -543,8 +543,6 @@ remove_package() {
   else
     print_head
 
-    print_head
-
     if [ "${country_code}" = "RU" ]; then
       echo -e "  ${red}Неподдерживаемый менеджер пакетов.${reset}"
     elif [ "${country_code}" = "TR" ]; then
