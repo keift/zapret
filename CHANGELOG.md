@@ -4,7 +4,6 @@
 
 - Added:
   - **Russian and Turkish language support.** Added localization for Russian and Turkish users.
-  - **Pi-hole support.** It exhibits different behavior for Pi-hole.
   - **Multiple blockchecks.** It attempts to find the most suitable domain name for blockcheck.
   - **Dinit init support.** Respect for Dinit init.
   - **Runit init support.** Respect for Runit init.

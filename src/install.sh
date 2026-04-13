@@ -144,7 +144,9 @@ send_metrics() {
   else
     echo -e "  ${gray}Need help? Contact us.${reset}"
   fi
+
   echo ""
+
   echo -e "  ${blue}Discord   ${white}https://discord.gg/keift${reset}"
   echo -e "  ${cyan}Telegram  ${white}https://t.me/keiftco${reset}"
 }
@@ -281,6 +283,8 @@ start_service() {
   elif [ "${init_system}" = "launchd" ]; then
     sudo launchctl start "${service_name}" &> "${log_redirects}"
   else
+    print_head
+
     if [ "${country_code}" = "RU" ]; then
       echo -e "  ${red}Неподдерживаемая система инициализации.${reset}"
     elif [ "${country_code}" = "TR" ]; then
@@ -288,6 +292,11 @@ start_service() {
     else
       echo -e "  ${red}Unsupported init system.${reset}"
     fi
+
+    echo ""
+
+    send_metrics ZAPRET_UNSUPPORTED_INIT_SYSTEM
+
     echo ""
 
     exit 1
@@ -351,6 +360,8 @@ restart_service() {
     sudo launchctl stop "${service_name}" &> "${log_redirects}"
     sudo launchctl start "${service_name}" &> "${log_redirects}"
   else
+    print_head
+
     if [ "${country_code}" = "RU" ]; then
       echo -e "  ${red}Неподдерживаемая система инициализации.${reset}"
     elif [ "${country_code}" = "TR" ]; then
@@ -358,6 +369,11 @@ restart_service() {
     else
       echo -e "  ${red}Unsupported init system.${reset}"
     fi
+
+    echo ""
+
+    send_metrics ZAPRET_UNSUPPORTED_INIT_SYSTEM
+
     echo ""
 
     exit 1
@@ -425,6 +441,8 @@ enable_service() {
   elif [ "${init_system}" = "launchd" ]; then
     sudo launchctl load -w /Library/LaunchDaemons/"${service_name}".plist &> "${log_redirects}"
   else
+    print_head
+
     if [ "${country_code}" = "RU" ]; then
       echo -e "  ${red}Неподдерживаемая система инициализации.${reset}"
     elif [ "${country_code}" = "TR" ]; then
@@ -432,6 +450,11 @@ enable_service() {
     else
       echo -e "  ${red}Unsupported init system.${reset}"
     fi
+
+    echo ""
+
+    send_metrics ZAPRET_UNSUPPORTED_INIT_SYSTEM
+
     echo ""
 
     exit 1
@@ -468,6 +491,8 @@ install_package() {
   elif [ "${package_manager}" = "opkg" ]; then
     sudo opkg install "${package_name}" &> "${log_redirects}"
   else
+    print_head
+
     if [ "${country_code}" = "RU" ]; then
       echo -e "  ${red}Неподдерживаемый менеджер пакетов.${reset}"
     elif [ "${country_code}" = "TR" ]; then
@@ -475,6 +500,11 @@ install_package() {
     else
       echo -e "  ${red}Unsupported package manager.${reset}"
     fi
+
+    echo ""
+
+    send_metrics ZAPRET_UNSUPPORTED_PACKAGE_MANAGER
+
     echo ""
 
     exit 1
@@ -511,6 +541,10 @@ remove_package() {
   elif [ "${package_manager}" = "opkg" ]; then
     sudo opkg remove --autoremove "${package_name}" &> "${log_redirects}"
   else
+    print_head
+
+    print_head
+
     if [ "${country_code}" = "RU" ]; then
       echo -e "  ${red}Неподдерживаемый менеджер пакетов.${reset}"
     elif [ "${country_code}" = "TR" ]; then
@@ -518,6 +552,11 @@ remove_package() {
     else
       echo -e "  ${red}Unsupported package manager.${reset}"
     fi
+
+    echo ""
+
+    send_metrics ZAPRET_UNSUPPORTED_PACKAGE_MANAGER
+
     echo ""
 
     exit 1
@@ -719,6 +758,8 @@ throw_system_is_too_old() {
 print_head
 
 if [ "$(uname)" != "Linux" ]; then
+  print_head
+
   if [ "${country_code}" = "RU" ]; then
     echo -e "  ${red}Неподдерживаемая система.${reset}"
   elif [ "${country_code}" = "TR" ]; then
@@ -726,6 +767,26 @@ if [ "$(uname)" != "Linux" ]; then
   else
     echo -e "  ${red}Unsupported system.${reset}"
   fi
+  echo ""
+
+  exit 1
+fi
+
+if ! sudo test -w /bin; then
+  print_head
+
+  if [ "${country_code}" = "RU" ]; then
+    echo -e "  ${red}Обнаружена неизменяемая система. Пожалуйста, отключите режим только для чтения.${reset}"
+  elif [ "${country_code}" = "TR" ]; then
+    echo -e "  ${red}Değiştirilemez sistem tespit edildi. Lütfen salt okunur modunu kapatın.${reset}"
+  else
+    echo -e "  ${red}Immutable system detected. Please turn off read-only mode.${reset}"
+  fi
+
+  echo ""
+
+  send_metrics ZAPRET_IMMUTABLE_SYSTEM_DETECTED
+
   echo ""
 
   exit 1
@@ -772,7 +833,7 @@ else
   echo -e "  ${gray}DNS settings are being changed...${reset}"
 fi
 
-if [ "${init_system}" = "systemd" ] && ! command -v pihole &> /dev/null && ! command -v pihole-FTL &> /dev/null; then
+if [ "${init_system}" = "systemd" ]; then
   dns_resolver="dnscrypt-proxy"
 
   install_package systemd-resolved
@@ -782,6 +843,9 @@ if [ "${init_system}" = "systemd" ] && ! command -v pihole &> /dev/null && ! com
   else
     install_package dnscrypt-proxy
   fi
+
+  install_package dnscrypt-proxy-"${init_system}"
+  install_package dnscrypt-proxy2-"${init_system}"
 
   enable_service systemd-resolved
   start_service systemd-resolved
@@ -894,52 +958,7 @@ nameserver 1.0.0.1
 nameserver 2606:4700:4700::1001
 EOF
 
-  if command -v pihole &> /dev/null || command -v pihole-FTL &> /dev/null; then
-    dns_resolver="pihole"
-
-    sudo tee "${dnscrypt_path}" &> /dev/null << EOF
-listen_addresses = ["127.0.0.1:5300", "[::1]:5300"]
-
-[sources."public-resolvers"]
-urls = ["https://raw.github.com/dnscrypt/dnscrypt-resolvers/master/v3/public-resolvers.md", "https://download.dnscrypt.info/resolvers-list/v3/public-resolvers.md"]
-minisign_key = "RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3"
-cache_file = "public-resolvers.md"
-EOF
-
-    restart_service dnscrypt-proxy
-    restart_service dnscrypt-proxy2
-
-    while ! dig -p 5300 +tries=1 +time=10 @127.0.0.1 &> /dev/null; do
-      restart_service dnscrypt-proxy
-      restart_service dnscrypt-proxy2
-
-      sleep 10
-    done
-
-    echo ""
-    if [ "${country_code}" = "RU" ]; then
-      echo -e "  ${gray}Похоже, вы используете ${red}Pi-hole${gray}.${reset}"
-      echo -e "  ${gray}Измените параметр ${green}Custom DNS ${gray}в Pi-hole на: ${white}127.0.0.1#5300${reset}"
-      echo -ne "  ${gray}Нажмите ${blue}[ENTER] ${gray}после внесения этого изменения, чтобы продолжить...${reset}"
-    elif [ "${country_code}" = "TR" ]; then
-      echo -e "  ${gray}Görünüşe göre ${red}Pi-hole${gray} kullanıyorsunuz.${reset}"
-      echo -e "  ${gray}Pi-hole'daki ${green}Custom DNS ${gray}seçeneğini şuna değiştirin: ${white}127.0.0.1#5300${reset}"
-      echo -ne "  ${gray}Devam etmek için bu değişikliği yaptıktan sonra ${blue}[ENTER] ${gray}tuşuna basın...${reset}"
-    else
-      echo -e "  ${gray}It appears you are using ${red}Pi-hole${gray}.${reset}"
-      echo -e "  ${gray}Change the ${green}Custom DNS ${gray}option in the Pi-hole to: ${white}127.0.0.1#5300${reset}"
-      echo -ne "  ${gray}Press ${blue}[ENTER] ${gray}after you have made this change to continue...${reset}"
-    fi
-
-    if [ -t 0 ]; then
-      read -r
-    else
-      read -r < /dev/tty
-    fi
-
-    echo ""
-  else
-    sudo tee "${dnscrypt_path}" &> /dev/null << EOF
+  sudo tee "${dnscrypt_path}" &> /dev/null << EOF
 listen_addresses = ["127.0.0.1:53", "[::1]:53"]
 
 [sources."public-resolvers"]
@@ -948,16 +967,15 @@ minisign_key = "RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3"
 cache_file = "public-resolvers.md"
 EOF
 
+  restart_service dnscrypt-proxy
+  restart_service dnscrypt-proxy2
+
+  while ! dig -p 53 +tries=1 +time=10 @127.0.0.1 &> /dev/null; do
     restart_service dnscrypt-proxy
     restart_service dnscrypt-proxy2
 
-    while ! dig -p 53 +tries=1 +time=10 @127.0.0.1 &> /dev/null; do
-      restart_service dnscrypt-proxy
-      restart_service dnscrypt-proxy2
-
-      sleep 10
-    done
-  fi
+    sleep 10
+  done
 
   sudo chattr -i /etc/resolv.conf &> "${log_redirects}"
 
@@ -1123,6 +1141,8 @@ if echo "${installation_results}" | grep -q "could not start zapret service"; th
   printf "Y\n\n" | sudo /opt/zapret/uninstall_easy.sh &> "${log_redirects}"
   sudo rm -rf /opt/zapret
   sudo rm -rf /tmp/zapret
+
+  print_head
 
   if [ "${country_code}" = "RU" ]; then
     echo -e "  ${red}Что-то пошло не так.${reset}"

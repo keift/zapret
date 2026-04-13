@@ -178,6 +178,8 @@ start_service() {
   elif [ "${init_system}" = "launchd" ]; then
     sudo launchctl start "${service_name}" &> "${log_redirects}"
   else
+    print_head
+
     if [ "${country_code}" = "RU" ]; then
       echo -e "  ${red}Неподдерживаемая система инициализации.${reset}"
     elif [ "${country_code}" = "TR" ]; then
@@ -248,6 +250,8 @@ restart_service() {
     sudo launchctl stop "${service_name}" &> "${log_redirects}"
     sudo launchctl start "${service_name}" &> "${log_redirects}"
   else
+    print_head
+
     if [ "${country_code}" = "RU" ]; then
       echo -e "  ${red}Неподдерживаемая система инициализации.${reset}"
     elif [ "${country_code}" = "TR" ]; then
@@ -322,6 +326,8 @@ enable_service() {
   elif [ "${init_system}" = "launchd" ]; then
     sudo launchctl load -w /Library/LaunchDaemons/"${service_name}".plist &> "${log_redirects}"
   else
+    print_head
+
     if [ "${country_code}" = "RU" ]; then
       echo -e "  ${red}Неподдерживаемая система инициализации.${reset}"
     elif [ "${country_code}" = "TR" ]; then
@@ -365,6 +371,8 @@ install_package() {
   elif [ "${package_manager}" = "opkg" ]; then
     sudo opkg install "${package_name}" &> "${log_redirects}"
   else
+    print_head
+
     if [ "${country_code}" = "RU" ]; then
       echo -e "  ${red}Неподдерживаемый менеджер пакетов.${reset}"
     elif [ "${country_code}" = "TR" ]; then
@@ -408,6 +416,8 @@ remove_package() {
   elif [ "${package_manager}" = "opkg" ]; then
     sudo opkg remove --autoremove "${package_name}" &> "${log_redirects}"
   else
+    print_head
+
     if [ "${country_code}" = "RU" ]; then
       echo -e "  ${red}Неподдерживаемый менеджер пакетов.${reset}"
     elif [ "${country_code}" = "TR" ]; then
