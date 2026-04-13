@@ -693,6 +693,8 @@ print_update_commands() {
 }
 
 throw_system_is_too_old() {
+  local event_name="${1}"
+
   print_head
 
   if [ "${country_code}" = "RU" ]; then
@@ -709,7 +711,7 @@ throw_system_is_too_old() {
 
   echo ""
 
-  send_metrics ZAPRET_SYSTEM_IS_TOO_OLD
+  send_metrics "${event_name}"
 
   echo ""
 
@@ -759,7 +761,7 @@ if ! command -v dig &> /dev/null \
   || ! command -v jq &> /dev/null \
   || ! command -v unzip &> /dev/null \
   || ! command -v wget &> /dev/null; then
-  throw_system_is_too_old
+  throw_system_is_too_old ZAPRET_SYSTEM_IS_TOO_OLD
 fi
 
 # 2. Change DNS settings
@@ -791,10 +793,6 @@ if [ "${init_system}" = "systemd" ] && ! command -v pihole &> /dev/null && ! com
   start_service dnscrypt-proxy
   start_service dnscrypt-proxy2
 
-  if ! command -v dnscrypt-proxy &> /dev/null && ! command -v dnscrypt-proxy2 &> /dev/null; then
-    throw_system_is_too_old
-  fi
-
   if sudo test -f /etc/dnscrypt-proxy/dnscrypt-proxy.toml; then
     dnscrypt_path="/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
   elif sudo test -f /etc/dnscrypt-proxy.toml; then
@@ -810,21 +808,7 @@ if [ "${init_system}" = "systemd" ] && ! command -v pihole &> /dev/null && ! com
 
     dnscrypt_path="/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
   else
-    if [ "${country_code}" = "RU" ]; then
-      echo -e "  ${red}Путь к DNS-резолверу не найден.${reset}"
-    elif [ "${country_code}" = "TR" ]; then
-      echo -e "  ${red}DNS çözümleyici yolu bulunamadı.${reset}"
-    else
-      echo -e "  ${red}DNS resolver path could not be found.${reset}"
-    fi
-
-    echo ""
-
-    send_metrics ZAPRET_DNS_RESOLVER_PATH_COULD_NOT_BE_FOUND
-
-    echo ""
-
-    exit 1
+    throw_system_is_too_old ZAPRET_DNS_RESOLVER_PATH_COULD_NOT_BE_FOUND
   fi
 
   sudo tee /etc/systemd/resolved.conf &> /dev/null <<< ""
@@ -886,10 +870,6 @@ else
   start_service dnscrypt-proxy
   start_service dnscrypt-proxy2
 
-  if ! command -v dnscrypt-proxy &> /dev/null && ! command -v dnscrypt-proxy2 &> /dev/null; then
-    throw_system_is_too_old
-  fi
-
   if sudo test -f /etc/dnscrypt-proxy/dnscrypt-proxy.toml; then
     dnscrypt_path="/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
   elif sudo test -f /etc/dnscrypt-proxy.toml; then
@@ -905,21 +885,7 @@ else
 
     dnscrypt_path="/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
   else
-    if [ "${country_code}" = "RU" ]; then
-      echo -e "  ${red}Путь к DNS-резолверу не найден.${reset}"
-    elif [ "${country_code}" = "TR" ]; then
-      echo -e "  ${red}DNS çözümleyici yolu bulunamadı.${reset}"
-    else
-      echo -e "  ${red}DNS resolver path could not be found.${reset}"
-    fi
-
-    echo ""
-
-    send_metrics ZAPRET_DNS_RESOLVER_PATH_COULD_NOT_BE_FOUND
-
-    echo ""
-
-    exit 1
+    throw_system_is_too_old ZAPRET_DNS_RESOLVER_PATH_COULD_NOT_BE_FOUND
   fi
 
   sudo chattr -i /etc/resolv.conf &> "${log_redirects}"
@@ -1104,7 +1070,7 @@ if echo "${blockcheck_results}" | grep -q "nftables queue support is not availab
   sudo rm -rf /opt/zapret
   sudo rm -rf /tmp/zapret
 
-  throw_system_is_too_old
+  throw_system_is_too_old ZAPRET_SYSTEM_IS_TOO_OLD
 fi
 
 if echo "${blockcheck_results}" | grep -q "curl_test_http ipv4 ${blockcheck_domain} : working without bypass" \
