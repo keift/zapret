@@ -693,8 +693,6 @@ print_update_commands() {
 }
 
 throw_system_is_too_old() {
-  local event_name="${1}"
-
   print_head
 
   if [ "${country_code}" = "RU" ]; then
@@ -711,7 +709,7 @@ throw_system_is_too_old() {
 
   echo ""
 
-  send_metrics "${event_name}"
+  send_metrics ZAPRET_SYSTEM_IS_TOO_OLD
 
   echo ""
 
@@ -761,7 +759,7 @@ if ! command -v dig &> /dev/null \
   || ! command -v jq &> /dev/null \
   || ! command -v unzip &> /dev/null \
   || ! command -v wget &> /dev/null; then
-  throw_system_is_too_old ZAPRET_SYSTEM_IS_TOO_OLD
+  throw_system_is_too_old
 fi
 
 # 2. Change DNS settings
@@ -808,7 +806,7 @@ if [ "${init_system}" = "systemd" ] && ! command -v pihole &> /dev/null && ! com
 
     dnscrypt_path="/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
   else
-    throw_system_is_too_old ZAPRET_DNS_RESOLVER_PATH_COULD_NOT_BE_FOUND
+    throw_system_is_too_old
   fi
 
   sudo tee /etc/systemd/resolved.conf &> /dev/null <<< ""
@@ -885,7 +883,7 @@ else
 
     dnscrypt_path="/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
   else
-    throw_system_is_too_old ZAPRET_DNS_RESOLVER_PATH_COULD_NOT_BE_FOUND
+    throw_system_is_too_old
   fi
 
   sudo chattr -i /etc/resolv.conf &> "${log_redirects}"
@@ -1070,7 +1068,7 @@ if echo "${blockcheck_results}" | grep -q "nftables queue support is not availab
   sudo rm -rf /opt/zapret
   sudo rm -rf /tmp/zapret
 
-  throw_system_is_too_old ZAPRET_SYSTEM_IS_TOO_OLD
+  throw_system_is_too_old
 fi
 
 if echo "${blockcheck_results}" | grep -q "curl_test_http ipv4 ${blockcheck_domain} : working without bypass" \
