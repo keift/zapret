@@ -770,26 +770,6 @@ if [ "$(uname)" != "Linux" ]; then
   exit 1
 fi
 
-if ! sudo test -w /bin; then
-  print_head
-
-  if [ "${country_code}" = "RU" ]; then
-    echo -e "  ${red}Обнаружена неизменяемая система. Пожалуйста, отключите режим только для чтения.${reset}"
-  elif [ "${country_code}" = "TR" ]; then
-    echo -e "  ${red}Değiştirilemez sistem tespit edildi. Lütfen salt okunur modunu kapatın.${reset}"
-  else
-    echo -e "  ${red}Immutable system detected. Please turn off read-only mode.${reset}"
-  fi
-
-  echo ""
-
-  send_metrics ZAPRET_IMMUTABLE_SYSTEM_DETECTED
-
-  echo ""
-
-  exit 1
-fi
-
 # 1. Install dependencies
 
 if [ "${country_code}" = "RU" ]; then
