@@ -405,7 +405,7 @@ enable_service() {
       local runit_service_dir="/service"
     fi
 
-    sudo ln -sf "${runit_sv_dir}"/"${service_name}" "${runit_service_dir}" &> "${log_redirects}"
+    sudo test -d "${runit_sv_dir}"/"${service_name}" && sudo ln -sf "${runit_sv_dir}"/"${service_name}" "${runit_service_dir}" &> "${log_redirects}"
   # S6
   elif [ "${init_system}" = "s6" ]; then
     :
@@ -586,7 +586,7 @@ EOF
       local runit_sv_dir="/etc/runit/sv"
     fi
 
-    sudo ln -sf /opt/zapret/init.d/runit/zapret "${runit_sv_dir}"/zapret &> "${log_redirects}"
+    sudo test -d /opt/zapret/init.d/runit/zapret && sudo ln -sf /opt/zapret/init.d/runit/zapret "${runit_sv_dir}"/zapret &> "${log_redirects}"
 
     enable_service zapret
   # S6
@@ -597,7 +597,7 @@ EOF
       local s6_service_dir="/etc/s6-servicedirs"
     fi
 
-    sudo ln -sf /opt/zapret/init.d/s6/zapret "${s6_service_dir}"/zapret &> "${log_redirects}"
+    sudo test -d /opt/zapret/init.d/s6/zapret && sudo ln -sf /opt/zapret/init.d/s6/zapret "${s6_service_dir}"/zapret &> "${log_redirects}"
 
     enable_service zapret
   # OpenRC
@@ -629,22 +629,22 @@ EOF
     enable_service zapret
   # FreeBSD
   elif [ "${init_system}" = "freebsd" ]; then
-    sudo ln -sf /opt/zapret/init.d/sysv/zapret /usr/local/etc/rc.d/zapret &> "${log_redirects}"
+    sudo test -f /opt/zapret/init.d/sysv/zapret && sudo ln -sf /opt/zapret/init.d/sysv/zapret /usr/local/etc/rc.d/zapret &> "${log_redirects}"
 
     enable_service zapret
   # pfSense
   elif [ "${init_system}" = "pfsense" ]; then
-    sudo ln -sf /opt/zapret/init.d/pfsense/zapret.sh /usr/local/etc/rc.d/zapret.sh &> "${log_redirects}"
+    sudo test -f /opt/zapret/init.d/pfsense/zapret.sh && sudo ln -sf /opt/zapret/init.d/pfsense/zapret.sh /usr/local/etc/rc.d/zapret.sh &> "${log_redirects}"
 
     enable_service zapret
   # SysvInit
   elif [ "${init_system}" = "sysvinit" ]; then
-    sudo ln -sf /opt/zapret/init.d/sysv/zapret /etc/init.d/zapret &> "${log_redirects}"
+    sudo test -f /opt/zapret/init.d/sysv/zapret && sudo ln -sf /opt/zapret/init.d/sysv/zapret /etc/init.d/zapret &> "${log_redirects}"
 
     enable_service zapret
   # SysvInit (Old)
   elif [ "${init_system}" = "sysvinit-old" ]; then
-    sudo ln -sf /opt/zapret/init.d/sysv/zapret /etc/init.d/zapret &> "${log_redirects}"
+    sudo test -f /opt/zapret/init.d/sysv/zapret && sudo ln -sf /opt/zapret/init.d/sysv/zapret /etc/init.d/zapret &> "${log_redirects}"
 
     enable_service zapret
   # Entware
@@ -671,7 +671,7 @@ EOF
     enable_service zapret
   # Rc
   elif [ "${init_system}" = "rc" ]; then
-    sudo ln -sf /opt/zapret/init.d/sysv/zapret /etc/rc.d/rc.zapret &> "${log_redirects}"
+    sudo test -f /opt/zapret/init.d/sysv/zapret && sudo ln -sf /opt/zapret/init.d/sysv/zapret /etc/rc.d/rc.zapret &> "${log_redirects}"
 
     enable_service zapret
   # Launchd
