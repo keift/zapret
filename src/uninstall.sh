@@ -140,10 +140,10 @@ start_service() {
     if command -v s6-rc &> /dev/null; then
       sudo s6-rc -u change "${service_name}" &> "${log_redirects}"
     else
-      if sudo test -d /etc/s6/sv; then
-        local s6_service_dir="/etc/s6/sv"
-      elif sudo test -d /etc/s6-servicedirs; then
+      if sudo test -d /etc/s6-servicedirs; then
         local s6_service_dir="/etc/s6-servicedirs"
+      elif sudo test -d /etc/s6/sv; then
+        local s6_service_dir="/etc/s6/sv"
       fi
 
       sudo s6-svc -u "${s6_service_dir}"/"${service_name}" &> "${log_redirects}"
@@ -211,10 +211,10 @@ restart_service() {
       sudo s6-rc -d change "${service_name}" &> "${log_redirects}"
       sudo s6-rc -u change "${service_name}" &> "${log_redirects}"
     else
-      if sudo test -d /etc/s6/sv; then
-        local s6_service_dir="/etc/s6/sv"
-      elif sudo test -d /etc/s6-servicedirs; then
+      if sudo test -d /etc/s6-servicedirs; then
         local s6_service_dir="/etc/s6-servicedirs"
+      elif sudo test -d /etc/s6/sv; then
+        local s6_service_dir="/etc/s6/sv"
       fi
 
       sudo s6-svc -r "${s6_service_dir}"/"${service_name}" &> "${log_redirects}"
