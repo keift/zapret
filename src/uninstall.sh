@@ -290,7 +290,7 @@ enable_service() {
       local runit_service_dir="/service"
     fi
 
-    sudo ln -sf "${runit_sv_dir}"/"${service_name}" "${runit_service_dir}" &> "${log_redirects}"
+    sudo test -d "${runit_sv_dir}"/"${service_name}" && sudo ln -sf "${runit_sv_dir}"/"${service_name}" "${runit_service_dir}" &> "${log_redirects}"
   # S6
   elif [ "${init_system}" = "s6" ]; then
     :
