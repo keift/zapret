@@ -62,30 +62,27 @@ detect_system() {
   # OpenRC
   elif command -v rc-service &> /dev/null; then
     init_system="openrc"
-  # OpenBSD
+  # Rcctl (OpenBSD)
   elif command -v rcctl &> /dev/null; then
-    init_system="openbsd"
-  # FreeBSD
-  elif command -v sysrc &> /dev/null; then
-    init_system="freebsd"
+    init_system="rcctl"
   # pfSense
   elif sudo test -f /etc/pfsense-release || grep -iq "pfsense" /etc/platform 2> /dev/null; then
     init_system="pfsense"
-  # SysvInit
-  elif command -v service &> /dev/null || sudo test -x /usr/sbin/service || sudo test -x /sbin/service; then
-    init_system="sysvinit"
-  # SysvInit (Old)
-  elif sudo test -d /etc/init.d; then
-    init_system="sysvinit-old"
-  # Entware
-  elif sudo test -d /opt/etc/init.d; then
-    init_system="entware"
-  # Rc
-  elif sudo test -d /etc/rc.d; then
-    init_system="rc"
+  # Sysrc (FreeBSD)
+  elif command -v sysrc &> /dev/null; then
+    init_system="sysrc"
   # Launchd
   elif command -v launchctl &> /dev/null; then
     init_system="launchd"
+  # Entware
+  elif sudo test -d /opt/etc/init.d; then
+    init_system="entware"
+  # SysvInit
+  elif command -v service &> /dev/null || sudo test -x /usr/sbin/service || sudo test -x /sbin/service || sudo test -d /etc/init.d; then
+    init_system="sysvinit"
+  # Rc
+  elif sudo test -d /etc/rc.d; then
+    init_system="rc"
   else
     init_system="unknown"
   fi
@@ -151,32 +148,33 @@ start_service() {
   # OpenRC
   elif [ "${init_system}" = "openrc" ]; then
     sudo rc-service "${service_name}" start &> "${log_redirects}"
-  # OpenBSD
-  elif [ "${init_system}" = "openbsd" ]; then
+  # Rcctl (OpenBSD)
+  elif [ "${init_system}" = "rcctl" ]; then
     sudo rcctl start "${service_name}" &> "${log_redirects}"
-  # FreeBSD
-  elif [ "${init_system}" = "freebsd" ]; then
-    sudo service "${service_name}" start &> "${log_redirects}"
   # pfSense
   elif [ "${init_system}" = "pfsense" ]; then
     sudo /usr/local/etc/rc.d/"${service_name}".sh start &> "${log_redirects}"
-  # SysvInit
-  elif [ "${init_system}" = "sysvinit" ]; then
+  # Sysrc (FreeBSD)
+  elif [ "${init_system}" = "sysrc" ]; then
     sudo service "${service_name}" start &> "${log_redirects}"
-  # SysvInit (Old)
-  elif [ "${init_system}" = "sysvinit-old" ]; then
-    sudo /etc/init.d/"${service_name}" start &> "${log_redirects}"
+  # Launchd
+  elif [ "${init_system}" = "launchd" ]; then
+    sudo launchctl start "${service_name}" &> "${log_redirects}"
   # Entware
   elif [ "${init_system}" = "entware" ]; then
     local entware_script=$(ls /opt/etc/init.d/*"${service_name}" 2> /dev/null | head -n 1)
 
     sudo "${entware_script}" start &> "${log_redirects}"
+  # SysvInit
+  elif [ "${init_system}" = "sysvinit" ]; then
+    if command -v service &> /dev/null || sudo test -x /usr/sbin/service || sudo test -x /sbin/service; then
+      sudo service "${service_name}" start &> "${log_redirects}"
+    else
+      sudo /etc/init.d/"${service_name}" start &> "${log_redirects}"
+    fi
   # Rc
   elif [ "${init_system}" = "rc" ]; then
     sudo /etc/rc.d/rc."${service_name}" start &> "${log_redirects}"
-  # Launchd
-  elif [ "${init_system}" = "launchd" ]; then
-    sudo launchctl start "${service_name}" &> "${log_redirects}"
   else
     print_head
 
@@ -222,33 +220,34 @@ restart_service() {
   # OpenRC
   elif [ "${init_system}" = "openrc" ]; then
     sudo rc-service "${service_name}" restart &> "${log_redirects}"
-  # OpenBSD
-  elif [ "${init_system}" = "openbsd" ]; then
+  # Rcctl (OpenBSD)
+  elif [ "${init_system}" = "rcctl" ]; then
     sudo rcctl restart "${service_name}" &> "${log_redirects}"
-  # FreeBSD
-  elif [ "${init_system}" = "freebsd" ]; then
-    sudo service "${service_name}" restart &> "${log_redirects}"
   # pfSense
   elif [ "${init_system}" = "pfsense" ]; then
     sudo /usr/local/etc/rc.d/"${service_name}".sh restart &> "${log_redirects}"
-  # SysvInit
-  elif [ "${init_system}" = "sysvinit" ]; then
+  # Sysrc (FreeBSD)
+  elif [ "${init_system}" = "sysrc" ]; then
     sudo service "${service_name}" restart &> "${log_redirects}"
-  # SysvInit (Old)
-  elif [ "${init_system}" = "sysvinit-old" ]; then
-    sudo /etc/init.d/"${service_name}" restart &> "${log_redirects}"
+  # Launchd
+  elif [ "${init_system}" = "launchd" ]; then
+    sudo launchctl stop "${service_name}" &> "${log_redirects}"
+    sudo launchctl start "${service_name}" &> "${log_redirects}"
   # Entware
   elif [ "${init_system}" = "entware" ]; then
     local entware_script=$(ls /opt/etc/init.d/*"${service_name}" 2> /dev/null | head -n 1)
 
     sudo "${entware_script}" restart &> "${log_redirects}"
+  # SysvInit
+  elif [ "${init_system}" = "sysvinit" ]; then
+    if command -v service &> /dev/null || sudo test -x /usr/sbin/service || sudo test -x /sbin/service; then
+      sudo service "${service_name}" restart &> "${log_redirects}"
+    else
+      sudo /etc/init.d/"${service_name}" restart &> "${log_redirects}"
+    fi
   # Rc
   elif [ "${init_system}" = "rc" ]; then
     sudo /etc/rc.d/rc."${service_name}" restart &> "${log_redirects}"
-  # Launchd
-  elif [ "${init_system}" = "launchd" ]; then
-    sudo launchctl stop "${service_name}" &> "${log_redirects}"
-    sudo launchctl start "${service_name}" &> "${log_redirects}"
   else
     print_head
 
@@ -297,34 +296,35 @@ enable_service() {
   # OpenRC
   elif [ "${init_system}" = "openrc" ]; then
     sudo rc-update add "${service_name}" default &> "${log_redirects}"
-  # OpenBSD
-  elif [ "${init_system}" = "openbsd" ]; then
+  # Rcctl (OpenBSD)
+  elif [ "${init_system}" = "rcctl" ]; then
     sudo rcctl enable "${service_name}" &> "${log_redirects}"
-  # FreeBSD
-  elif [ "${init_system}" = "freebsd" ]; then
-    sudo sysrc "${service_name}_enable=YES" &> "${log_redirects}"
   # pfSense
   elif [ "${init_system}" = "pfsense" ]; then
     :
-  # SysvInit
-  elif [ "${init_system}" = "sysvinit" ]; then
-    if command -v update-rc.d &> /dev/null || sudo test -x /usr/sbin/update-rc.d || sudo test -x /sbin/update-rc.d; then
-      sudo update-rc.d "${service_name}" defaults &> "${log_redirects}"
-    elif command -v chkconfig &> /dev/null || sudo test -x /usr/sbin/chkconfig || sudo test -x /sbin/chkconfig; then
-      sudo chkconfig "${service_name}" on &> "${log_redirects}"
-    fi
-  # SysvInit (Old)
-  elif [ "${init_system}" = "sysvinit-old" ]; then
-    :
-  # Entware
-  elif [ "${init_system}" = "entware" ]; then
-    :
-  # Rc
-  elif [ "${init_system}" = "rc" ]; then
-    :
+  # Sysrc (FreeBSD)
+  elif [ "${init_system}" = "sysrc" ]; then
+    sudo sysrc "${service_name}_enable=YES" &> "${log_redirects}"
   # Launchd
   elif [ "${init_system}" = "launchd" ]; then
     sudo launchctl load -w /Library/LaunchDaemons/"${service_name}".plist &> "${log_redirects}"
+  # Entware
+  elif [ "${init_system}" = "entware" ]; then
+    :
+  # SysvInit
+  elif [ "${init_system}" = "sysvinit" ]; then
+    if command -v service &> /dev/null || sudo test -x /usr/sbin/service || sudo test -x /sbin/service; then
+      if command -v update-rc.d &> /dev/null || sudo test -x /usr/sbin/update-rc.d || sudo test -x /sbin/update-rc.d; then
+        sudo update-rc.d "${service_name}" defaults &> "${log_redirects}"
+      elif command -v chkconfig &> /dev/null || sudo test -x /usr/sbin/chkconfig || sudo test -x /sbin/chkconfig; then
+        sudo chkconfig "${service_name}" on &> "${log_redirects}"
+      fi
+    else
+      :
+    fi
+  # Rc
+  elif [ "${init_system}" = "rc" ]; then
+    :
   else
     print_head
 
