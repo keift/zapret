@@ -174,7 +174,7 @@ detect_system() {
   elif command -v sysrc &> /dev/null; then
     init_system="freebsd"
   # pfSense
-  elif sudo test -f /etc/pfsense-release || grep -qi "pfsense" /etc/platform 2> /dev/null; then
+  elif sudo test -f /etc/pfsense-release || grep -iq "pfsense" /etc/platform 2> /dev/null; then
     init_system="pfsense"
   # SysvInit
   elif command -v service &> /dev/null || sudo test -x /usr/sbin/service || sudo test -x /sbin/service; then
@@ -215,12 +215,12 @@ detect_system() {
     package_manager="slackpkg"
   elif command -v eopkg &> /dev/null; then
     package_manager="eopkg"
+  elif command -v opkg &> /dev/null; then
+    package_manager="opkg"
   elif command -v pkg &> /dev/null; then
     package_manager="pkg"
   elif command -v pkg_add &> /dev/null; then
     package_manager="pkg_add"
-  elif command -v opkg &> /dev/null; then
-    package_manager="opkg"
   else
     package_manager="unknown"
   fi
@@ -484,12 +484,12 @@ install_package() {
     sudo slackpkg -batch=on -default_answer=y install "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "eopkg" ]; then
     sudo eopkg install -y "${package_name}" &> "${log_redirects}"
+  elif [ "${package_manager}" = "opkg" ]; then
+    sudo opkg install "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "pkg" ]; then
     sudo pkg install -y "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "pkg_add" ]; then
     sudo pkg_add -I "${package_name}" &> "${log_redirects}"
-  elif [ "${package_manager}" = "opkg" ]; then
-    sudo opkg install "${package_name}" &> "${log_redirects}"
   else
     print_head
 
@@ -534,12 +534,12 @@ remove_package() {
     sudo slackpkg -batch=on -default_answer=y remove "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "eopkg" ]; then
     sudo eopkg remove -y --purge "${package_name}" &> "${log_redirects}"
+  elif [ "${package_manager}" = "opkg" ]; then
+    sudo opkg remove --autoremove "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "pkg" ]; then
     sudo pkg delete -y "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "pkg_add" ]; then
     sudo pkg_delete -I "${package_name}" &> "${log_redirects}"
-  elif [ "${package_manager}" = "opkg" ]; then
-    sudo opkg remove --autoremove "${package_name}" &> "${log_redirects}"
   else
     print_head
 
@@ -719,13 +719,13 @@ print_update_commands() {
     echo -e "  ${yellow}sudo ${green}slackpkg ${white}-${cyan}batch=on ${white}-${cyan}default_answer=y ${cyan}upgrade-all${reset}"
   elif [ "${package_manager}" = "eopkg" ]; then
     echo -e "  ${yellow}sudo ${green}eopkg ${cyan}upgrade ${white}-${cyan}y${reset}"
+  elif [ "${package_manager}" = "opkg" ]; then
+    echo -e "  ${yellow}sudo ${green}opkg ${cyan}update${reset}"
+    echo -e "  ${yellow}sudo ${green}opkg ${cyan}upgrade${reset}"
   elif [ "${package_manager}" = "pkg" ]; then
     echo -e "  ${yellow}sudo ${green}pkg ${cyan}upgrade ${white}-${cyan}y${reset}"
   elif [ "${package_manager}" = "pkg_add" ]; then
     echo -e "  ${yellow}sudo ${green}pkg_add ${white}-${cyan}uI${reset}"
-  elif [ "${package_manager}" = "opkg" ]; then
-    echo -e "  ${yellow}sudo ${green}opkg ${cyan}update${reset}"
-    echo -e "  ${yellow}sudo ${green}opkg ${cyan}upgrade${reset}"
   fi
 }
 
@@ -1033,7 +1033,7 @@ for domain in "${blockcheck_domains[@]}"; do
 done
 
 while [ $# -gt 0 ]; do
-  if echo "${1}" | grep -q "^--blockcheck-domain="; then
+  if echo "${1}" | grep -iq "^--blockcheck-domain="; then
     blockcheck_domain="${1#*=}"
 
     shift
@@ -1056,7 +1056,7 @@ else
   nfqws_options=$(echo "${blockcheck_results}" | sed -n "/^\* SUMMARY/,/^$/p" | grep -E "curl_test_http|curl_test_https_tls12" | grep "ipv4 ${blockcheck_domain} : nfqws" | tail -n 5 | head -n 1 | sed "s/.*nfqws //" | sed "s|/tmp/zapret|/opt/zapret|g" | sed "s/[[:space:]]*\$//")
 fi
 
-if echo "${blockcheck_results}" | grep -q "nftables queue support is not available"; then
+if echo "${blockcheck_results}" | grep -iq "nftables queue support is not available"; then
   printf "Y\n\n" | sudo /opt/zapret/uninstall_easy.sh &> "${log_redirects}"
   sudo rm -rf /opt/zapret
   sudo rm -rf /tmp/zapret
@@ -1064,8 +1064,8 @@ if echo "${blockcheck_results}" | grep -q "nftables queue support is not availab
   throw_system_is_too_old
 fi
 
-if echo "${blockcheck_results}" | grep -q "curl_test_http ipv4 ${blockcheck_domain} : working without bypass" \
-  && echo "${blockcheck_results}" | grep -q "curl_test_https_tls12 ipv4 ${blockcheck_domain} : working without bypass"; then
+if echo "${blockcheck_results}" | grep -iq "curl_test_http ipv4 ${blockcheck_domain} : working without bypass" \
+  && echo "${blockcheck_results}" | grep -iq "curl_test_https_tls12 ipv4 ${blockcheck_domain} : working without bypass"; then
   printf "Y\n\n" | sudo /opt/zapret/uninstall_easy.sh &> "${log_redirects}"
   sudo rm -rf /opt/zapret
   sudo rm -rf /tmp/zapret
@@ -1099,23 +1099,47 @@ fi
 
 prototype_installation_results=$(printf "\n\n" | sudo /tmp/zapret/install_easy.sh 2> "${log_redirects}")
 
-if echo "${prototype_installation_results}" | grep -q "system is not either systemd"; then
-  if sudo test -w /bin; then
-    installation_results=$(printf "Y\nY\nY\n\n\n\n\n\n\nY\n\n\n\n\n" | sudo /tmp/zapret/install_easy.sh 2> "${log_redirects}")
-  else
+if echo "${prototype_installation_results}" | grep -iq "system is not either systemd"; then
+  if echo "${prototype_installation_results}" | grep -iq "readonly system detected"; then
     installation_results=$(printf "Y\nY\nY\nY\nY\n\n\n\n\n\n\nY\n\n\n\n\n" | sudo /tmp/zapret/install_easy.sh 2> "${log_redirects}")
+  else
+    installation_results=$(printf "Y\nY\nY\n\n\n\n\n\n\nY\n\n\n\n\n" | sudo /tmp/zapret/install_easy.sh 2> "${log_redirects}")
   fi
 else
-  if sudo test -w /bin; then
-    installation_results=$(printf "Y\n\n\n\n\n\n\nY\n\n\n\n\n" | sudo /tmp/zapret/install_easy.sh 2> "${log_redirects}")
-  else
+  if echo "${prototype_installation_results}" | grep -iq "readonly system detected"; then
     installation_results=$(printf "Y\nY\nY\n\n\n\n\n\n\nY\n\n\n\n\n" | sudo /tmp/zapret/install_easy.sh 2> "${log_redirects}")
+  else
+    installation_results=$(printf "Y\n\n\n\n\n\n\nY\n\n\n\n\n" | sudo /tmp/zapret/install_easy.sh 2> "${log_redirects}")
   fi
 fi
 
 [ "${debug}" = true ] && echo "${installation_results}"
 
-if echo "${installation_results}" | grep -q "could not start zapret service"; then
+if echo "${installation_results}" | grep -iq "readonly system detected"; then
+  printf "Y\n\n" | sudo /opt/zapret/uninstall_easy.sh &> "${log_redirects}"
+  sudo rm -rf /opt/zapret
+  sudo rm -rf /tmp/zapret
+
+  print_head
+
+  if [ "${country_code}" = "RU" ]; then
+    echo -e "  ${red}Обнаружена неизменяемая система. Пожалуйста, отключите режим только для чтения.${reset}"
+  elif [ "${country_code}" = "TR" ]; then
+    echo -e "  ${red}Değiştirilemez sistem tespit edildi. Lütfen salt okunur modunu kapatın.${reset}"
+  else
+    echo -e "  ${red}Immutable system detected. Please turn off read-only mode.${reset}"
+  fi
+
+  echo ""
+
+  send_metrics ZAPRET_IMMUTABLE_SYSTEM_DETECTED
+
+  echo ""
+
+  exit 1
+fi
+
+if echo "${installation_results}" | grep -iq "could not start zapret service"; then
   printf "Y\n\n" | sudo /opt/zapret/uninstall_easy.sh &> "${log_redirects}"
   sudo rm -rf /opt/zapret
   sudo rm -rf /tmp/zapret
@@ -1139,7 +1163,7 @@ if echo "${installation_results}" | grep -q "could not start zapret service"; th
   exit 1
 fi
 
-echo "${installation_results}" | grep -q "system is not either systemd" && init_zapret
+echo "${installation_results}" | grep -iq "system is not either systemd" && init_zapret
 
 enable_service zapret
 start_service zapret

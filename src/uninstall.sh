@@ -69,7 +69,7 @@ detect_system() {
   elif command -v sysrc &> /dev/null; then
     init_system="freebsd"
   # pfSense
-  elif sudo test -f /etc/pfsense-release || grep -qi "pfsense" /etc/platform 2> /dev/null; then
+  elif sudo test -f /etc/pfsense-release || grep -iq "pfsense" /etc/platform 2> /dev/null; then
     init_system="pfsense"
   # SysvInit
   elif command -v service &> /dev/null || sudo test -x /usr/sbin/service || sudo test -x /sbin/service; then
@@ -110,12 +110,12 @@ detect_system() {
     package_manager="slackpkg"
   elif command -v eopkg &> /dev/null; then
     package_manager="eopkg"
+  elif command -v opkg &> /dev/null; then
+    package_manager="opkg"
   elif command -v pkg &> /dev/null; then
     package_manager="pkg"
   elif command -v pkg_add &> /dev/null; then
     package_manager="pkg_add"
-  elif command -v opkg &> /dev/null; then
-    package_manager="opkg"
   else
     package_manager="unknown"
   fi
@@ -364,12 +364,12 @@ install_package() {
     sudo slackpkg -batch=on -default_answer=y install "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "eopkg" ]; then
     sudo eopkg install -y "${package_name}" &> "${log_redirects}"
+  elif [ "${package_manager}" = "opkg" ]; then
+    sudo opkg install "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "pkg" ]; then
     sudo pkg install -y "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "pkg_add" ]; then
     sudo pkg_add -I "${package_name}" &> "${log_redirects}"
-  elif [ "${package_manager}" = "opkg" ]; then
-    sudo opkg install "${package_name}" &> "${log_redirects}"
   else
     print_head
 
@@ -409,12 +409,12 @@ remove_package() {
     sudo slackpkg -batch=on -default_answer=y remove "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "eopkg" ]; then
     sudo eopkg remove -y --purge "${package_name}" &> "${log_redirects}"
+  elif [ "${package_manager}" = "opkg" ]; then
+    sudo opkg remove --autoremove "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "pkg" ]; then
     sudo pkg delete -y "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "pkg_add" ]; then
     sudo pkg_delete -I "${package_name}" &> "${log_redirects}"
-  elif [ "${package_manager}" = "opkg" ]; then
-    sudo opkg remove --autoremove "${package_name}" &> "${log_redirects}"
   else
     print_head
 
