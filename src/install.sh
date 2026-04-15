@@ -173,7 +173,7 @@ detect_system() {
   # Entware
   elif sudo test -d /opt/etc/init.d; then
     init_system="entware"
-  # SysvInit
+  # SysVinit
   elif command -v service &> /dev/null || sudo test -x /usr/sbin/service || sudo test -x /sbin/service || sudo test -d /etc/init.d; then
     init_system="sysvinit"
   # Rc
@@ -248,7 +248,7 @@ start_service() {
     local entware_script=$(ls /opt/etc/init.d/*"${service_name}" 2> /dev/null | head -n 1)
 
     sudo "${entware_script}" start &> "${log_redirects}"
-  # SysvInit
+  # SysVinit
   elif [ "${init_system}" = "sysvinit" ]; then
     if command -v service &> /dev/null || sudo test -x /usr/sbin/service || sudo test -x /sbin/service; then
       sudo service "${service_name}" start &> "${log_redirects}"
@@ -317,7 +317,7 @@ restart_service() {
     local entware_script=$(ls /opt/etc/init.d/*"${service_name}" 2> /dev/null | head -n 1)
 
     sudo "${entware_script}" restart &> "${log_redirects}"
-  # SysvInit
+  # SysVinit
   elif [ "${init_system}" = "sysvinit" ]; then
     if command -v service &> /dev/null || sudo test -x /usr/sbin/service || sudo test -x /sbin/service; then
       sudo service "${service_name}" restart &> "${log_redirects}"
@@ -386,7 +386,7 @@ enable_service() {
   # Entware
   elif [ "${init_system}" = "entware" ]; then
     :
-  # SysvInit
+  # SysVinit
   elif [ "${init_system}" = "sysvinit" ]; then
     if command -v service &> /dev/null || sudo test -x /usr/sbin/service || sudo test -x /sbin/service; then
       if command -v update-rc.d &> /dev/null || sudo test -x /usr/sbin/update-rc.d || sudo test -x /sbin/update-rc.d; then
@@ -580,7 +580,7 @@ EOF
     sudo chmod +x /opt/etc/init.d/S90zapret
 
     enable_service zapret
-  # SysvInit
+  # SysVinit
   elif [ "${init_system}" = "sysvinit" ]; then
     sudo test -f /opt/zapret/init.d/sysv/zapret && sudo ln -sf /opt/zapret/init.d/sysv/zapret /etc/init.d/zapret &> "${log_redirects}"
 
