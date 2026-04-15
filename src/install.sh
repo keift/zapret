@@ -724,7 +724,7 @@ if [ "${init_system}" = "systemd" ]; then
 
   install_package systemd-resolved
 
-  if [ "${package_manager}" = "pkg" ] || [ "${package_manager}" = "opkg" ]; then
+  if [ "${package_manager}" = "opkg" ]; then
     install_package dnscrypt-proxy2
   else
     install_package dnscrypt-proxy
@@ -803,7 +803,7 @@ EOF
 else
   dns_resolver="dnscrypt-proxy"
 
-  if [ "${package_manager}" = "pkg" ] || [ "${package_manager}" = "opkg" ]; then
+  if [ "${package_manager}" = "opkg" ]; then
     install_package dnscrypt-proxy2
   else
     install_package dnscrypt-proxy
