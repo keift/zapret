@@ -167,12 +167,12 @@ detect_system() {
   # OpenRC
   elif command -v rc-service &> /dev/null; then
     init_system="openrc"
-  # Rcctl
-  elif command -v rcctl &> /dev/null; then
-    init_system="rcctl"
   # pfSense
   elif sudo test -f /etc/pfsense-release || grep -iq "pfsense" /etc/platform 2> /dev/null; then
     init_system="pfsense"
+  # Rcctl
+  elif command -v rcctl &> /dev/null; then
+    init_system="rcctl"
   # Sysrc
   elif command -v sysrc &> /dev/null; then
     init_system="sysrc"
@@ -253,12 +253,12 @@ start_service() {
   # OpenRC
   elif [ "${init_system}" = "openrc" ]; then
     sudo rc-service "${service_name}" start &> "${log_redirects}"
-  # Rcctl
-  elif [ "${init_system}" = "rcctl" ]; then
-    sudo rcctl start "${service_name}" &> "${log_redirects}"
   # pfSense
   elif [ "${init_system}" = "pfsense" ]; then
     sudo /usr/local/etc/rc.d/"${service_name}".sh start &> "${log_redirects}"
+  # Rcctl
+  elif [ "${init_system}" = "rcctl" ]; then
+    sudo rcctl start "${service_name}" &> "${log_redirects}"
   # Sysrc
   elif [ "${init_system}" = "sysrc" ]; then
     sudo service "${service_name}" start &> "${log_redirects}"
@@ -330,12 +330,12 @@ restart_service() {
   # OpenRC
   elif [ "${init_system}" = "openrc" ]; then
     sudo rc-service "${service_name}" restart &> "${log_redirects}"
-  # Rcctl
-  elif [ "${init_system}" = "rcctl" ]; then
-    sudo rcctl restart "${service_name}" &> "${log_redirects}"
   # pfSense
   elif [ "${init_system}" = "pfsense" ]; then
     sudo /usr/local/etc/rc.d/"${service_name}".sh restart &> "${log_redirects}"
+  # Rcctl
+  elif [ "${init_system}" = "rcctl" ]; then
+    sudo rcctl restart "${service_name}" &> "${log_redirects}"
   # Sysrc
   elif [ "${init_system}" = "sysrc" ]; then
     sudo service "${service_name}" restart &> "${log_redirects}"
@@ -411,12 +411,12 @@ enable_service() {
   # OpenRC
   elif [ "${init_system}" = "openrc" ]; then
     sudo rc-update add "${service_name}" default &> "${log_redirects}"
-  # Rcctl
-  elif [ "${init_system}" = "rcctl" ]; then
-    sudo rcctl enable "${service_name}" &> "${log_redirects}"
   # pfSense
   elif [ "${init_system}" = "pfsense" ]; then
     :
+  # Rcctl
+  elif [ "${init_system}" = "rcctl" ]; then
+    sudo rcctl enable "${service_name}" &> "${log_redirects}"
   # Sysrc
   elif [ "${init_system}" = "sysrc" ]; then
     sudo sysrc "${service_name}_enable=YES" &> "${log_redirects}"
@@ -602,6 +602,11 @@ EOF
   elif [ "${init_system}" = "openrc" ]; then
     # Being set up by Zapret.
     :
+  # pfSense
+  elif [ "${init_system}" = "pfsense" ]; then
+    sudo test -f /opt/zapret/init.d/pfsense/zapret.sh && sudo ln -sf /opt/zapret/init.d/pfsense/zapret.sh /usr/local/etc/rc.d/zapret.sh &> "${log_redirects}"
+
+    enable_service zapret
   # Rcctl
   elif [ "${init_system}" = "rcctl" ]; then
     sudo tee /etc/rc.d/zapret &> /dev/null << 'EOF'
@@ -623,11 +628,6 @@ rc_cmd "${1}"
 EOF
 
     sudo chmod +x /etc/rc.d/zapret
-
-    enable_service zapret
-  # pfSense
-  elif [ "${init_system}" = "pfsense" ]; then
-    sudo test -f /opt/zapret/init.d/pfsense/zapret.sh && sudo ln -sf /opt/zapret/init.d/pfsense/zapret.sh /usr/local/etc/rc.d/zapret.sh &> "${log_redirects}"
 
     enable_service zapret
   # Sysrc
