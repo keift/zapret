@@ -167,15 +167,6 @@ detect_system() {
   # OpenRC
   elif command -v rc-service &> /dev/null; then
     init_system="openrc"
-  # pfSense
-  elif sudo test -f /etc/pfsense-release || grep -iq "pfsense" /etc/platform 2> /dev/null; then
-    init_system="pfsense"
-  # Rcctl
-  elif command -v rcctl &> /dev/null; then
-    init_system="rcctl"
-  # Sysrc
-  elif command -v sysrc &> /dev/null; then
-    init_system="sysrc"
   # Launchd
   elif command -v launchctl &> /dev/null; then
     init_system="launchd"
@@ -214,10 +205,6 @@ detect_system() {
     package_manager="eopkg"
   elif command -v opkg &> /dev/null; then
     package_manager="opkg"
-  elif command -v pkg &> /dev/null; then
-    package_manager="pkg"
-  elif command -v pkg_add &> /dev/null; then
-    package_manager="pkg_add"
   else
     package_manager="unknown"
   fi
@@ -253,15 +240,6 @@ start_service() {
   # OpenRC
   elif [ "${init_system}" = "openrc" ]; then
     sudo rc-service "${service_name}" start &> "${log_redirects}"
-  # pfSense
-  elif [ "${init_system}" = "pfsense" ]; then
-    sudo /usr/local/etc/rc.d/"${service_name}".sh start &> "${log_redirects}"
-  # Rcctl
-  elif [ "${init_system}" = "rcctl" ]; then
-    sudo rcctl start "${service_name}" &> "${log_redirects}"
-  # Sysrc
-  elif [ "${init_system}" = "sysrc" ]; then
-    sudo service "${service_name}" start &> "${log_redirects}"
   # Launchd
   elif [ "${init_system}" = "launchd" ]; then
     sudo launchctl start "${service_name}" &> "${log_redirects}"
@@ -330,15 +308,6 @@ restart_service() {
   # OpenRC
   elif [ "${init_system}" = "openrc" ]; then
     sudo rc-service "${service_name}" restart &> "${log_redirects}"
-  # pfSense
-  elif [ "${init_system}" = "pfsense" ]; then
-    sudo /usr/local/etc/rc.d/"${service_name}".sh restart &> "${log_redirects}"
-  # Rcctl
-  elif [ "${init_system}" = "rcctl" ]; then
-    sudo rcctl restart "${service_name}" &> "${log_redirects}"
-  # Sysrc
-  elif [ "${init_system}" = "sysrc" ]; then
-    sudo service "${service_name}" restart &> "${log_redirects}"
   # Launchd
   elif [ "${init_system}" = "launchd" ]; then
     sudo launchctl stop "${service_name}" &> "${log_redirects}"
@@ -411,15 +380,6 @@ enable_service() {
   # OpenRC
   elif [ "${init_system}" = "openrc" ]; then
     sudo rc-update add "${service_name}" default &> "${log_redirects}"
-  # pfSense
-  elif [ "${init_system}" = "pfsense" ]; then
-    :
-  # Rcctl
-  elif [ "${init_system}" = "rcctl" ]; then
-    sudo rcctl enable "${service_name}" &> "${log_redirects}"
-  # Sysrc
-  elif [ "${init_system}" = "sysrc" ]; then
-    sudo sysrc "${service_name}_enable=YES" &> "${log_redirects}"
   # Launchd
   elif [ "${init_system}" = "launchd" ]; then
     sudo launchctl load -w /Library/LaunchDaemons/"${service_name}".plist &> "${log_redirects}"
@@ -486,10 +446,6 @@ install_package() {
     sudo eopkg install -y "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "opkg" ]; then
     sudo opkg install "${package_name}" &> "${log_redirects}"
-  elif [ "${package_manager}" = "pkg" ]; then
-    sudo pkg install -y "${package_name}" &> "${log_redirects}"
-  elif [ "${package_manager}" = "pkg_add" ]; then
-    sudo pkg_add -I "${package_name}" &> "${log_redirects}"
   else
     print_head
 
@@ -536,10 +492,6 @@ remove_package() {
     sudo eopkg remove -y --purge "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "opkg" ]; then
     sudo opkg remove --autoremove "${package_name}" &> "${log_redirects}"
-  elif [ "${package_manager}" = "pkg" ]; then
-    sudo pkg delete -y "${package_name}" &> "${log_redirects}"
-  elif [ "${package_manager}" = "pkg_add" ]; then
-    sudo pkg_delete -I "${package_name}" &> "${log_redirects}"
   else
     print_head
 
@@ -602,39 +554,6 @@ EOF
   elif [ "${init_system}" = "openrc" ]; then
     # Being set up by Zapret.
     :
-  # pfSense
-  elif [ "${init_system}" = "pfsense" ]; then
-    sudo test -f /opt/zapret/init.d/pfsense/zapret.sh && sudo ln -sf /opt/zapret/init.d/pfsense/zapret.sh /usr/local/etc/rc.d/zapret.sh &> "${log_redirects}"
-
-    enable_service zapret
-  # Rcctl
-  elif [ "${init_system}" = "rcctl" ]; then
-    sudo tee /etc/rc.d/zapret &> /dev/null << 'EOF'
-#!/bin/ksh
-
-daemon="/opt/zapret/init.d/sysv/zapret"
-
-. /etc/rc.d/rc.subr
-
-rc_start() {
-  ${daemon} start
-}
-
-rc_stop() {
-  ${daemon} stop
-}
-
-rc_cmd "${1}"
-EOF
-
-    sudo chmod +x /etc/rc.d/zapret
-
-    enable_service zapret
-  # Sysrc
-  elif [ "${init_system}" = "sysrc" ]; then
-    sudo test -f /opt/zapret/init.d/sysv/zapret && sudo ln -sf /opt/zapret/init.d/sysv/zapret /usr/local/etc/rc.d/zapret &> "${log_redirects}"
-
-    enable_service zapret
   # Launchd
   elif [ "${init_system}" = "launchd" ]; then
     # Being set up by Zapret.
@@ -715,10 +634,6 @@ print_update_commands() {
   elif [ "${package_manager}" = "opkg" ]; then
     echo -e "  ${yellow}sudo ${green}opkg ${cyan}update${reset}"
     echo -e "  ${yellow}sudo ${green}opkg ${cyan}upgrade${reset}"
-  elif [ "${package_manager}" = "pkg" ]; then
-    echo -e "  ${yellow}sudo ${green}pkg ${cyan}upgrade ${white}-${cyan}y${reset}"
-  elif [ "${package_manager}" = "pkg_add" ]; then
-    echo -e "  ${yellow}sudo ${green}pkg_add ${white}-${cyan}uI${reset}"
   fi
 }
 
