@@ -526,8 +526,6 @@ command = /opt/zapret/init.d/sysv/zapret start
 stop-command = /opt/zapret/init.d/sysv/zapret stop
 restart = false
 EOF
-
-    enable_service zapret
   # Runit
   elif [ "${init_system}" = "runit" ]; then
     if sudo test -d /etc/sv; then
@@ -537,8 +535,6 @@ EOF
     fi
 
     sudo test -d /opt/zapret/init.d/runit/zapret && sudo ln -sf /opt/zapret/init.d/runit/zapret "${runit_sv_dir}"/zapret &> "${log_redirects}"
-
-    enable_service zapret
   # S6
   elif [ "${init_system}" = "s6" ]; then
     if sudo test -d /etc/s6-servicedirs; then
@@ -548,8 +544,6 @@ EOF
     fi
 
     sudo test -d /opt/zapret/init.d/s6/zapret && sudo ln -sf /opt/zapret/init.d/s6/zapret "${s6_service_dir}"/zapret &> "${log_redirects}"
-
-    enable_service zapret
   # OpenRC
   elif [ "${init_system}" = "openrc" ]; then
     # Being set up by Zapret.
@@ -578,18 +572,12 @@ fi
 EOF
 
     sudo chmod +x /opt/etc/init.d/S90zapret
-
-    enable_service zapret
   # SysVinit
   elif [ "${init_system}" = "sysvinit" ]; then
     sudo test -f /opt/zapret/init.d/sysv/zapret && sudo ln -sf /opt/zapret/init.d/sysv/zapret /etc/init.d/zapret &> "${log_redirects}"
-
-    enable_service zapret
   # Rc
   elif [ "${init_system}" = "rc" ]; then
     sudo test -f /opt/zapret/init.d/sysv/zapret && sudo ln -sf /opt/zapret/init.d/sysv/zapret /etc/rc.d/rc.zapret &> "${log_redirects}"
-
-    enable_service zapret
   fi
 }
 
