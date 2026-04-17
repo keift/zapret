@@ -1076,8 +1076,8 @@ echo "${installation_results}" | grep -iq "system is not either systemd" && init
 enable_service zapret
 start_service zapret
 
-sudo touch /opt/zapret/ipset/zapret-hosts-user.txt
-sudo touch /opt/zapret/ipset/zapret-hosts-auto.txt
+sudo touch /opt/zapret/ipset/zapret-hosts-user.txt &> "${log_redirects}"
+sudo touch /opt/zapret/ipset/zapret-hosts-auto.txt &> "${log_redirects}"
 
 sudo sed -i "/^NFQWS_OPT=\"/,/^\"/c NFQWS_OPT=\"${nfqws_options} --hostlist=/opt/zapret/ipset/zapret-hosts-user.txt --hostlist-auto=/opt/zapret/ipset/zapret-hosts-auto.txt\"" /opt/zapret/config
 
