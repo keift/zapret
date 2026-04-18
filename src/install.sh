@@ -871,16 +871,16 @@ else
   echo -e "  ${gray}Downloading Zapret...${reset}"
 fi
 
-sudo rm -rf /tmp/zapret
-sudo rm -rf /tmp/zapret.zip
+sudo rm -rf /tmp/zapret &> "${log_redirects}"
+sudo rm -rf /tmp/zapret.zip &> "${log_redirects}"
 
 sudo wget -O /tmp/zapret.zip https://github.com/bol-van/zapret/releases/download/v"${zapret_version}"/zapret-v"${zapret_version}".zip &> "${log_redirects}"
 
 sudo unzip -d /tmp /tmp/zapret.zip &> "${log_redirects}"
 
-sudo mv /tmp/zapret-v"${zapret_version}" /tmp/zapret
+sudo mv /tmp/zapret-v"${zapret_version}" /tmp/zapret &> "${log_redirects}"
 
-sudo rm -rf /tmp/zapret.zip
+sudo rm -rf /tmp/zapret.zip &> "${log_redirects}"
 
 # 4. Prepare for installation
 
@@ -893,7 +893,7 @@ else
 fi
 
 printf "Y\n\n" | sudo /opt/zapret/uninstall_easy.sh &> "${log_redirects}"
-sudo rm -rf /opt/zapret
+sudo rm -rf /opt/zapret &> "${log_redirects}"
 
 printf "\n\n" | sudo /tmp/zapret/install_prereq.sh &> "${log_redirects}"
 sudo /tmp/zapret/install_bin.sh &> "${log_redirects}"
@@ -954,8 +954,8 @@ fi
 
 if echo "${blockcheck_results}" | grep -iq "nftables queue support is not available"; then
   printf "Y\n\n" | sudo /opt/zapret/uninstall_easy.sh &> "${log_redirects}"
-  sudo rm -rf /opt/zapret
-  sudo rm -rf /tmp/zapret
+  sudo rm -rf /opt/zapret &> "${log_redirects}"
+  sudo rm -rf /tmp/zapret &> "${log_redirects}"
 
   throw_system_is_too_old
 fi
@@ -963,8 +963,8 @@ fi
 if echo "${blockcheck_results}" | grep -iq "curl_test_http ipv4 ${blockcheck_domain} : working without bypass" \
   && echo "${blockcheck_results}" | grep -iq "curl_test_https_tls12 ipv4 ${blockcheck_domain} : working without bypass"; then
   printf "Y\n\n" | sudo /opt/zapret/uninstall_easy.sh &> "${log_redirects}"
-  sudo rm -rf /opt/zapret
-  sudo rm -rf /tmp/zapret
+  sudo rm -rf /opt/zapret &> "${log_redirects}"
+  sudo rm -rf /tmp/zapret &> "${log_redirects}"
 
   if [ "${country_code}" = "RU" ]; then
     echo -e "  ${gray}Ограничений доступа не обнаружено.${reset}"
@@ -1015,8 +1015,8 @@ fi
 
 if echo "${installation_results}" | grep -iq "readonly system detected"; then
   printf "Y\n\n" | sudo /opt/zapret/uninstall_easy.sh &> "${log_redirects}"
-  sudo rm -rf /opt/zapret
-  sudo rm -rf /tmp/zapret
+  sudo rm -rf /opt/zapret &> "${log_redirects}"
+  sudo rm -rf /tmp/zapret &> "${log_redirects}"
 
   print_head
 
@@ -1039,8 +1039,8 @@ fi
 
 if echo "${installation_results}" | grep -iq "could not start zapret service"; then
   printf "Y\n\n" | sudo /opt/zapret/uninstall_easy.sh &> "${log_redirects}"
-  sudo rm -rf /opt/zapret
-  sudo rm -rf /tmp/zapret
+  sudo rm -rf /opt/zapret &> "${log_redirects}"
+  sudo rm -rf /tmp/zapret &> "${log_redirects}"
 
   print_head
 
@@ -1089,7 +1089,7 @@ else
   echo -e "  ${gray}Zapret was successfully installed.${reset}"
 fi
 
-sudo rm -rf /tmp/zapret
+sudo rm -rf /tmp/zapret &> "${log_redirects}"
 
 echo ""
 
