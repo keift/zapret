@@ -34,16 +34,6 @@ cyan="\e[36m"
 white="\e[37m"
 gray="\e[90m"
 
-bg_black="\x1b[40m"
-bg_red="\x1b[41m"
-bg_green="\x1b[42m"
-bg_yellow="\x1b[43m"
-bg_blue="\x1b[44m"
-bg_magenta="\x1b[45m"
-bg_cyan="\x1b[46m"
-bg_white="\x1b[47m"
-bg_gray="\x1b[100m"
-
 country_code=$(curl --max-time 10 -s https://ipinfo.io/country)
 
 detect_system() {
