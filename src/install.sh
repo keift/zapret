@@ -996,6 +996,8 @@ fi
 prototype_installation_results=$(printf "\n\n" | sudo /tmp/zapret/install_easy.sh 2> "${log_redirects}")
 
 if echo "${prototype_installation_results}" | grep -iq "system is not either systemd"; then
+  prototype_installation_results=$(printf "Y\n\n\n" | sudo /tmp/zapret/install_easy.sh 2> "${log_redirects}")
+
   if echo "${prototype_installation_results}" | grep -iq "readonly system detected"; then
     installation_results=$(printf "Y\nY\nY\nY\nY\n\n\n\n\n\n\nY\n\n\n\n\n" | sudo /tmp/zapret/install_easy.sh 2> "${log_redirects}")
   else
