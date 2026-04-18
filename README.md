@@ -7,7 +7,7 @@ Install Zapret in one step.
 You can install it as follows.
 
 ```shell
-curl -fsSL https://raw.github.com/keift/zapret/refs/heads/main/src/install.sh | bash
+curl -fsSL https://raw.github.com/keift/zapret/main/src/install.sh | bash
 ```
 
 ## Uninstall
@@ -15,7 +15,7 @@ curl -fsSL https://raw.github.com/keift/zapret/refs/heads/main/src/install.sh | 
 You can uninstall it as follows.
 
 ```shell
-curl -fsSL https://raw.github.com/keift/zapret/refs/heads/main/src/uninstall.sh | bash
+curl -fsSL https://raw.github.com/keift/zapret/main/src/uninstall.sh | bash
 ```
 
 ## Screenshots
@@ -35,5 +35,5 @@ Installation settings can be changed in the following ways.
 > Example:
 >
 > ```shell
-> curl -fsSL https://raw.github.com/keift/zapret/refs/heads/main/src/install.sh | bash -s -- --blockcheck-domain discord.com
+> curl -fsSL https://raw.github.com/keift/zapret/main/src/install.sh | bash -s -- --blockcheck-domain discord.com
 > ```
