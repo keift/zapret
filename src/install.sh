@@ -82,6 +82,7 @@ send_metrics() {
     local unix_name=$(uname -a)
     local blockcheck_results_filtered=$(echo "${blockcheck_results}" | sed -n "/^\* SUMMARY/,/^$/p")
     local domain_response=$(curl --max-time 10 -sS -I https://"${blockcheck_domain}" 2>&1 | head -n 1)
+    local nfqws_options=$(cat /opt/zapret/config | grep "^NFQWS")
 
     local payload=$(
       jq -n \
@@ -757,7 +758,7 @@ EOF
   restart_service dnscrypt-proxy
   restart_service dnscrypt-proxy2
 
-  while ! dig -p 5300 +tries=1 +time=10 @127.0.0.1 &> /dev/null; do
+  while ! dig -p 5300 +tries=1 +time=10 @127.0.0.1 &> /dev/null && ! dig -p 5300 +tries=1 +time=10 @::1 &> /dev/null; do
     restart_service dnscrypt-proxy
     restart_service dnscrypt-proxy2
 
@@ -834,7 +835,7 @@ EOF
   restart_service dnscrypt-proxy
   restart_service dnscrypt-proxy2
 
-  while ! dig -p 53 +tries=1 +time=10 @127.0.0.1 &> /dev/null; do
+  while ! dig -p 53 +tries=1 +time=10 @127.0.0.1 &> /dev/null && ! dig -p 53 +tries=1 +time=10 @::1 &> /dev/null; do
     restart_service dnscrypt-proxy
     restart_service dnscrypt-proxy2
 
