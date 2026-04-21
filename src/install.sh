@@ -82,7 +82,7 @@ send_metrics() {
     local unix_name=$(uname -a)
     local blockcheck_results_filtered=$(echo "${blockcheck_results}" | sed -n "/^\* SUMMARY/,/^$/p")
     local domain_response=$(curl --max-time 10 -sS -I https://"${blockcheck_domain}" 2>&1 | head -n 1)
-    local nfqws_options=$(cat /opt/zapret/config | grep "^NFQWS")
+    local nfqws_options=$(cat /opt/zapret/config 2>&1 | grep "^NFQWS")
 
     local payload=$(
       jq -n \
