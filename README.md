@@ -1,4 +1,4 @@
-# Zapret - One Step, Bypass DPI Barriers
+# Zapret - Single Step, Bypass DPI Barriers
 
 We save you from the hassle of setting up Zapret and make it easy to overcome all DPI access restrictions with a single command.
 
