@@ -724,6 +724,8 @@ if [ "${init_system}" = "systemd" ]; then
     dnscrypt_path="/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
   elif sudo test -f /etc/dnscrypt-proxy.toml; then
     dnscrypt_path="/etc/dnscrypt-proxy.toml"
+  elif sudo test -f /opt/dnscrypt-proxy/dnscrypt-proxy.toml; then
+    dnscrypt_path="/opt/dnscrypt-proxy/dnscrypt-proxy.toml"
   elif sudo test -f /opt/etc/dnscrypt-proxy.toml; then
     dnscrypt_path="/opt/etc/dnscrypt-proxy.toml"
   elif sudo test -f /usr/local/etc/dnscrypt-proxy/dnscrypt-proxy.toml; then
@@ -800,6 +802,8 @@ else
     dnscrypt_path="/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
   elif sudo test -f /etc/dnscrypt-proxy.toml; then
     dnscrypt_path="/etc/dnscrypt-proxy.toml"
+  elif sudo test -f /opt/dnscrypt-proxy/dnscrypt-proxy.toml; then
+    dnscrypt_path="/opt/dnscrypt-proxy/dnscrypt-proxy.toml"
   elif sudo test -f /opt/etc/dnscrypt-proxy.toml; then
     dnscrypt_path="/opt/etc/dnscrypt-proxy.toml"
   elif sudo test -f /usr/local/etc/dnscrypt-proxy/dnscrypt-proxy.toml; then
