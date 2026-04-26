@@ -673,17 +673,18 @@ install_package bind-utils
 install_package bind9-dnsutils
 install_package bind920
 install_package curl
+install_package gzip
 install_package iptables
 install_package jq
 install_package nftables
-install_package unzip
+install_package tar
 install_package wget
 install_package wget-ssl
 
 if ! command -v dig &> /dev/null \
   || ! command -v curl &> /dev/null \
   || ! command -v jq &> /dev/null \
-  || ! command -v unzip &> /dev/null \
+  || ! command -v tar &> /dev/null \
   || ! command -v wget &> /dev/null; then
   throw_system_is_too_old
 fi
@@ -867,15 +868,15 @@ else
 fi
 
 sudo rm -rf /tmp/zapret &> "${log_redirects}"
-sudo rm -rf /tmp/zapret.zip &> "${log_redirects}"
+sudo rm -rf /tmp/zapret.tar.gz &> "${log_redirects}"
 
-sudo wget -O /tmp/zapret.zip https://github.com/bol-van/zapret/releases/download/v"${zapret_version}"/zapret-v"${zapret_version}".zip &> "${log_redirects}"
+sudo wget -O /tmp/zapret.tar.gz https://github.com/bol-van/zapret/releases/download/v"${zapret_version}"/zapret-v"${zapret_version}".tar.gz &> "${log_redirects}"
 
-sudo unzip -d /tmp /tmp/zapret.zip &> "${log_redirects}"
+sudo tar -xzf /tmp/zapret.tar.gz -C /tmp &> "${log_redirects}"
 
 sudo mv /tmp/zapret-v"${zapret_version}" /tmp/zapret &> "${log_redirects}"
 
-sudo rm -rf /tmp/zapret.zip &> "${log_redirects}"
+sudo rm -rf /tmp/zapret.tar.gz &> "${log_redirects}"
 
 # 4. Prepare for installation
 
