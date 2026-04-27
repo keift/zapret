@@ -956,7 +956,7 @@ if echo "${blockcheck_results}" | grep -iq "nftables queue support is not availa
   throw_system_is_too_old
 fi
 
-if ! echo "${nfqws_options}" | grep -iq "\-\-"; then
+if ! echo "${nfqws_options}" | grep -iq -- "--"; then
   printf "Y\n\n" | sudo /opt/zapret/uninstall_easy.sh &> "${log_redirects}"
   sudo rm -rf /opt/zapret &> "${log_redirects}"
   sudo rm -rf /tmp/zapret &> "${log_redirects}"
