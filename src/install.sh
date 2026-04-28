@@ -1,7 +1,5 @@
 #!/bin/bash
 
-sudo -v
-
 dev=false
 debug=false
 
@@ -54,7 +52,7 @@ send_metrics() {
     echo -ne "  ${gray}This helps us improve this tool. [${green}Y${gray}/${red}N${gray}] ${reset}"
   fi
 
-  if [ -t 0 ]; then
+  if test -t 0; then
     read metrics_answer
   else
     read metrics_answer < /dev/tty
@@ -162,13 +160,13 @@ detect_system() {
   elif command -v launchctl &> /dev/null; then
     init_system="launchd"
   # Entware
-  elif sudo test -d /opt/etc/init.d; then
+  elif test -d /opt/etc/init.d; then
     init_system="entware"
   # SysVinit
-  elif command -v service &> /dev/null || sudo test -x /usr/sbin/service || sudo test -x /sbin/service || sudo test -d /etc/init.d; then
+  elif command -v service &> /dev/null || test -x /usr/sbin/service || test -x /sbin/service || test -d /etc/init.d; then
     init_system="sysvinit"
   # Rc
-  elif sudo test -d /etc/rc.d; then
+  elif test -d /etc/rc.d; then
     init_system="rc"
   else
     init_system="unknown"
@@ -208,47 +206,47 @@ start_service() {
 
   # Systemd
   if [ "${init_system}" = "systemd" ]; then
-    sudo systemctl start "${service_name}" &> "${log_redirects}"
+    systemctl start "${service_name}" &> "${log_redirects}"
   # Dinit
   elif [ "${init_system}" = "dinit" ]; then
-    sudo dinitctl start "${service_name}" &> "${log_redirects}"
+    dinitctl start "${service_name}" &> "${log_redirects}"
   # Runit
   elif [ "${init_system}" = "runit" ]; then
-    sudo sv start "${service_name}" &> "${log_redirects}"
+    sv start "${service_name}" &> "${log_redirects}"
   # S6
   elif [ "${init_system}" = "s6" ]; then
     if command -v s6-rc &> /dev/null; then
-      sudo s6-rc -u change "${service_name}" &> "${log_redirects}"
+      s6-rc -u change "${service_name}" &> "${log_redirects}"
     else
-      if sudo test -d /etc/s6-servicedirs; then
+      if test -d /etc/s6-servicedirs; then
         local s6_service_dir="/etc/s6-servicedirs"
-      elif sudo test -d /etc/s6/sv; then
+      elif test -d /etc/s6/sv; then
         local s6_service_dir="/etc/s6/sv"
       fi
 
-      sudo s6-svc -u "${s6_service_dir}"/"${service_name}" &> "${log_redirects}"
+      s6-svc -u "${s6_service_dir}"/"${service_name}" &> "${log_redirects}"
     fi
   # OpenRC
   elif [ "${init_system}" = "openrc" ]; then
-    sudo rc-service "${service_name}" start &> "${log_redirects}"
+    rc-service "${service_name}" start &> "${log_redirects}"
   # Launchd
   elif [ "${init_system}" = "launchd" ]; then
-    sudo launchctl start "${service_name}" &> "${log_redirects}"
+    launchctl start "${service_name}" &> "${log_redirects}"
   # Entware
   elif [ "${init_system}" = "entware" ]; then
     local entware_script=$(ls /opt/etc/init.d/*"${service_name}" 2> /dev/null | head -n 1)
 
-    sudo "${entware_script}" start &> "${log_redirects}"
+    "${entware_script}" start &> "${log_redirects}"
   # SysVinit
   elif [ "${init_system}" = "sysvinit" ]; then
-    if command -v service &> /dev/null || sudo test -x /usr/sbin/service || sudo test -x /sbin/service; then
-      sudo service "${service_name}" start &> "${log_redirects}"
+    if command -v service &> /dev/null || test -x /usr/sbin/service || test -x /sbin/service; then
+      service "${service_name}" start &> "${log_redirects}"
     else
-      sudo /etc/init.d/"${service_name}" start &> "${log_redirects}"
+      /etc/init.d/"${service_name}" start &> "${log_redirects}"
     fi
   # Rc
   elif [ "${init_system}" = "rc" ]; then
-    sudo /etc/rc.d/rc."${service_name}" start &> "${log_redirects}"
+    /etc/rc.d/rc."${service_name}" start &> "${log_redirects}"
   else
     print_head
 
@@ -275,49 +273,49 @@ restart_service() {
 
   # Systemd
   if [ "${init_system}" = "systemd" ]; then
-    sudo systemctl restart "${service_name}" &> "${log_redirects}"
+    systemctl restart "${service_name}" &> "${log_redirects}"
   # Dinit
   elif [ "${init_system}" = "dinit" ]; then
-    sudo dinitctl restart "${service_name}" &> "${log_redirects}"
+    dinitctl restart "${service_name}" &> "${log_redirects}"
   # Runit
   elif [ "${init_system}" = "runit" ]; then
-    sudo sv restart "${service_name}" &> "${log_redirects}"
+    sv restart "${service_name}" &> "${log_redirects}"
   # S6
   elif [ "${init_system}" = "s6" ]; then
     if command -v s6-rc &> /dev/null; then
-      sudo s6-rc -d change "${service_name}" &> "${log_redirects}"
-      sudo s6-rc -u change "${service_name}" &> "${log_redirects}"
+      s6-rc -d change "${service_name}" &> "${log_redirects}"
+      s6-rc -u change "${service_name}" &> "${log_redirects}"
     else
-      if sudo test -d /etc/s6-servicedirs; then
+      if test -d /etc/s6-servicedirs; then
         local s6_service_dir="/etc/s6-servicedirs"
-      elif sudo test -d /etc/s6/sv; then
+      elif test -d /etc/s6/sv; then
         local s6_service_dir="/etc/s6/sv"
       fi
 
-      sudo s6-svc -r "${s6_service_dir}"/"${service_name}" &> "${log_redirects}"
+      s6-svc -r "${s6_service_dir}"/"${service_name}" &> "${log_redirects}"
     fi
   # OpenRC
   elif [ "${init_system}" = "openrc" ]; then
-    sudo rc-service "${service_name}" restart &> "${log_redirects}"
+    rc-service "${service_name}" restart &> "${log_redirects}"
   # Launchd
   elif [ "${init_system}" = "launchd" ]; then
-    sudo launchctl stop "${service_name}" &> "${log_redirects}"
-    sudo launchctl start "${service_name}" &> "${log_redirects}"
+    launchctl stop "${service_name}" &> "${log_redirects}"
+    launchctl start "${service_name}" &> "${log_redirects}"
   # Entware
   elif [ "${init_system}" = "entware" ]; then
     local entware_script=$(ls /opt/etc/init.d/*"${service_name}" 2> /dev/null | head -n 1)
 
-    sudo "${entware_script}" restart &> "${log_redirects}"
+    "${entware_script}" restart &> "${log_redirects}"
   # SysVinit
   elif [ "${init_system}" = "sysvinit" ]; then
-    if command -v service &> /dev/null || sudo test -x /usr/sbin/service || sudo test -x /sbin/service; then
-      sudo service "${service_name}" restart &> "${log_redirects}"
+    if command -v service &> /dev/null || test -x /usr/sbin/service || test -x /sbin/service; then
+      service "${service_name}" restart &> "${log_redirects}"
     else
-      sudo /etc/init.d/"${service_name}" restart &> "${log_redirects}"
+      /etc/init.d/"${service_name}" restart &> "${log_redirects}"
     fi
   # Rc
   elif [ "${init_system}" = "rc" ]; then
-    sudo /etc/rc.d/rc."${service_name}" restart &> "${log_redirects}"
+    /etc/rc.d/rc."${service_name}" restart &> "${log_redirects}"
   else
     print_head
 
@@ -344,46 +342,46 @@ enable_service() {
 
   # Systemd
   if [ "${init_system}" = "systemd" ]; then
-    sudo systemctl enable "${service_name}" &> "${log_redirects}"
+    systemctl enable "${service_name}" &> "${log_redirects}"
   # Dinit
   elif [ "${init_system}" = "dinit" ]; then
-    sudo dinitctl enable "${service_name}" &> "${log_redirects}"
+    dinitctl enable "${service_name}" &> "${log_redirects}"
   # Runit
   elif [ "${init_system}" = "runit" ]; then
-    if sudo test -d /etc/sv; then
+    if test -d /etc/sv; then
       local runit_sv_dir="/etc/sv"
-    elif sudo test -d /etc/runit/sv; then
+    elif test -d /etc/runit/sv; then
       local runit_sv_dir="/etc/runit/sv"
     fi
 
-    if sudo test -d /var/service; then
+    if test -d /var/service; then
       local runit_service_dir="/var/service"
-    elif sudo test -d /run/runit/service; then
+    elif test -d /run/runit/service; then
       local runit_service_dir="/run/runit/service"
-    elif sudo test -d /service; then
+    elif test -d /service; then
       local runit_service_dir="/service"
     fi
 
-    sudo test -d "${runit_sv_dir}"/"${service_name}" && sudo ln -sf "${runit_sv_dir}"/"${service_name}" "${runit_service_dir}" &> "${log_redirects}"
+    test -d "${runit_sv_dir}"/"${service_name}" && ln -sf "${runit_sv_dir}"/"${service_name}" "${runit_service_dir}" &> "${log_redirects}"
   # S6
   elif [ "${init_system}" = "s6" ]; then
     :
   # OpenRC
   elif [ "${init_system}" = "openrc" ]; then
-    sudo rc-update add "${service_name}" default &> "${log_redirects}"
+    rc-update add "${service_name}" default &> "${log_redirects}"
   # Launchd
   elif [ "${init_system}" = "launchd" ]; then
-    sudo launchctl load -w /Library/LaunchDaemons/"${service_name}".plist &> "${log_redirects}"
+    launchctl load -w /Library/LaunchDaemons/"${service_name}".plist &> "${log_redirects}"
   # Entware
   elif [ "${init_system}" = "entware" ]; then
     :
   # SysVinit
   elif [ "${init_system}" = "sysvinit" ]; then
-    if command -v service &> /dev/null || sudo test -x /usr/sbin/service || sudo test -x /sbin/service; then
-      if command -v update-rc.d &> /dev/null || sudo test -x /usr/sbin/update-rc.d || sudo test -x /sbin/update-rc.d; then
-        sudo update-rc.d "${service_name}" defaults &> "${log_redirects}"
-      elif command -v chkconfig &> /dev/null || sudo test -x /usr/sbin/chkconfig || sudo test -x /sbin/chkconfig; then
-        sudo chkconfig "${service_name}" on &> "${log_redirects}"
+    if command -v service &> /dev/null || test -x /usr/sbin/service || test -x /sbin/service; then
+      if command -v update-rc.d &> /dev/null || test -x /usr/sbin/update-rc.d || test -x /sbin/update-rc.d; then
+        update-rc.d "${service_name}" defaults &> "${log_redirects}"
+      elif command -v chkconfig &> /dev/null || test -x /usr/sbin/chkconfig || test -x /sbin/chkconfig; then
+        chkconfig "${service_name}" on &> "${log_redirects}"
       fi
     else
       :
@@ -416,27 +414,27 @@ install_package() {
   local package_name="${1}"
 
   if [ "${package_manager}" = "apt" ]; then
-    sudo apt install -y "${package_name}" &> "${log_redirects}"
+    apt install -y "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "rpm-ostree" ]; then
-    sudo rpm-ostree install --apply-live "${package_name}" &> "${log_redirects}"
+    rpm-ostree install --apply-live "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "dnf" ]; then
-    sudo dnf install -y "${package_name}" &> "${log_redirects}"
+    dnf install -y "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "pacman" ]; then
-    sudo pacman -S --noconfirm "${package_name}" &> "${log_redirects}"
+    pacman -S --noconfirm "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "zypper" ]; then
-    sudo zypper -n install "${package_name}" &> "${log_redirects}"
+    zypper -n install "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "xbps" ]; then
-    sudo xbps-install -y "${package_name}" &> "${log_redirects}"
+    xbps-install -y "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "apk" ]; then
-    sudo apk add "${package_name}" &> "${log_redirects}"
+    apk add "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "emerge" ]; then
-    sudo emerge "${package_name}" &> "${log_redirects}"
+    emerge "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "slackpkg" ]; then
-    sudo slackpkg -batch=on -default_answer=y install "${package_name}" &> "${log_redirects}"
+    slackpkg -batch=on -default_answer=y install "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "eopkg" ]; then
-    sudo eopkg install -y "${package_name}" &> "${log_redirects}"
+    eopkg install -y "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "opkg" ]; then
-    sudo opkg install "${package_name}" &> "${log_redirects}"
+    opkg install "${package_name}" &> "${log_redirects}"
   else
     print_head
 
@@ -462,27 +460,27 @@ remove_package() {
   local package_name="${1}"
 
   if [ "${package_manager}" = "apt" ]; then
-    sudo apt purge -y --autoremove "${package_name}" &> "${log_redirects}"
+    apt purge -y --autoremove "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "rpm-ostree" ]; then
-    sudo rpm-ostree uninstall --apply-live "${package_name}" &> "${log_redirects}"
+    rpm-ostree uninstall --apply-live "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "dnf" ]; then
-    sudo dnf remove -y "${package_name}" &> "${log_redirects}"
+    dnf remove -y "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "pacman" ]; then
-    sudo pacman -Rns --noconfirm "${package_name}" &> "${log_redirects}"
+    pacman -Rns --noconfirm "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "zypper" ]; then
-    sudo zypper -n remove -u "${package_name}" &> "${log_redirects}"
+    zypper -n remove -u "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "xbps" ]; then
-    sudo xbps-remove -Ry "${package_name}" &> "${log_redirects}"
+    xbps-remove -Ry "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "apk" ]; then
-    sudo apk del "${package_name}" &> "${log_redirects}"
+    apk del "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "emerge" ]; then
-    sudo emerge --unmerge "${package_name}" &> "${log_redirects}"
+    emerge --unmerge "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "slackpkg" ]; then
-    sudo slackpkg -batch=on -default_answer=y remove "${package_name}" &> "${log_redirects}"
+    slackpkg -batch=on -default_answer=y remove "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "eopkg" ]; then
-    sudo eopkg remove -y --purge "${package_name}" &> "${log_redirects}"
+    eopkg remove -y --purge "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "opkg" ]; then
-    sudo opkg remove --autoremove "${package_name}" &> "${log_redirects}"
+    opkg remove --autoremove "${package_name}" &> "${log_redirects}"
   else
     print_head
 
@@ -511,7 +509,7 @@ init_zapret() {
     :
   # Dinit
   elif [ "${init_system}" = "dinit" ]; then
-    sudo tee /etc/dinit.d/zapret &> /dev/null << EOF
+    tee /etc/dinit.d/zapret &> /dev/null << EOF
 type = scripted
 command = /opt/zapret/init.d/sysv/zapret start
 stop-command = /opt/zapret/init.d/sysv/zapret stop
@@ -519,22 +517,22 @@ restart = false
 EOF
   # Runit
   elif [ "${init_system}" = "runit" ]; then
-    if sudo test -d /etc/sv; then
+    if test -d /etc/sv; then
       local runit_sv_dir="/etc/sv"
-    elif sudo test -d /etc/runit/sv; then
+    elif test -d /etc/runit/sv; then
       local runit_sv_dir="/etc/runit/sv"
     fi
 
-    sudo test -d /opt/zapret/init.d/runit/zapret && sudo ln -sf /opt/zapret/init.d/runit/zapret "${runit_sv_dir}"/zapret &> "${log_redirects}"
+    test -d /opt/zapret/init.d/runit/zapret && ln -sf /opt/zapret/init.d/runit/zapret "${runit_sv_dir}"/zapret &> "${log_redirects}"
   # S6
   elif [ "${init_system}" = "s6" ]; then
-    if sudo test -d /etc/s6-servicedirs; then
+    if test -d /etc/s6-servicedirs; then
       local s6_service_dir="/etc/s6-servicedirs"
-    elif sudo test -d /etc/s6/sv; then
+    elif test -d /etc/s6/sv; then
       local s6_service_dir="/etc/s6/sv"
     fi
 
-    sudo test -d /opt/zapret/init.d/s6/zapret && sudo ln -sf /opt/zapret/init.d/s6/zapret "${s6_service_dir}"/zapret &> "${log_redirects}"
+    test -d /opt/zapret/init.d/s6/zapret && ln -sf /opt/zapret/init.d/s6/zapret "${s6_service_dir}"/zapret &> "${log_redirects}"
   # OpenRC
   elif [ "${init_system}" = "openrc" ]; then
     # Being set up by Zapret.
@@ -545,7 +543,7 @@ EOF
     :
   # Entware
   elif [ "${init_system}" = "entware" ]; then
-    sudo tee /opt/etc/init.d/S90zapret &> /dev/null << 'EOF'
+    tee /opt/etc/init.d/S90zapret &> /dev/null << 'EOF'
 #!/bin/sh
 
 if [ "${1}" = "start" ]; then
@@ -562,13 +560,13 @@ else
 fi
 EOF
 
-    sudo chmod +x /opt/etc/init.d/S90zapret
+    chmod +x /opt/etc/init.d/S90zapret
   # SysVinit
   elif [ "${init_system}" = "sysvinit" ]; then
-    sudo test -f /opt/zapret/init.d/sysv/zapret && sudo ln -sf /opt/zapret/init.d/sysv/zapret /etc/init.d/zapret &> "${log_redirects}"
+    test -f /opt/zapret/init.d/sysv/zapret && ln -sf /opt/zapret/init.d/sysv/zapret /etc/init.d/zapret &> "${log_redirects}"
   # Rc
   elif [ "${init_system}" = "rc" ]; then
-    sudo test -f /opt/zapret/init.d/sysv/zapret && sudo ln -sf /opt/zapret/init.d/sysv/zapret /etc/rc.d/rc.zapret &> "${log_redirects}"
+    test -f /opt/zapret/init.d/sysv/zapret && ln -sf /opt/zapret/init.d/sysv/zapret /etc/rc.d/rc.zapret &> "${log_redirects}"
   fi
 }
 
@@ -588,31 +586,31 @@ print_head() {
 
 print_update_commands() {
   if [ "${package_manager}" = "apt" ]; then
-    echo -e "  ${yellow}sudo ${green}apt ${cyan}update${reset}"
-    echo -e "  ${yellow}sudo ${green}apt ${cyan}upgrade ${white}-${cyan}y${reset}"
+    echo -e "  ${yellow}sudo ${cyan}apt ${cyan}update${reset}"
+    echo -e "  ${yellow}sudo ${cyan}apt ${cyan}upgrade ${white}-${yellow}y${reset}"
   elif [ "${package_manager}" = "rpm-ostree" ]; then
-    echo -e "  ${yellow}sudo ${green}rpm-ostree ${cyan}upgrade${reset}"
+    echo -e "  ${yellow}sudo ${cyan}rpm-ostree ${cyan}upgrade${reset}"
   elif [ "${package_manager}" = "dnf" ]; then
-    echo -e "  ${yellow}sudo ${green}dnf ${cyan}upgrade ${white}-${cyan}y${reset}"
+    echo -e "  ${yellow}sudo ${cyan}dnf ${cyan}upgrade ${white}-${yellow}y${reset}"
   elif [ "${package_manager}" = "pacman" ]; then
-    echo -e "  ${yellow}sudo ${green}pacman ${white}-${cyan}Syu ${white}--${cyan}noconfirm${reset}"
+    echo -e "  ${yellow}sudo ${cyan}pacman ${white}-${yellow}Syu ${white}--${cyan}noconfirm${reset}"
   elif [ "${package_manager}" = "zypper" ]; then
-    echo -e "  ${yellow}sudo ${green}zypper ${white}-${cyan}n ${cyan}update${reset}"
+    echo -e "  ${yellow}sudo ${cyan}zypper ${white}-${yellow}n ${cyan}update${reset}"
   elif [ "${package_manager}" = "xbps" ]; then
-    echo -e "  ${yellow}sudo ${green}xbps-install ${white}-${cyan}Suy${reset}"
+    echo -e "  ${yellow}sudo ${cyan}xbps-install ${white}-${yellow}Suy${reset}"
   elif [ "${package_manager}" = "apk" ]; then
-    echo -e "  ${yellow}sudo ${green}apk ${cyan}upgrade ${white}-${cyan}U${reset}"
+    echo -e "  ${yellow}sudo ${cyan}apk ${cyan}upgrade ${white}-${yellow}U${reset}"
   elif [ "${package_manager}" = "emerge" ]; then
-    echo -e "  ${yellow}sudo ${green}emerge ${white}--${cyan}sync${reset}"
-    echo -e "  ${yellow}sudo ${green}emerge ${white}-${cyan}uDNq ${cyan}@world${reset}"
+    echo -e "  ${yellow}sudo ${cyan}emerge ${white}--${cyan}sync${reset}"
+    echo -e "  ${yellow}sudo ${cyan}emerge ${white}-${yellow}uDNq ${cyan}@world${reset}"
   elif [ "${package_manager}" = "slackpkg" ]; then
-    echo -e "  ${yellow}sudo ${green}slackpkg ${white}-${cyan}batch=on ${white}-${cyan}default_answer=y ${cyan}update${reset}"
-    echo -e "  ${yellow}sudo ${green}slackpkg ${white}-${cyan}batch=on ${white}-${cyan}default_answer=y ${cyan}upgrade-all${reset}"
+    echo -e "  ${yellow}sudo ${cyan}slackpkg ${white}-${yellow}batch=on ${white}-${yellow}default_answer=y ${cyan}update${reset}"
+    echo -e "  ${yellow}sudo ${cyan}slackpkg ${white}-${yellow}batch=on ${white}-${yellow}default_answer=y ${cyan}upgrade-all${reset}"
   elif [ "${package_manager}" = "eopkg" ]; then
-    echo -e "  ${yellow}sudo ${green}eopkg ${cyan}upgrade ${white}-${cyan}y${reset}"
+    echo -e "  ${yellow}sudo ${cyan}eopkg ${cyan}upgrade ${white}-${yellow}y${reset}"
   elif [ "${package_manager}" = "opkg" ]; then
-    echo -e "  ${yellow}sudo ${green}opkg ${cyan}update${reset}"
-    echo -e "  ${yellow}sudo ${green}opkg ${cyan}upgrade${reset}"
+    echo -e "  ${yellow}sudo ${cyan}opkg ${cyan}update${reset}"
+    echo -e "  ${yellow}sudo ${cyan}opkg ${cyan}upgrade${reset}"
   fi
 }
 
@@ -652,6 +650,27 @@ if [ "$(uname)" != "Linux" ]; then
   else
     echo -e "  ${red}Unsupported system.${reset}"
   fi
+  echo ""
+
+  exit 1
+fi
+
+if [ "${EUID}" -ne 0 ]; then
+  print_head
+
+  if [ "${country_code}" = "RU" ]; then
+    echo -e "  ${red}Пожалуйста, запустите этот инструмент от имени администратора с помощью следующей команды.${reset}"
+  elif [ "${country_code}" = "TR" ]; then
+    echo -e "  ${red}Lütfen bu aracı aşağıdaki komut ile yönetici olarak çalıştırın.${reset}"
+  else
+    echo -e "  ${red}Please run this tool as an administrator using the command below.${reset}"
+  fi
+
+  echo ""
+
+  echo -e "  ${yellow}${green}curl ${white}-${yellow}fsSL ${cyan}https://raw.github.com/keift/zapret/refs/heads/main/src/install.sh ${gray}| ${green}sudo ${cyan}bash${reset}"
+  echo "                                                                                  ^^^^"
+
   echo ""
 
   exit 1
@@ -735,18 +754,18 @@ if [ "${init_system}" = "systemd" ]; then
   )
 
   for path in "${dnscrypt_paths[@]}"; do
-    if sudo test -f "${path}"; then
+    if test -f "${path}"; then
       dnscrypt_path="${path}"
 
       break
     fi
   done
 
-  if [ -z "${dnscrypt_path}" ]; then
-    if sudo test -f "/usr/share/defaults/dnscrypt-proxy/dnscrypt-proxy.toml"; then
-      sudo mkdir -p /etc/dnscrypt-proxy &> "${log_redirects}"
+  if test -z "${dnscrypt_path}"; then
+    if test -f "/usr/share/defaults/dnscrypt-proxy/dnscrypt-proxy.toml"; then
+      mkdir -p /etc/dnscrypt-proxy &> "${log_redirects}"
 
-      sudo cp /usr/share/defaults/dnscrypt-proxy/dnscrypt-proxy.toml /etc/dnscrypt-proxy &> "${log_redirects}"
+      cp /usr/share/defaults/dnscrypt-proxy/dnscrypt-proxy.toml /etc/dnscrypt-proxy &> "${log_redirects}"
 
       dnscrypt_path="/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
     else
@@ -754,15 +773,15 @@ if [ "${init_system}" = "systemd" ]; then
     fi
   fi
 
-  sudo tee /etc/systemd/resolved.conf &> /dev/null <<< ""
+  tee /etc/systemd/resolved.conf &> /dev/null <<< ""
 
-  sudo chattr -i /etc/resolv.conf &> "${log_redirects}"
+  chattr -i /etc/resolv.conf &> "${log_redirects}"
 
-  sudo test -f /run/systemd/resolve/stub-resolv.conf && sudo ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf &> "${log_redirects}"
+  test -f /run/systemd/resolve/stub-resolv.conf && ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf &> "${log_redirects}"
 
   restart_service systemd-resolved
 
-  sudo tee "${dnscrypt_path}" &> /dev/null << EOF
+  tee "${dnscrypt_path}" &> /dev/null << EOF
 listen_addresses = ["127.0.0.1:5300", "[::1]:5300"]
 
 [sources."public-resolvers"]
@@ -781,7 +800,7 @@ EOF
     sleep 10
   done
 
-  sudo tee /etc/systemd/resolved.conf &> /dev/null << EOF
+  tee /etc/systemd/resolved.conf &> /dev/null << EOF
 [Resolve]
 DNS=127.0.0.1:5300
 DNS=[::1]:5300
@@ -790,9 +809,9 @@ Domains=~.
 DNSOverTLS=no
 EOF
 
-  sudo chattr -i /etc/resolv.conf &> "${log_redirects}"
+  chattr -i /etc/resolv.conf &> "${log_redirects}"
 
-  sudo test -f /run/systemd/resolve/stub-resolv.conf && sudo ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf &> "${log_redirects}"
+  test -f /run/systemd/resolve/stub-resolv.conf && ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf &> "${log_redirects}"
 
   restart_service systemd-resolved
 else
@@ -826,18 +845,18 @@ else
   )
 
   for path in "${dnscrypt_paths[@]}"; do
-    if sudo test -f "${path}"; then
+    if test -f "${path}"; then
       dnscrypt_path="${path}"
 
       break
     fi
   done
 
-  if [ -z "${dnscrypt_path}" ]; then
-    if sudo test -f "/usr/share/defaults/dnscrypt-proxy/dnscrypt-proxy.toml"; then
-      sudo mkdir -p /etc/dnscrypt-proxy &> "${log_redirects}"
+  if test -z "${dnscrypt_path}"; then
+    if test -f "/usr/share/defaults/dnscrypt-proxy/dnscrypt-proxy.toml"; then
+      mkdir -p /etc/dnscrypt-proxy &> "${log_redirects}"
 
-      sudo cp /usr/share/defaults/dnscrypt-proxy/dnscrypt-proxy.toml /etc/dnscrypt-proxy &> "${log_redirects}"
+      cp /usr/share/defaults/dnscrypt-proxy/dnscrypt-proxy.toml /etc/dnscrypt-proxy &> "${log_redirects}"
 
       dnscrypt_path="/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
     else
@@ -845,16 +864,16 @@ else
     fi
   fi
 
-  sudo chattr -i /etc/resolv.conf &> "${log_redirects}"
+  chattr -i /etc/resolv.conf &> "${log_redirects}"
 
-  sudo tee /etc/resolv.conf &> /dev/null << EOF
+  tee /etc/resolv.conf &> /dev/null << EOF
 nameserver 1.1.1.1
 nameserver 2606:4700:4700::1111
 nameserver 1.0.0.1
 nameserver 2606:4700:4700::1001
 EOF
 
-  sudo tee "${dnscrypt_path}" &> /dev/null << EOF
+  tee "${dnscrypt_path}" &> /dev/null << EOF
 listen_addresses = ["127.0.0.1:53", "[::1]:53"]
 
 [sources."public-resolvers"]
@@ -873,14 +892,14 @@ EOF
     sleep 10
   done
 
-  sudo chattr -i /etc/resolv.conf &> "${log_redirects}"
+  chattr -i /etc/resolv.conf &> "${log_redirects}"
 
-  sudo tee /etc/resolv.conf &> /dev/null << EOF
+  tee /etc/resolv.conf &> /dev/null << EOF
 nameserver 127.0.0.1
 nameserver ::1
 EOF
 
-  sudo chattr +i /etc/resolv.conf &> "${log_redirects}"
+  chattr +i /etc/resolv.conf &> "${log_redirects}"
 fi
 
 # 3. Download Zapret
@@ -893,16 +912,16 @@ else
   echo -e "  ${gray}Downloading Zapret...${reset}"
 fi
 
-sudo rm -rf /tmp/zapret &> "${log_redirects}"
-sudo rm -rf /tmp/zapret.tar.gz &> "${log_redirects}"
+rm -rf /tmp/zapret &> "${log_redirects}"
+rm -rf /tmp/zapret.tar.gz &> "${log_redirects}"
 
-sudo wget -O /tmp/zapret.tar.gz https://github.com/bol-van/zapret/releases/download/v"${zapret_version}"/zapret-v"${zapret_version}".tar.gz &> "${log_redirects}"
+wget -O /tmp/zapret.tar.gz https://github.com/bol-van/zapret/releases/download/v"${zapret_version}"/zapret-v"${zapret_version}".tar.gz &> "${log_redirects}"
 
-sudo tar -xzf /tmp/zapret.tar.gz -C /tmp &> "${log_redirects}"
+tar -xzf /tmp/zapret.tar.gz -C /tmp &> "${log_redirects}"
 
-sudo mv /tmp/zapret-v"${zapret_version}" /tmp/zapret &> "${log_redirects}"
+mv /tmp/zapret-v"${zapret_version}" /tmp/zapret &> "${log_redirects}"
 
-sudo rm -rf /tmp/zapret.tar.gz &> "${log_redirects}"
+rm -rf /tmp/zapret.tar.gz &> "${log_redirects}"
 
 # 4. Prepare for installation
 
@@ -914,11 +933,11 @@ else
   echo -e "  ${gray}Preparing for installation...${reset}"
 fi
 
-printf "Y\n\n" | sudo /opt/zapret/uninstall_easy.sh &> "${log_redirects}"
-sudo rm -rf /opt/zapret &> "${log_redirects}"
+printf "Y\n\n" | /opt/zapret/uninstall_easy.sh &> "${log_redirects}"
+rm -rf /opt/zapret &> "${log_redirects}"
 
-printf "\n\n" | sudo /tmp/zapret/install_prereq.sh &> "${log_redirects}"
-sudo /tmp/zapret/install_bin.sh &> "${log_redirects}"
+printf "\n\n" | /tmp/zapret/install_prereq.sh &> "${log_redirects}"
+/tmp/zapret/install_bin.sh &> "${log_redirects}"
 
 # 5. Do Blockcheck
 
@@ -967,7 +986,7 @@ done
 if [ "${dev}" = true ]; then
   nfqws_options="--dpi-desync=fakeddisorder --dpi-desync-ttl=1 --dpi-desync-autottl=-5 --dpi-desync-split-pos=1"
 else
-  blockcheck_results=$(printf "${blockcheck_domain}\n\n\n\n\n\n\n\n" | sudo /tmp/zapret/blockcheck.sh 2> "${log_redirects}")
+  blockcheck_results=$(printf "${blockcheck_domain}\n\n\n\n\n\n\n\n" | /tmp/zapret/blockcheck.sh 2> "${log_redirects}")
 
   [ "${debug}" = true ] && echo "${blockcheck_results}"
 
@@ -975,17 +994,17 @@ else
 fi
 
 if echo "${blockcheck_results}" | grep -iq "nftables queue support is not available"; then
-  printf "Y\n\n" | sudo /opt/zapret/uninstall_easy.sh &> "${log_redirects}"
-  sudo rm -rf /opt/zapret &> "${log_redirects}"
-  sudo rm -rf /tmp/zapret &> "${log_redirects}"
+  printf "Y\n\n" | /opt/zapret/uninstall_easy.sh &> "${log_redirects}"
+  rm -rf /opt/zapret &> "${log_redirects}"
+  rm -rf /tmp/zapret &> "${log_redirects}"
 
   throw_system_is_too_old
 fi
 
 if ! echo "${nfqws_options}" | grep -iq -- "--"; then
-  printf "Y\n\n" | sudo /opt/zapret/uninstall_easy.sh &> "${log_redirects}"
-  sudo rm -rf /opt/zapret &> "${log_redirects}"
-  sudo rm -rf /tmp/zapret &> "${log_redirects}"
+  printf "Y\n\n" | /opt/zapret/uninstall_easy.sh &> "${log_redirects}"
+  rm -rf /opt/zapret &> "${log_redirects}"
+  rm -rf /tmp/zapret &> "${log_redirects}"
 
   if [ "${country_code}" = "RU" ]; then
     echo -e "  ${gray}Ограничений доступа не обнаружено.${reset}"
@@ -1014,30 +1033,30 @@ else
   echo -e "  ${gray}Installing Zapret...${reset}"
 fi
 
-prototype_installation_results=$(printf "\n\n" | sudo /tmp/zapret/install_easy.sh 2> "${log_redirects}")
+prototype_installation_results=$(printf "\n\n" | /tmp/zapret/install_easy.sh 2> "${log_redirects}")
 
 if echo "${prototype_installation_results}" | grep -iq "system is not either systemd"; then
-  prototype_installation_results=$(printf "Y\n\n\n" | sudo /tmp/zapret/install_easy.sh 2> "${log_redirects}")
+  prototype_installation_results=$(printf "Y\n\n\n" | /tmp/zapret/install_easy.sh 2> "${log_redirects}")
 
   if echo "${prototype_installation_results}" | grep -iq "readonly system detected"; then
-    installation_results=$(printf "Y\nY\nY\nY\nY\n\n\n\n\n\n\nY\n\n\n\n\n" | sudo /tmp/zapret/install_easy.sh 2> "${log_redirects}")
+    installation_results=$(printf "Y\nY\nY\nY\nY\n\n\n\n\n\n\nY\n\n\n\n\n" | /tmp/zapret/install_easy.sh 2> "${log_redirects}")
   else
-    installation_results=$(printf "Y\nY\nY\n\n\n\n\n\n\nY\n\n\n\n\n" | sudo /tmp/zapret/install_easy.sh 2> "${log_redirects}")
+    installation_results=$(printf "Y\nY\nY\n\n\n\n\n\n\nY\n\n\n\n\n" | /tmp/zapret/install_easy.sh 2> "${log_redirects}")
   fi
 else
   if echo "${prototype_installation_results}" | grep -iq "readonly system detected"; then
-    installation_results=$(printf "Y\nY\nY\n\n\n\n\n\n\nY\n\n\n\n\n" | sudo /tmp/zapret/install_easy.sh 2> "${log_redirects}")
+    installation_results=$(printf "Y\nY\nY\n\n\n\n\n\n\nY\n\n\n\n\n" | /tmp/zapret/install_easy.sh 2> "${log_redirects}")
   else
-    installation_results=$(printf "Y\n\n\n\n\n\n\nY\n\n\n\n\n" | sudo /tmp/zapret/install_easy.sh 2> "${log_redirects}")
+    installation_results=$(printf "Y\n\n\n\n\n\n\nY\n\n\n\n\n" | /tmp/zapret/install_easy.sh 2> "${log_redirects}")
   fi
 fi
 
 [ "${debug}" = true ] && echo "${installation_results}"
 
 if echo "${installation_results}" | grep -iq "readonly system detected"; then
-  printf "Y\n\n" | sudo /opt/zapret/uninstall_easy.sh &> "${log_redirects}"
-  sudo rm -rf /opt/zapret &> "${log_redirects}"
-  sudo rm -rf /tmp/zapret &> "${log_redirects}"
+  printf "Y\n\n" | /opt/zapret/uninstall_easy.sh &> "${log_redirects}"
+  rm -rf /opt/zapret &> "${log_redirects}"
+  rm -rf /tmp/zapret &> "${log_redirects}"
 
   print_head
 
@@ -1059,9 +1078,9 @@ if echo "${installation_results}" | grep -iq "readonly system detected"; then
 fi
 
 if echo "${installation_results}" | grep -iq "could not start zapret service"; then
-  printf "Y\n\n" | sudo /opt/zapret/uninstall_easy.sh &> "${log_redirects}"
-  sudo rm -rf /opt/zapret &> "${log_redirects}"
-  sudo rm -rf /tmp/zapret &> "${log_redirects}"
+  printf "Y\n\n" | /opt/zapret/uninstall_easy.sh &> "${log_redirects}"
+  rm -rf /opt/zapret &> "${log_redirects}"
+  rm -rf /tmp/zapret &> "${log_redirects}"
 
   print_head
 
@@ -1087,10 +1106,10 @@ echo "${installation_results}" | grep -iq "system is not either systemd" && init
 enable_service zapret
 start_service zapret
 
-sudo touch /opt/zapret/ipset/zapret-hosts-user.txt &> "${log_redirects}"
-sudo touch /opt/zapret/ipset/zapret-hosts-auto.txt &> "${log_redirects}"
+touch /opt/zapret/ipset/zapret-hosts-user.txt &> "${log_redirects}"
+touch /opt/zapret/ipset/zapret-hosts-auto.txt &> "${log_redirects}"
 
-sudo sed -i "/^NFQWS_OPT=\"/,/^\"/c NFQWS_OPT=\"${nfqws_options} --hostlist=/opt/zapret/ipset/zapret-hosts-user.txt --hostlist-auto=/opt/zapret/ipset/zapret-hosts-auto.txt\"" /opt/zapret/config
+sed -i "/^NFQWS_OPT=\"/,/^\"/c NFQWS_OPT=\"${nfqws_options} --hostlist=/opt/zapret/ipset/zapret-hosts-user.txt --hostlist-auto=/opt/zapret/ipset/zapret-hosts-auto.txt\"" /opt/zapret/config
 
 restart_service zapret
 
@@ -1110,7 +1129,7 @@ else
   echo -e "  ${gray}Zapret was successfully installed.${reset}"
 fi
 
-sudo rm -rf /tmp/zapret &> "${log_redirects}"
+rm -rf /tmp/zapret &> "${log_redirects}"
 
 echo ""
 
