@@ -721,24 +721,37 @@ if [ "${init_system}" = "systemd" ]; then
   start_service dnscrypt-proxy
   start_service dnscrypt-proxy2
 
-  if sudo test -f /etc/dnscrypt-proxy/dnscrypt-proxy.toml; then
-    dnscrypt_path="/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
-  elif sudo test -f /etc/dnscrypt-proxy.toml; then
-    dnscrypt_path="/etc/dnscrypt-proxy.toml"
-  elif sudo test -f /opt/dnscrypt-proxy/dnscrypt-proxy.toml; then
-    dnscrypt_path="/opt/dnscrypt-proxy/dnscrypt-proxy.toml"
-  elif sudo test -f /opt/etc/dnscrypt-proxy.toml; then
-    dnscrypt_path="/opt/etc/dnscrypt-proxy.toml"
-  elif sudo test -f /usr/local/etc/dnscrypt-proxy/dnscrypt-proxy.toml; then
-    dnscrypt_path="/usr/local/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
-  elif sudo test -f /usr/share/defaults/dnscrypt-proxy/dnscrypt-proxy.toml; then
-    sudo mkdir -p /etc/dnscrypt-proxy &> "${log_redirects}"
+  dnscrypt_paths=(
+    "/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
+    "/etc/dnscrypt-proxy.toml"
 
-    sudo cp /usr/share/defaults/dnscrypt-proxy/dnscrypt-proxy.toml /etc/dnscrypt-proxy &> "${log_redirects}"
+    "/usr/local/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
+    "/usr/local/etc/dnscrypt-proxy.toml"
 
-    dnscrypt_path="/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
-  else
-    throw_system_is_too_old
+    "/opt/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
+    "/opt/etc/dnscrypt-proxy.toml",
+
+    "/opt/dnscrypt-proxy/dnscrypt-proxy.toml"
+  )
+
+  for path in "${dnscrypt_paths[@]}"; do
+    if sudo test -f "${path}"; then
+      dnscrypt_path="${path}"
+
+      break
+    fi
+  done
+
+  if [ -z "${dnscrypt_path}" ]; then
+    if sudo test -f "/usr/share/defaults/dnscrypt-proxy/dnscrypt-proxy.toml"; then
+      sudo mkdir -p /etc/dnscrypt-proxy &> "${log_redirects}"
+
+      sudo cp /usr/share/defaults/dnscrypt-proxy/dnscrypt-proxy.toml /etc/dnscrypt-proxy &> "${log_redirects}"
+
+      dnscrypt_path="/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
+    else
+      throw_system_is_too_old
+    fi
   fi
 
   sudo tee /etc/systemd/resolved.conf &> /dev/null <<< ""
@@ -799,24 +812,37 @@ else
   start_service dnscrypt-proxy
   start_service dnscrypt-proxy2
 
-  if sudo test -f /etc/dnscrypt-proxy/dnscrypt-proxy.toml; then
-    dnscrypt_path="/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
-  elif sudo test -f /etc/dnscrypt-proxy.toml; then
-    dnscrypt_path="/etc/dnscrypt-proxy.toml"
-  elif sudo test -f /opt/dnscrypt-proxy/dnscrypt-proxy.toml; then
-    dnscrypt_path="/opt/dnscrypt-proxy/dnscrypt-proxy.toml"
-  elif sudo test -f /opt/etc/dnscrypt-proxy.toml; then
-    dnscrypt_path="/opt/etc/dnscrypt-proxy.toml"
-  elif sudo test -f /usr/local/etc/dnscrypt-proxy/dnscrypt-proxy.toml; then
-    dnscrypt_path="/usr/local/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
-  elif sudo test -f /usr/share/defaults/dnscrypt-proxy/dnscrypt-proxy.toml; then
-    sudo mkdir -p /etc/dnscrypt-proxy &> "${log_redirects}"
+  dnscrypt_paths=(
+    "/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
+    "/etc/dnscrypt-proxy.toml"
 
-    sudo cp /usr/share/defaults/dnscrypt-proxy/dnscrypt-proxy.toml /etc/dnscrypt-proxy &> "${log_redirects}"
+    "/usr/local/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
+    "/usr/local/etc/dnscrypt-proxy.toml"
 
-    dnscrypt_path="/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
-  else
-    throw_system_is_too_old
+    "/opt/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
+    "/opt/etc/dnscrypt-proxy.toml",
+
+    "/opt/dnscrypt-proxy/dnscrypt-proxy.toml"
+  )
+
+  for path in "${dnscrypt_paths[@]}"; do
+    if sudo test -f "${path}"; then
+      dnscrypt_path="${path}"
+
+      break
+    fi
+  done
+
+  if [ -z "${dnscrypt_path}" ]; then
+    if sudo test -f "/usr/share/defaults/dnscrypt-proxy/dnscrypt-proxy.toml"; then
+      sudo mkdir -p /etc/dnscrypt-proxy &> "${log_redirects}"
+
+      sudo cp /usr/share/defaults/dnscrypt-proxy/dnscrypt-proxy.toml /etc/dnscrypt-proxy &> "${log_redirects}"
+
+      dnscrypt_path="/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
+    else
+      throw_system_is_too_old
+    fi
   fi
 
   sudo chattr -i /etc/resolv.conf &> "${log_redirects}"
