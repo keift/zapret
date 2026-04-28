@@ -668,7 +668,7 @@ if [ "${EUID}" -ne 0 ]; then
 
   echo ""
 
-  echo -e "  ${yellow}${green}curl ${white}-${yellow}fsSL ${cyan}https://raw.github.com/keift/zapret/refs/heads/main/src/install.sh ${gray}| ${green}sudo ${cyan}bash${reset}"
+  echo -e "  ${yellow}${green}curl ${white}-${yellow}fsSL ${cyan}https://raw.github.com/keift/zapret/main/src/install.sh ${gray}| ${green}sudo ${cyan}bash${reset}"
   echo "                                                                                  ^^^^"
 
   echo ""
@@ -785,7 +785,7 @@ if [ "${init_system}" = "systemd" ]; then
 listen_addresses = ["127.0.0.1:5300", "[::1]:5300"]
 
 [sources."public-resolvers"]
-urls = ["https://raw.github.com/dnscrypt/dnscrypt-resolvers/refs/heads/master/v3/public-resolvers.md", "https://download.dnscrypt.info/resolvers-list/v3/public-resolvers.md"]
+urls = ["https://raw.github.com/dnscrypt/dnscrypt-resolvers/master/v3/public-resolvers.md", "https://download.dnscrypt.info/resolvers-list/v3/public-resolvers.md"]
 minisign_key = "RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3"
 cache_file = "public-resolvers.md"
 EOF
@@ -877,7 +877,7 @@ EOF
 listen_addresses = ["127.0.0.1:53", "[::1]:53"]
 
 [sources."public-resolvers"]
-urls = ["https://raw.github.com/dnscrypt/dnscrypt-resolvers/refs/heads/master/v3/public-resolvers.md", "https://download.dnscrypt.info/resolvers-list/v3/public-resolvers.md"]
+urls = ["https://raw.github.com/dnscrypt/dnscrypt-resolvers/master/v3/public-resolvers.md", "https://download.dnscrypt.info/resolvers-list/v3/public-resolvers.md"]
 minisign_key = "RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3"
 cache_file = "public-resolvers.md"
 EOF
