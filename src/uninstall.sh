@@ -416,7 +416,6 @@ if [ "${EUID}" -ne 0 ]; then
   echo ""
 
   echo -e "  ${yellow}${green}curl ${white}-${yellow}fsSL ${cyan}https://raw.github.com/keift/zapret/main/src/uninstall.sh ${gray}| ${green}sudo ${cyan}bash${reset}"
-  echo "                                                                         ^^^^"
 
   echo ""
 
