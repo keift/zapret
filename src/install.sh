@@ -799,7 +799,8 @@ EOF
     sleep 10
   done
 
-  tee /etc/systemd/resolved.conf &> /dev/null << EOF
+  if dig -p 5300 +tries=1 +time=10 @127.0.0.1 &> /dev/null || dig -p 5300 +tries=1 +time=10 @::1 &> /dev/null; then
+    tee /etc/systemd/resolved.conf &> /dev/null << EOF
 [Resolve]
 DNS=127.0.0.1:5300
 DNS=[::1]:5300
@@ -808,11 +809,12 @@ Domains=~.
 DNSOverTLS=no
 EOF
 
-  chattr -i /etc/resolv.conf &> "${log_redirects}"
+    chattr -i /etc/resolv.conf &> "${log_redirects}"
 
-  test -f /run/systemd/resolve/stub-resolv.conf && ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf &> "${log_redirects}"
+    test -f /run/systemd/resolve/stub-resolv.conf && ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf &> "${log_redirects}"
 
-  restart_service systemd-resolved
+    restart_service systemd-resolved
+  fi
 else
   dns_resolver="dnscrypt-proxy"
 
@@ -891,14 +893,16 @@ EOF
     sleep 10
   done
 
-  chattr -i /etc/resolv.conf &> "${log_redirects}"
+  if dig -p 53 +tries=1 +time=10 @127.0.0.1 &> /dev/null || dig -p 53 +tries=1 +time=10 @::1 &> /dev/null; then
+    chattr -i /etc/resolv.conf &> "${log_redirects}"
 
-  tee /etc/resolv.conf &> /dev/null << EOF
+    tee /etc/resolv.conf &> /dev/null << EOF
 nameserver 127.0.0.1
 nameserver ::1
 EOF
 
-  chattr +i /etc/resolv.conf &> "${log_redirects}"
+    chattr +i /etc/resolv.conf &> "${log_redirects}"
+  fi
 fi
 
 # 3. Download Zapret
