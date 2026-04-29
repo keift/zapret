@@ -436,6 +436,9 @@ if [ "${init_system}" = "systemd" ]; then
   remove_package dnscrypt-proxy
   remove_package dnscrypt-proxy2
 
+  remove_package dnscrypt-proxy-"${init_system}"
+  remove_package dnscrypt-proxy2-"${init_system}"
+
   enable_service systemd-resolved
   start_service systemd-resolved
 
@@ -449,6 +452,9 @@ if [ "${init_system}" = "systemd" ]; then
 else
   remove_package dnscrypt-proxy
   remove_package dnscrypt-proxy2
+
+  remove_package dnscrypt-proxy-"${init_system}"
+  remove_package dnscrypt-proxy2-"${init_system}"
 
   chattr -i /etc/resolv.conf &> "${log_redirects}"
 
