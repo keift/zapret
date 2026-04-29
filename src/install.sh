@@ -722,6 +722,9 @@ if [ "${init_system}" = "systemd" ]; then
 
   install_package systemd-resolved
 
+  remove_package dnscrypt-proxy
+  remove_package dnscrypt-proxy2
+
   if [ "${package_manager}" = "opkg" ]; then
     install_package dnscrypt-proxy2
   else
@@ -817,6 +820,9 @@ EOF
   fi
 else
   dns_resolver="dnscrypt-proxy"
+
+  remove_package dnscrypt-proxy
+  remove_package dnscrypt-proxy2
 
   if [ "${package_manager}" = "opkg" ]; then
     install_package dnscrypt-proxy2
