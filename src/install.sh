@@ -932,10 +932,10 @@ else
   echo -e "  ${gray}Preparing for installation...${reset}"
 fi
 
-printf "Y\n\n" | /opt/zapret/uninstall_easy.sh &> "${log_redirects}"
+echo -e "Y\n\n" | /opt/zapret/uninstall_easy.sh &> "${log_redirects}"
 rm -rf /opt/zapret &> "${log_redirects}"
 
-printf "\n\n" | /tmp/zapret/install_prereq.sh &> "${log_redirects}"
+echo -e "\n\n" | /tmp/zapret/install_prereq.sh &> "${log_redirects}"
 /tmp/zapret/install_bin.sh &> "${log_redirects}"
 
 # 5. Do Blockcheck
@@ -985,7 +985,7 @@ done
 if [ "${dev}" = true ]; then
   nfqws_options="--dpi-desync=fakeddisorder --dpi-desync-ttl=1 --dpi-desync-autottl=-5 --dpi-desync-split-pos=1"
 else
-  blockcheck_results=$(printf "${blockcheck_domain}\n\n\n\n\n\n\n\n" | /tmp/zapret/blockcheck.sh 2> "${log_redirects}")
+  blockcheck_results=$(echo -e "${blockcheck_domain}\n\n\n\n\n\n\n\n" | /tmp/zapret/blockcheck.sh 2> "${log_redirects}")
 
   [ "${debug}" = true ] && echo "${blockcheck_results}"
 
@@ -993,7 +993,7 @@ else
 fi
 
 if echo "${blockcheck_results}" | grep -iq "nftables queue support is not available"; then
-  printf "Y\n\n" | /opt/zapret/uninstall_easy.sh &> "${log_redirects}"
+  echo -e "Y\n\n" | /opt/zapret/uninstall_easy.sh &> "${log_redirects}"
   rm -rf /opt/zapret &> "${log_redirects}"
   rm -rf /tmp/zapret &> "${log_redirects}"
 
@@ -1001,7 +1001,7 @@ if echo "${blockcheck_results}" | grep -iq "nftables queue support is not availa
 fi
 
 if ! echo "${nfqws_options}" | grep -iq -- "--"; then
-  printf "Y\n\n" | /opt/zapret/uninstall_easy.sh &> "${log_redirects}"
+  echo -e "Y\n\n" | /opt/zapret/uninstall_easy.sh &> "${log_redirects}"
   rm -rf /opt/zapret &> "${log_redirects}"
   rm -rf /tmp/zapret &> "${log_redirects}"
 
@@ -1032,28 +1032,28 @@ else
   echo -e "  ${gray}Installing Zapret...${reset}"
 fi
 
-prototype_installation_results=$(printf "\n\n" | /tmp/zapret/install_easy.sh 2> "${log_redirects}")
+prototype_installation_results=$(echo -e "\n\n" | /tmp/zapret/install_easy.sh 2> "${log_redirects}")
 
 if echo "${prototype_installation_results}" | grep -iq "system is not either systemd"; then
-  prototype_installation_results=$(printf "Y\n\n\n" | /tmp/zapret/install_easy.sh 2> "${log_redirects}")
+  prototype_installation_results=$(echo -e "Y\n\n\n" | /tmp/zapret/install_easy.sh 2> "${log_redirects}")
 
   if echo "${prototype_installation_results}" | grep -iq "readonly system detected"; then
-    installation_results=$(printf "Y\nY\nY\nY\nY\n\n\n\n\n\n\nY\n\n\n\n\n" | /tmp/zapret/install_easy.sh 2> "${log_redirects}")
+    installation_results=$(echo -e "Y\nY\nY\nY\nY\n\n\n\n\n\n\nY\n\n\n\n\n" | /tmp/zapret/install_easy.sh 2> "${log_redirects}")
   else
-    installation_results=$(printf "Y\nY\nY\n\n\n\n\n\n\nY\n\n\n\n\n" | /tmp/zapret/install_easy.sh 2> "${log_redirects}")
+    installation_results=$(echo -e "Y\nY\nY\n\n\n\n\n\n\nY\n\n\n\n\n" | /tmp/zapret/install_easy.sh 2> "${log_redirects}")
   fi
 else
   if echo "${prototype_installation_results}" | grep -iq "readonly system detected"; then
-    installation_results=$(printf "Y\nY\nY\n\n\n\n\n\n\nY\n\n\n\n\n" | /tmp/zapret/install_easy.sh 2> "${log_redirects}")
+    installation_results=$(echo -e "Y\nY\nY\n\n\n\n\n\n\nY\n\n\n\n\n" | /tmp/zapret/install_easy.sh 2> "${log_redirects}")
   else
-    installation_results=$(printf "Y\n\n\n\n\n\n\nY\n\n\n\n\n" | /tmp/zapret/install_easy.sh 2> "${log_redirects}")
+    installation_results=$(echo -e "Y\n\n\n\n\n\n\nY\n\n\n\n\n" | /tmp/zapret/install_easy.sh 2> "${log_redirects}")
   fi
 fi
 
 [ "${debug}" = true ] && echo "${installation_results}"
 
 if echo "${installation_results}" | grep -iq "readonly system detected"; then
-  printf "Y\n\n" | /opt/zapret/uninstall_easy.sh &> "${log_redirects}"
+  echo -e "Y\n\n" | /opt/zapret/uninstall_easy.sh &> "${log_redirects}"
   rm -rf /opt/zapret &> "${log_redirects}"
   rm -rf /tmp/zapret &> "${log_redirects}"
 
@@ -1077,7 +1077,7 @@ if echo "${installation_results}" | grep -iq "readonly system detected"; then
 fi
 
 if echo "${installation_results}" | grep -iq "could not start zapret service"; then
-  printf "Y\n\n" | /opt/zapret/uninstall_easy.sh &> "${log_redirects}"
+  echo -e "Y\n\n" | /opt/zapret/uninstall_easy.sh &> "${log_redirects}"
   rm -rf /opt/zapret &> "${log_redirects}"
   rm -rf /tmp/zapret &> "${log_redirects}"
 

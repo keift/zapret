@@ -487,7 +487,7 @@ else
   echo -e "  ${gray}Uninstalling Zapret...${reset}"
 fi
 
-printf "Y\n\n" | /opt/zapret/uninstall_easy.sh &> "${log_redirects}"
+echo -e "Y\n\n" | /opt/zapret/uninstall_easy.sh &> "${log_redirects}"
 
 rm -rf /opt/zapret &> "${log_redirects}"
 
