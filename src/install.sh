@@ -710,11 +710,11 @@ fi
 # 2. Change DNS settings
 
 if [ "${country_code}" = "RU" ]; then
-  echo -e "  ${gray}Настройки DNS изменяются...${reset}"
+  echo -e "  ${gray}Шифрование DNS-запросов...${reset}"
 elif [ "${country_code}" = "TR" ]; then
-  echo -e "  ${gray}DNS ayarları değiştiriliyor...${reset}"
+  echo -e "  ${gray}DNS sorguları şifreleniyor...${reset}"
 else
-  echo -e "  ${gray}DNS settings are being changed...${reset}"
+  echo -e "  ${gray}Encrypting DNS queries...${reset}"
 fi
 
 if [ "${init_system}" = "systemd" ]; then
@@ -941,11 +941,11 @@ echo -e "\n\n" | /tmp/zapret/install_prereq.sh &> "${log_redirects}"
 # 5. Do Blockcheck
 
 if [ "${country_code}" = "RU" ]; then
-  echo -e "  ${gray}Выполняется Blockcheck, это может занять несколько минут...${reset}"
+  echo -e "  ${gray}Поиск способов обхода блокировок...${reset}"
 elif [ "${country_code}" = "TR" ]; then
-  echo -e "  ${gray}Blockcheck yapılıyor, bu birkaç dakika sürebilir...${reset}"
+  echo -e "  ${gray}Erişim engelleri aşma yöntemleri aranıyor...${reset}"
 else
-  echo -e "  ${gray}Blockcheck is being performed, this may take a few minutes...${reset}"
+  echo -e "  ${gray}Searching for methods to bypass access restrictions...${reset}"
 fi
 
 blockcheck_domains=(
