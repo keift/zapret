@@ -659,11 +659,14 @@ if [ "${EUID}" -ne 0 ]; then
   print_head
 
   if [ "${country_code}" = "RU" ]; then
-    echo -e "  ${red}Пожалуйста, запустите этот инструмент от имени администратора с помощью следующей команды.${reset}"
+    echo -e "  ${red}Необходимо запустить от имени администратора.${reset}"
+    echo -e "  ${red}Вы можете сделать это с помощью следующей команды.${reset}"
   elif [ "${country_code}" = "TR" ]; then
-    echo -e "  ${red}Lütfen bu aracı aşağıdaki komut ile yönetici olarak çalıştırın.${reset}"
+    echo -e "  ${red}Yönetici olarak çalıştırılması gerekiyor.${reset}"
+    echo -e "  ${red}Aşağıdaki komutu kullanarak bunu yapabilirsiniz.${reset}"
   else
-    echo -e "  ${red}Please run this tool as an administrator using the command below.${reset}"
+    echo -e "  ${red}It needs to be run as administrator.${reset}"
+    echo -e "  ${red}You can do this using the following command.${reset}"
   fi
 
   echo ""
