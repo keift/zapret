@@ -747,7 +747,7 @@ if [ "${init_system}" = "systemd" ]; then
     "/usr/local/etc/dnscrypt-proxy.toml"
 
     "/opt/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
-    "/opt/etc/dnscrypt-proxy.toml",
+    "/opt/etc/dnscrypt-proxy.toml"
 
     "/opt/dnscrypt-proxy/dnscrypt-proxy.toml"
   )
@@ -838,7 +838,7 @@ else
     "/usr/local/etc/dnscrypt-proxy.toml"
 
     "/opt/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
-    "/opt/etc/dnscrypt-proxy.toml",
+    "/opt/etc/dnscrypt-proxy.toml"
 
     "/opt/dnscrypt-proxy/dnscrypt-proxy.toml"
   )
