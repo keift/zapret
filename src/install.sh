@@ -586,31 +586,31 @@ print_head() {
 
 print_update_commands() {
   if [ "${package_manager}" = "apt" ]; then
-    echo -e "  ${yellow}sudo ${cyan}apt ${cyan}update${reset}"
-    echo -e "  ${yellow}sudo ${cyan}apt ${cyan}upgrade ${white}-${yellow}y${reset}"
+    echo -e "  ${green}sudo ${cyan}apt ${cyan}update${reset}"
+    echo -e "  ${green}sudo ${cyan}apt ${cyan}upgrade ${white}-${yellow}y${reset}"
   elif [ "${package_manager}" = "rpm-ostree" ]; then
-    echo -e "  ${yellow}sudo ${cyan}rpm-ostree ${cyan}upgrade${reset}"
+    echo -e "  ${green}sudo ${cyan}rpm-ostree ${cyan}upgrade${reset}"
   elif [ "${package_manager}" = "dnf" ]; then
-    echo -e "  ${yellow}sudo ${cyan}dnf ${cyan}upgrade ${white}-${yellow}y${reset}"
+    echo -e "  ${green}sudo ${cyan}dnf ${cyan}upgrade ${white}-${yellow}y${reset}"
   elif [ "${package_manager}" = "pacman" ]; then
-    echo -e "  ${yellow}sudo ${cyan}pacman ${white}-${yellow}Syu ${white}--${cyan}noconfirm${reset}"
+    echo -e "  ${green}sudo ${cyan}pacman ${white}-${yellow}Syu ${white}--${yellow}noconfirm${reset}"
   elif [ "${package_manager}" = "zypper" ]; then
-    echo -e "  ${yellow}sudo ${cyan}zypper ${white}-${yellow}n ${cyan}update${reset}"
+    echo -e "  ${green}sudo ${cyan}zypper ${white}-${yellow}n ${cyan}update${reset}"
   elif [ "${package_manager}" = "xbps" ]; then
-    echo -e "  ${yellow}sudo ${cyan}xbps-install ${white}-${yellow}Suy${reset}"
+    echo -e "  ${green}sudo ${cyan}xbps-install ${white}-${yellow}Suy${reset}"
   elif [ "${package_manager}" = "apk" ]; then
-    echo -e "  ${yellow}sudo ${cyan}apk ${cyan}upgrade ${white}-${yellow}U${reset}"
+    echo -e "  ${green}sudo ${cyan}apk ${cyan}upgrade ${white}-${yellow}U${reset}"
   elif [ "${package_manager}" = "emerge" ]; then
-    echo -e "  ${yellow}sudo ${cyan}emerge ${white}--${cyan}sync${reset}"
-    echo -e "  ${yellow}sudo ${cyan}emerge ${white}-${yellow}uDNq ${cyan}@world${reset}"
+    echo -e "  ${green}sudo ${cyan}emerge ${white}--${yellow}sync${reset}"
+    echo -e "  ${green}sudo ${cyan}emerge ${white}-${yellow}uDNq ${cyan}@world${reset}"
   elif [ "${package_manager}" = "slackpkg" ]; then
-    echo -e "  ${yellow}sudo ${cyan}slackpkg ${white}-${yellow}batch=on ${white}-${yellow}default_answer=y ${cyan}update${reset}"
-    echo -e "  ${yellow}sudo ${cyan}slackpkg ${white}-${yellow}batch=on ${white}-${yellow}default_answer=y ${cyan}upgrade-all${reset}"
+    echo -e "  ${green}sudo ${cyan}slackpkg ${white}-${yellow}batch=on ${white}-${yellow}default_answer=y ${cyan}update${reset}"
+    echo -e "  ${green}sudo ${cyan}slackpkg ${white}-${yellow}batch=on ${white}-${yellow}default_answer=y ${cyan}upgrade-all${reset}"
   elif [ "${package_manager}" = "eopkg" ]; then
-    echo -e "  ${yellow}sudo ${cyan}eopkg ${cyan}upgrade ${white}-${yellow}y${reset}"
+    echo -e "  ${green}sudo ${cyan}eopkg ${cyan}upgrade ${white}-${yellow}y${reset}"
   elif [ "${package_manager}" = "opkg" ]; then
-    echo -e "  ${yellow}sudo ${cyan}opkg ${cyan}update${reset}"
-    echo -e "  ${yellow}sudo ${cyan}opkg ${cyan}upgrade${reset}"
+    echo -e "  ${green}sudo ${cyan}opkg ${cyan}update${reset}"
+    echo -e "  ${green}sudo ${cyan}opkg ${cyan}upgrade${reset}"
   fi
 }
 
@@ -668,7 +668,7 @@ if [ "${EUID}" -ne 0 ]; then
 
   echo ""
 
-  echo -e "  ${yellow}${green}curl ${white}-${yellow}fsSL ${cyan}https://raw.github.com/keift/zapret/main/src/install.sh ${gray}| ${green}sudo ${cyan}bash${reset}"
+  echo -e "  ${green}curl ${white}-${yellow}fsSL ${cyan}https://raw.github.com/keift/zapret/main/src/install.sh ${gray}| ${green}sudo ${cyan}bash${reset}"
 
   echo ""
 
@@ -703,7 +703,7 @@ if ! command -v dig &> /dev/null \
   || ! command -v curl &> /dev/null \
   || ! command -v jq &> /dev/null \
   || ! command -v tar &> /dev/null \
-  || ! command -v wget &> /dev/null; then
+  || command -v wget &> /dev/null; then
   throw_system_is_too_old
 fi
 
