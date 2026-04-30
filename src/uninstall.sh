@@ -32,7 +32,7 @@ cyan="\e[36m"
 white="\e[37m"
 gray="\e[90m"
 
-country_code=$(curl --max-time 10 -s https://ipinfo.io/country)
+country_code=$(curl -s --max-time 10 https://ipinfo.io/country)
 
 detect_system() {
   # Systemd
@@ -406,14 +406,11 @@ if [ "${EUID}" -ne 0 ]; then
   print_head
 
   if [ "${country_code}" = "RU" ]; then
-    echo -e "  ${red}Необходимо запустить от имени администратора.${reset}"
-    echo -e "  ${red}Вы можете сделать это с помощью следующей команды.${reset}"
+    echo -e "  ${red}Недостаточно прав. Попробуйте запустить с помощью этой команды.${reset}"
   elif [ "${country_code}" = "TR" ]; then
-    echo -e "  ${red}Yönetici olarak çalıştırılması gerekiyor.${reset}"
-    echo -e "  ${red}Aşağıdaki komutu kullanarak bunu yapabilirsiniz.${reset}"
+    echo -e "  ${red}İzinler eksik. Şu komut ile çalıştırmayı deneyin.${reset}"
   else
-    echo -e "  ${red}It needs to be run as administrator.${reset}"
-    echo -e "  ${red}You can do this using the following command.${reset}"
+    echo -e "  ${red}Missing permissions. Try running it with the following command.${reset}"
   fi
 
   echo ""
