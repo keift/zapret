@@ -703,7 +703,7 @@ if ! command -v dig &> /dev/null \
   || ! command -v curl &> /dev/null \
   || ! command -v jq &> /dev/null \
   || ! command -v tar &> /dev/null \
-  || command -v wget &> /dev/null; then
+  || ! command -v wget &> /dev/null; then
   throw_system_is_too_old
 fi
 
