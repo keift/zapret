@@ -668,7 +668,7 @@ if [ "${EUID}" -ne 0 ]; then
 
   echo ""
 
-  echo -e "  ${green}curl ${white}-${yellow}fsSL ${cyan}https://raw.github.com/keift/zapret/main/src/install.sh ${gray}| ${green}sudo ${cyan}bash${reset}"
+  echo -e "  ${green}curl ${white}-${yellow}fsSL ${cyan}https://raw.github.com/keift/zapret/refs/heads/main/src/install.sh ${gray}| ${green}sudo ${cyan}bash${reset}"
 
   echo ""
 
