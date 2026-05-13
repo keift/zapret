@@ -675,8 +675,6 @@ if [ "${EUID}" -ne 0 ]; then
   exit 1
 fi
 
-# 1. Install dependencies
-
 if [ "${country_code}" = "RU" ]; then
   echo -e "  ${gray}Установка зависимостей...${reset}"
 elif [ "${country_code}" = "TR" ]; then
@@ -706,8 +704,6 @@ if ! command -v dig &> /dev/null \
   || ! command -v wget &> /dev/null; then
   throw_system_is_too_old
 fi
-
-# 2. Change DNS settings
 
 if [ "${country_code}" = "RU" ]; then
   echo -e "  ${gray}Шифрование DNS-запросов...${reset}"
@@ -901,8 +897,6 @@ EOF
   chattr +i /etc/resolv.conf &> "${log_redirects}"
 fi
 
-# 3. Download Zapret
-
 if [ "${country_code}" = "RU" ]; then
   echo -e "  ${gray}Скачивание Zapret...${reset}"
 elif [ "${country_code}" = "TR" ]; then
@@ -922,8 +916,6 @@ mv /tmp/zapret-v"${zapret_version}" /tmp/zapret &> "${log_redirects}"
 
 rm -rf /tmp/zapret.tar.gz &> "${log_redirects}"
 
-# 4. Prepare for installation
-
 if [ "${country_code}" = "RU" ]; then
   echo -e "  ${gray}Подготовка к установке...${reset}"
 elif [ "${country_code}" = "TR" ]; then
@@ -937,8 +929,6 @@ rm -rf /opt/zapret &> "${log_redirects}"
 
 echo -e "\n\n" | /tmp/zapret/install_prereq.sh &> "${log_redirects}"
 /tmp/zapret/install_bin.sh &> "${log_redirects}"
-
-# 5. Do Blockcheck
 
 if [ "${country_code}" = "RU" ]; then
   echo -e "  ${gray}Поиск способов обхода блокировок...${reset}"
@@ -985,7 +975,7 @@ done
 if [ "${dev}" = true ]; then
   nfqws_options="--dpi-desync=fakeddisorder --dpi-desync-ttl=1 --dpi-desync-autottl=-5 --dpi-desync-split-pos=1"
 else
-  blockcheck_results=$(echo -e "${blockcheck_domain}\n\n\n\n\n\n\n\n" | /tmp/zapret/blockcheck.sh 2> "${log_redirects}")
+  blockcheck_results=$(echo -e "${blockcheck_domain}\n\n\n\n\n\n\n\n\n" | /tmp/zapret/blockcheck.sh 2> "${log_redirects}")
 
   [ "${debug}" = true ] && echo "${blockcheck_results}"
 
@@ -1021,8 +1011,6 @@ if ! echo "${nfqws_options}" | grep -iq -- "--"; then
 
   exit 0
 fi
-
-# 6. Install Zapret
 
 if [ "${country_code}" = "RU" ]; then
   echo -e "  ${gray}Установка Zapret...${reset}"
@@ -1117,8 +1105,6 @@ for domain in "${blockcheck_domains[@]}"; do
     curl --max-time 1 https://"${domain}" &> /dev/null
   done
 done
-
-# 7. Finish the installation
 
 if [ "${country_code}" = "RU" ]; then
   echo -e "  ${gray}Zapret успешно установлен.${reset}"
