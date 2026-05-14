@@ -490,6 +490,7 @@ fi
 echo -e "Y\n\n" | /opt/zapret/uninstall_easy.sh &> "${log_redirects}"
 
 rm -rf /opt/zapret &> "${log_redirects}"
+rm -rf /tmp/zapret &> "${log_redirects}"
 
 if [ "${country_code}" = "RU" ]; then
   echo -e "  ${gray}Zapret успешно удален.${reset}"
