@@ -112,7 +112,7 @@ send_metrics() {
         }'
     )
 
-    curl --max-time 10 -X POST https://metrics--api.keift.co/zapret \
+    curl --max-time 10 -X POST https://metrics--api.keift.co/v1/zapret \
       -H "Content-Type: application/json" \
       -d "${payload}" &> "${log_redirects}"
   else
