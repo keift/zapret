@@ -979,7 +979,7 @@ else
 
   [ "${debug}" = true ] && echo "${blockcheck_results}"
 
-  nfqws_options=$(echo "${blockcheck_results}" | sed -n "/^\* SUMMARY/,/^\$/ { /^\* SUMMARY/d; /^\$/d; p; }" | grep -E "(curl_test_http|curl_test_https[^ ]*) ipv[0-9] ${blockcheck_domain} : nfqws" | tail -n 1 | sed "s/.*nfqws //" | sed "s|/tmp/zapret|/opt/zapret|g" | sed "s/^[[:space:]]*//; s/[[:space:]]*\$//")
+  nfqws_options=$(echo "${blockcheck_results}" | sed -n "/^\* SUMMARY/,/^\$/ { /^\* SUMMARY/d; /^\$/d; p; }" | grep -E "(curl_test_http|curl_test_https[^ ]*) ipv[0-9] ${blockcheck_domain} : nfqws" | tail -n 1 | sed "s/.*nfqws //" | sed "s|/tmp/zapret|/opt/zapret|g" | sed -z "s/^[[:space:]]*//; s/[[:space:]]*\$//")
 fi
 
 if echo "${blockcheck_results}" | grep -iq "nftables queue support is not available"; then
