@@ -238,7 +238,9 @@ enable_service() {
       local runit_sv_dir="/etc/runit/sv"
     fi
 
-    if test -d /var/service; then
+    if test -d /etc/service; then
+      local runit_service_dir="/etc/service"
+    elif test -d /var/service; then
       local runit_service_dir="/var/service"
     elif test -d /run/runit/service; then
       local runit_service_dir="/run/runit/service"
@@ -246,7 +248,7 @@ enable_service() {
       local runit_service_dir="/service"
     fi
 
-    test -d "${runit_sv_dir}"/"${service_name}" && ln -sf "${runit_sv_dir}"/"${service_name}" "${runit_service_dir}" &> "${log_redirects}"
+    test -d "${runit_sv_dir}"/"${service_name}" && ln -sf "${runit_sv_dir}"/"${service_name}" "${runit_service_dir}"/"${service_name}" &> "${log_redirects}"
   # S6
   elif [ "${init_system}" = "s6" ]; then
     :
