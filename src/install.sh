@@ -780,7 +780,7 @@ if [ "${init_system}" = "systemd" ]; then
   start_service dnscrypt-proxy
   start_service dnscrypt-proxy2
 
-  dnscrypt_paths=(
+  dnscrypt_configs=(
     "/etc/dnscrypt-proxy.toml"
     "/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
 
@@ -793,21 +793,21 @@ if [ "${init_system}" = "systemd" ]; then
     "/opt/dnscrypt-proxy/dnscrypt-proxy.toml"
   )
 
-  for path in "${dnscrypt_paths[@]}"; do
-    if test -f "${path}"; then
-      dnscrypt_path="${path}"
+  for config in "${dnscrypt_configs[@]}"; do
+    if test -f "${config}"; then
+      dnscrypt_config="${config}"
 
       break
     fi
   done
 
-  if test -z "${dnscrypt_path}"; then
+  if test -z "${dnscrypt_config}"; then
     if test -f "/usr/share/defaults/dnscrypt-proxy/dnscrypt-proxy.toml"; then
       mkdir -p /etc/dnscrypt-proxy &> "${log_redirects}"
 
       cp /usr/share/defaults/dnscrypt-proxy/dnscrypt-proxy.toml /etc/dnscrypt-proxy &> "${log_redirects}"
 
-      dnscrypt_path="/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
+      dnscrypt_config="/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
     else
       throw_system_is_too_old
     fi
@@ -821,7 +821,7 @@ if [ "${init_system}" = "systemd" ]; then
 
   restart_service systemd-resolved
 
-  tee "${dnscrypt_path}" &> /dev/null << EOF
+  tee "${dnscrypt_config}" &> /dev/null << EOF
 listen_addresses = ["127.0.0.1:5300", "[::1]:5300"]
 
 [sources."public-resolvers"]
@@ -871,7 +871,7 @@ else
   start_service dnscrypt-proxy
   start_service dnscrypt-proxy2
 
-  dnscrypt_paths=(
+  dnscrypt_configs=(
     "/etc/dnscrypt-proxy.toml"
     "/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
 
@@ -884,21 +884,21 @@ else
     "/opt/dnscrypt-proxy/dnscrypt-proxy.toml"
   )
 
-  for path in "${dnscrypt_paths[@]}"; do
-    if test -f "${path}"; then
-      dnscrypt_path="${path}"
+  for config in "${dnscrypt_configs[@]}"; do
+    if test -f "${config}"; then
+      dnscrypt_config="${config}"
 
       break
     fi
   done
 
-  if test -z "${dnscrypt_path}"; then
+  if test -z "${dnscrypt_config}"; then
     if test -f "/usr/share/defaults/dnscrypt-proxy/dnscrypt-proxy.toml"; then
       mkdir -p /etc/dnscrypt-proxy &> "${log_redirects}"
 
       cp /usr/share/defaults/dnscrypt-proxy/dnscrypt-proxy.toml /etc/dnscrypt-proxy &> "${log_redirects}"
 
-      dnscrypt_path="/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
+      dnscrypt_config="/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
     else
       throw_system_is_too_old
     fi
@@ -913,7 +913,7 @@ nameserver 1.0.0.1
 nameserver 2606:4700:4700::1001
 EOF
 
-  tee "${dnscrypt_path}" &> /dev/null << EOF
+  tee "${dnscrypt_config}" &> /dev/null << EOF
 listen_addresses = ["127.0.0.1:53", "[::1]:53"]
 
 [sources."public-resolvers"]
