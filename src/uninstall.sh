@@ -112,13 +112,20 @@ start_service() {
     if command -v s6-rc &> /dev/null; then
       s6-rc -u change "${service_name}" &> "${log_redirects}"
     else
-      if test -d /etc/s6-servicedirs; then
-        local s6_service_dir="/etc/s6-servicedirs"
-      elif test -d /etc/s6/sv; then
-        local s6_service_dir="/etc/s6/sv"
-      fi
+      local s6_services_dirs=(
+        "/etc/s6-servicedirs"
+        "/etc/s6/sv"
+      )
 
-      s6-svc -u "${s6_service_dir}"/"${service_name}" &> "${log_redirects}"
+      for dir in "${s6_services_dirs[@]}"; do
+        if test -d "${dir}"; then
+          local s6_services_dir="${dir}"
+
+          break
+        fi
+      done
+
+      s6-svc -u "${s6_services_dir}"/"${service_name}" &> "${log_redirects}"
     fi
   # OpenRC
   elif [ "${init_system}" = "openrc" ]; then
@@ -151,6 +158,7 @@ start_service() {
     else
       echo -e "  ${red}Unsupported init system.${reset}"
     fi
+
     echo ""
 
     exit 1
@@ -175,13 +183,20 @@ restart_service() {
       s6-rc -d change "${service_name}" &> "${log_redirects}"
       s6-rc -u change "${service_name}" &> "${log_redirects}"
     else
-      if test -d /etc/s6-servicedirs; then
-        local s6_service_dir="/etc/s6-servicedirs"
-      elif test -d /etc/s6/sv; then
-        local s6_service_dir="/etc/s6/sv"
-      fi
+      local s6_services_dirs=(
+        "/etc/s6-servicedirs"
+        "/etc/s6/sv"
+      )
 
-      s6-svc -r "${s6_service_dir}"/"${service_name}" &> "${log_redirects}"
+      for dir in "${s6_services_dirs[@]}"; do
+        if test -d "${dir}"; then
+          local s6_services_dir="${dir}"
+
+          break
+        fi
+      done
+
+      s6-svc -r "${s6_services_dir}"/"${service_name}" &> "${log_redirects}"
     fi
   # OpenRC
   elif [ "${init_system}" = "openrc" ]; then
@@ -215,6 +230,7 @@ restart_service() {
     else
       echo -e "  ${red}Unsupported init system.${reset}"
     fi
+
     echo ""
 
     exit 1
@@ -232,23 +248,35 @@ enable_service() {
     dinitctl enable "${service_name}" &> "${log_redirects}"
   # Runit
   elif [ "${init_system}" = "runit" ]; then
-    if test -d /etc/sv; then
-      local runit_sv_dir="/etc/sv"
-    elif test -d /etc/runit/sv; then
-      local runit_sv_dir="/etc/runit/sv"
-    fi
+    local runit_services_dirs=(
+      "/etc/sv"
+      "/etc/runit/sv"
+    )
 
-    if test -d /etc/service; then
-      local runit_service_dir="/etc/service"
-    elif test -d /var/service; then
-      local runit_service_dir="/var/service"
-    elif test -d /run/runit/service; then
-      local runit_service_dir="/run/runit/service"
-    elif test -d /service; then
-      local runit_service_dir="/service"
-    fi
+    local runit_enables_dirs=(
+      "/etc/service"
+      "/var/service"
+      "/run/runit/service"
+      "/service"
+    )
 
-    test -d "${runit_sv_dir}"/"${service_name}" && ln -sf "${runit_sv_dir}"/"${service_name}" "${runit_service_dir}"/"${service_name}" &> "${log_redirects}"
+    for dir in "${runit_services_dirs[@]}"; do
+      if test -d "${dir}"; then
+        local runit_services_dir="${dir}"
+
+        break
+      fi
+    done
+
+    for dir in "${runit_enables_dirs[@]}"; do
+      if test -d "${dir}"; then
+        local runit_enables_dir="${dir}"
+
+        break
+      fi
+    done
+
+    test -d "${runit_services_dir}"/"${service_name}" && ln -sf "${runit_services_dir}"/"${service_name}" "${runit_enables_dir}"/"${service_name}" &> "${log_redirects}"
   # S6
   elif [ "${init_system}" = "s6" ]; then
     :
@@ -285,6 +313,7 @@ enable_service() {
     else
       echo -e "  ${red}Unsupported init system.${reset}"
     fi
+
     echo ""
 
     exit 1
@@ -326,6 +355,7 @@ install_package() {
     else
       echo -e "  ${red}Unsupported package manager.${reset}"
     fi
+
     echo ""
 
     exit 1
@@ -367,6 +397,7 @@ remove_package() {
     else
       echo -e "  ${red}Unsupported package manager.${reset}"
     fi
+
     echo ""
 
     exit 1
@@ -377,6 +408,7 @@ print_head() {
   clear
 
   echo ""
+
   if [ "${country_code}" = "RU" ]; then
     echo -e "  ${blue}Keift ${cyan}Удалить Zapret${reset}"
   elif [ "${country_code}" = "TR" ]; then
@@ -384,6 +416,7 @@ print_head() {
   else
     echo -e "  ${blue}Keift ${cyan}Uninstall Zapret${reset}"
   fi
+
   echo ""
 }
 
@@ -399,6 +432,7 @@ if [ "$(uname)" != "Linux" ]; then
   else
     echo -e "  ${red}Unsupported system.${reset}"
   fi
+
   echo ""
 
   exit 1
@@ -476,6 +510,7 @@ if [ ! -d /opt/zapret ]; then
   else
     echo -e "  ${gray}Zapret already not installed.${reset}"
   fi
+
   echo ""
 
   exit 0
