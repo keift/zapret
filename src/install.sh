@@ -78,7 +78,6 @@ send_metrics() {
 
     local event="${1}"
     local unix_name=$(uname -a)
-    local blockcheck_results_filtered=$(echo "${blockcheck_results}" | sed -n "/^\* SUMMARY/,/^\$/ { /^\* SUMMARY/d; /^\$/d; p; }")
     local domain_response=$(curl -sSI --max-time 10 https://"${blockcheck_domain}" 2>&1 | head -n 1)
     local nfqws_options=$(cat /opt/zapret/config 2>&1 | grep "^NFQWS")
 
@@ -90,7 +89,7 @@ send_metrics() {
         --arg package_manager "${package_manager}" \
         --arg dns_resolver "${dns_resolver}" \
         --arg blockcheck_domain "${blockcheck_domain}" \
-        --arg blockcheck_results "${blockcheck_results_filtered}" \
+        --arg blockcheck_results "${blockcheck_results}" \
         --arg installation_results "${installation_results}" \
         --arg domain_response "${domain_response}" \
         --arg nfqws_options "${nfqws_options}" \
@@ -950,16 +949,18 @@ else
   echo -e "  ${gray}Downloading Zapret...${reset}"
 fi
 
-rm -rf /tmp/zapret &> "${log_redirects}"
+echo -e "Y\n\n" | /opt/zapret/uninstall_easy.sh &> "${log_redirects}"
+rm -rf /opt/zapret &> "${log_redirects}"
+
 rm -rf /tmp/zapret.tar.gz &> "${log_redirects}"
 
 wget -O /tmp/zapret.tar.gz https://github.com/bol-van/zapret/releases/download/v"${zapret_version}"/zapret-v"${zapret_version}".tar.gz &> "${log_redirects}"
 
 tar -xz -f /tmp/zapret.tar.gz -C /tmp &> "${log_redirects}"
 
-mv /tmp/zapret-v"${zapret_version}" /tmp/zapret &> "${log_redirects}"
-
 rm -rf /tmp/zapret.tar.gz &> "${log_redirects}"
+
+mv /tmp/zapret-v"${zapret_version}" /opt/zapret &> "${log_redirects}"
 
 if [ "${country_code}" = "RU" ]; then
   echo -e "  ${gray}Подготовка к установке...${reset}"
@@ -969,11 +970,8 @@ else
   echo -e "  ${gray}Preparing for installation...${reset}"
 fi
 
-echo -e "Y\n\n" | /opt/zapret/uninstall_easy.sh &> "${log_redirects}"
-rm -rf /opt/zapret &> "${log_redirects}"
-
-echo -e "\n\n" | /tmp/zapret/install_prereq.sh &> "${log_redirects}"
-/tmp/zapret/install_bin.sh &> "${log_redirects}"
+echo -e "\n\n" | /opt/zapret/install_prereq.sh &> "${log_redirects}"
+/opt/zapret/install_bin.sh &> "${log_redirects}"
 
 if [ "${country_code}" = "RU" ]; then
   echo -e "  ${gray}Поиск способов обхода блокировок...${reset}"
@@ -1020,17 +1018,24 @@ done
 if [ "${dev}" = true ]; then
   nfqws_options="--dpi-desync=fake --dpi-desync-ttl=3"
 else
-  blockcheck_results=$(echo -e "${blockcheck_domain}\n\n\n\n\n\n\n\n\n" | /tmp/zapret/blockcheck.sh 2> "${log_redirects}")
+  blockcheck_results=$(echo -e "${blockcheck_domain}\n\nN\n\n\n\n\n\n\n" | /opt/zapret/blockcheck.sh 2> "${log_redirects}" | sed -n "/^\* SUMMARY/,/^\$/ { /^\* SUMMARY/d; /^\$/d; p; }")
 
   [ "${debug}" = true ] && echo "${blockcheck_results}"
 
-  nfqws_options=$(echo "${blockcheck_results}" | sed -n "/^\* SUMMARY/,/^\$/ { /^\* SUMMARY/d; /^\$/d; p; }" | grep -E "curl_test_https[^ ]* ipv[0-9] ${blockcheck_domain} : nfqws" | tail -n 1 | sed "s/.*nfqws //" | sed "s|/tmp/zapret|/opt/zapret|g" | sed -z "s/^[[:space:]]*//; s/[[:space:]]*\$//")
+  nfqws_results=$(echo "${blockcheck_results}" | grep -E "curl_test_https[^ ]* ipv[0-9] ${blockcheck_domain} : nfqws")
+
+  if echo "${nfqws_results}" | grep -iq "ttl"; then
+    nfqws_options=$(echo "${nfqws_results}" | grep "ttl" | head -n 1)
+  else
+    nfqws_options=$(echo "${nfqws_results}" | tail -n 1)
+  fi
+
+  nfqws_options=$(echo "${nfqws_options}" | sed "s/.*nfqws //" | sed -z "s/^[[:space:]]*//; s/[[:space:]]*\$//")
 fi
 
 if echo "${blockcheck_results}" | grep -iq "nftables queue support is not available"; then
   echo -e "Y\n\n" | /opt/zapret/uninstall_easy.sh &> "${log_redirects}"
   rm -rf /opt/zapret &> "${log_redirects}"
-  rm -rf /tmp/zapret &> "${log_redirects}"
 
   throw_system_is_too_old
 fi
@@ -1038,7 +1043,6 @@ fi
 if ! echo "${nfqws_options}" | grep -iq -- "--"; then
   echo -e "Y\n\n" | /opt/zapret/uninstall_easy.sh &> "${log_redirects}"
   rm -rf /opt/zapret &> "${log_redirects}"
-  rm -rf /tmp/zapret &> "${log_redirects}"
 
   if [ "${country_code}" = "RU" ]; then
     echo -e "  ${gray}Ограничений доступа не обнаружено.${reset}"
@@ -1065,21 +1069,21 @@ else
   echo -e "  ${gray}Installing Zapret...${reset}"
 fi
 
-prototype_installation_results=$(echo -e "\n\n" | /tmp/zapret/install_easy.sh 2> "${log_redirects}")
+prototype_installation_results=$(echo -e "\n\n\n\n\n\n\n\n\n\n\n" | /opt/zapret/install_easy.sh 2> "${log_redirects}")
 
 if echo "${prototype_installation_results}" | grep -iq "system is not either systemd"; then
-  prototype_installation_results=$(echo -e "Y\n\n\n" | /tmp/zapret/install_easy.sh 2> "${log_redirects}")
+  prototype_installation_results=$(echo -e "Y\n\n\n\n\n\n\n\n\n\n\n\n" | /opt/zapret/install_easy.sh 2> "${log_redirects}")
 
   if echo "${prototype_installation_results}" | grep -iq "readonly system detected"; then
-    installation_results=$(echo -e "Y\nY\nY\nY\nY\n\n\n\n\n\n\nY\n\n\n\n\n" | /tmp/zapret/install_easy.sh 2> "${log_redirects}")
+    installation_results=$(echo -e "Y\nY\n\n\n\n\n\n\nY\n\n\n\n\n" | /opt/zapret/install_easy.sh 2> "${log_redirects}")
   else
-    installation_results=$(echo -e "Y\nY\nY\n\n\n\n\n\n\nY\n\n\n\n\n" | /tmp/zapret/install_easy.sh 2> "${log_redirects}")
+    installation_results=$(echo -e "Y\n\n\n\n\n\n\nY\n\n\n\n\n" | /opt/zapret/install_easy.sh 2> "${log_redirects}")
   fi
 else
   if echo "${prototype_installation_results}" | grep -iq "readonly system detected"; then
-    installation_results=$(echo -e "Y\nY\nY\n\n\n\n\n\n\nY\n\n\n\n\n" | /tmp/zapret/install_easy.sh 2> "${log_redirects}")
+    installation_results=$(echo -e "Y\n\n\n\n\n\n\nY\n\n\n\n\n" | /opt/zapret/install_easy.sh 2> "${log_redirects}")
   else
-    installation_results=$(echo -e "Y\n\n\n\n\n\n\nY\n\n\n\n\n" | /tmp/zapret/install_easy.sh 2> "${log_redirects}")
+    installation_results=$(echo -e "\n\n\n\n\n\nY\n\n\n\n\n" | /opt/zapret/install_easy.sh 2> "${log_redirects}")
   fi
 fi
 
@@ -1088,7 +1092,6 @@ fi
 if echo "${installation_results}" | grep -iq "readonly system detected"; then
   echo -e "Y\n\n" | /opt/zapret/uninstall_easy.sh &> "${log_redirects}"
   rm -rf /opt/zapret &> "${log_redirects}"
-  rm -rf /tmp/zapret &> "${log_redirects}"
 
   print_head
 
@@ -1112,7 +1115,6 @@ fi
 if echo "${installation_results}" | grep -iq "could not start zapret service"; then
   echo -e "Y\n\n" | /opt/zapret/uninstall_easy.sh &> "${log_redirects}"
   rm -rf /opt/zapret &> "${log_redirects}"
-  rm -rf /tmp/zapret &> "${log_redirects}"
 
   print_head
 
@@ -1158,8 +1160,6 @@ elif [ "${country_code}" = "TR" ]; then
 else
   echo -e "  ${gray}Zapret was successfully installed.${reset}"
 fi
-
-rm -rf /tmp/zapret &> "${log_redirects}"
 
 echo ""
 
