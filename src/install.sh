@@ -804,7 +804,7 @@ if [ "${init_system}" = "systemd" ]; then
     if test -f "/usr/share/defaults/dnscrypt-proxy/dnscrypt-proxy.toml"; then
       mkdir -p /etc/dnscrypt-proxy &> "${log_redirects}"
 
-      cp /usr/share/defaults/dnscrypt-proxy/dnscrypt-proxy.toml /etc/dnscrypt-proxy &> "${log_redirects}"
+      cp /usr/share/defaults/dnscrypt-proxy/dnscrypt-proxy.toml /etc/dnscrypt-proxy/dnscrypt-proxy.toml &> "${log_redirects}"
 
       dnscrypt_config="/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
     else
@@ -895,7 +895,7 @@ else
     if test -f "/usr/share/defaults/dnscrypt-proxy/dnscrypt-proxy.toml"; then
       mkdir -p /etc/dnscrypt-proxy &> "${log_redirects}"
 
-      cp /usr/share/defaults/dnscrypt-proxy/dnscrypt-proxy.toml /etc/dnscrypt-proxy &> "${log_redirects}"
+      cp /usr/share/defaults/dnscrypt-proxy/dnscrypt-proxy.toml /etc/dnscrypt-proxy/dnscrypt-proxy.toml &> "${log_redirects}"
 
       dnscrypt_config="/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
     else
@@ -960,7 +960,9 @@ tar -xz -f /tmp/zapret.tar.gz -C /tmp &> "${log_redirects}"
 
 rm -rf /tmp/zapret.tar.gz &> "${log_redirects}"
 
-mv /tmp/zapret-v"${zapret_version}" /opt/zapret &> "${log_redirects}"
+cp -r /tmp/zapret-v"${zapret_version}" /opt/zapret &> "${log_redirects}"
+
+rm -rf /tmp/zapret-v"${zapret_version}" &> "${log_redirects}"
 
 if [ "${country_code}" = "RU" ]; then
   echo -e "  ${gray}Подготовка к установке...${reset}"
