@@ -54,13 +54,13 @@ detect_system() {
   elif command -v launchctl &> /dev/null; then
     init_system="launchd"
   # Entware
-  elif test -d /opt/etc/init.d; then
+  elif [ -d /opt/etc/init.d ]; then
     init_system="entware"
   # SysVinit
-  elif command -v service &> /dev/null || test -x /usr/sbin/service || test -x /sbin/service || test -d /etc/init.d; then
+  elif command -v service &> /dev/null || [ -x /usr/sbin/service ] || [ -x /sbin/service ] || [ -d /etc/init.d ]; then
     init_system="sysvinit"
   # Rc
-  elif test -d /etc/rc.d; then
+  elif [ -d /etc/rc.d ]; then
     init_system="rc"
   else
     init_system="unknown"
@@ -118,7 +118,7 @@ start_service() {
       )
 
       for dir in "${s6_services_dirs[@]}"; do
-        if test -d "${dir}"; then
+        if [ -d "${dir}" ]; then
           local s6_services_dir="${dir}"
 
           break
@@ -140,7 +140,7 @@ start_service() {
     "${entware_script}" start &> "${log_redirects}"
   # SysVinit
   elif [ "${init_system}" = "sysvinit" ]; then
-    if command -v service &> /dev/null || test -x /usr/sbin/service || test -x /sbin/service; then
+    if command -v service &> /dev/null || [ -x /usr/sbin/service ] || [ -x /sbin/service ]; then
       service "${service_name}" start &> "${log_redirects}"
     else
       /etc/init.d/"${service_name}" start &> "${log_redirects}"
@@ -189,7 +189,7 @@ restart_service() {
       )
 
       for dir in "${s6_services_dirs[@]}"; do
-        if test -d "${dir}"; then
+        if [ -d "${dir}" ]; then
           local s6_services_dir="${dir}"
 
           break
@@ -212,7 +212,7 @@ restart_service() {
     "${entware_script}" restart &> "${log_redirects}"
   # SysVinit
   elif [ "${init_system}" = "sysvinit" ]; then
-    if command -v service &> /dev/null || test -x /usr/sbin/service || test -x /sbin/service; then
+    if command -v service &> /dev/null || [ -x /usr/sbin/service ] || [ -x /sbin/service ]; then
       service "${service_name}" restart &> "${log_redirects}"
     else
       /etc/init.d/"${service_name}" restart &> "${log_redirects}"
@@ -261,7 +261,7 @@ enable_service() {
     )
 
     for dir in "${runit_services_dirs[@]}"; do
-      if test -d "${dir}"; then
+      if [ -d "${dir}" ]; then
         local runit_services_dir="${dir}"
 
         break
@@ -269,14 +269,14 @@ enable_service() {
     done
 
     for dir in "${runit_enables_dirs[@]}"; do
-      if test -d "${dir}"; then
+      if [ -d "${dir}" ]; then
         local runit_enables_dir="${dir}"
 
         break
       fi
     done
 
-    test -d "${runit_services_dir}"/"${service_name}" && ln -sf "${runit_services_dir}"/"${service_name}" "${runit_enables_dir}"/"${service_name}" &> "${log_redirects}"
+    [ -d "${runit_services_dir}"/"${service_name}" ] && ln -sf "${runit_services_dir}"/"${service_name}" "${runit_enables_dir}"/"${service_name}" &> "${log_redirects}"
   # S6
   elif [ "${init_system}" = "s6" ]; then
     :
@@ -291,10 +291,10 @@ enable_service() {
     :
   # SysVinit
   elif [ "${init_system}" = "sysvinit" ]; then
-    if command -v service &> /dev/null || test -x /usr/sbin/service || test -x /sbin/service; then
-      if command -v update-rc.d &> /dev/null || test -x /usr/sbin/update-rc.d || test -x /sbin/update-rc.d; then
+    if command -v service &> /dev/null || [ -x /usr/sbin/service ] || [ -x /sbin/service ]; then
+      if command -v update-rc.d &> /dev/null || [ -x /usr/sbin/update-rc.d ] || [ -x /sbin/update-rc.d ]; then
         update-rc.d "${service_name}" defaults &> "${log_redirects}"
-      elif command -v chkconfig &> /dev/null || test -x /usr/sbin/chkconfig || test -x /sbin/chkconfig; then
+      elif command -v chkconfig &> /dev/null || [ -x /usr/sbin/chkconfig ] || [ -x /sbin/chkconfig ]; then
         chkconfig "${service_name}" on &> "${log_redirects}"
       fi
     else
@@ -482,7 +482,7 @@ if [ "${init_system}" = "systemd" ]; then
 
   chattr -i /etc/resolv.conf &> "${log_redirects}"
 
-  test -f /run/systemd/resolve/stub-resolv.conf && ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf &> "${log_redirects}"
+  [ -f /run/systemd/resolve/stub-resolv.conf ] && ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf &> "${log_redirects}"
 
   restart_service systemd-resolved
 else
