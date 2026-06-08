@@ -438,7 +438,7 @@ if [ "$(uname)" != "Linux" ]; then
   exit 1
 fi
 
-if [ "${EUID}" -ne 0 ]; then
+if [ "${EUID}" != "0" ]; then
   print_head
 
   if [ "${country_code}" = "RU" ]; then
