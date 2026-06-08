@@ -1143,7 +1143,7 @@ enable_service zapret
 start_service zapret
 
 sed -i "/^NFQWS_OPT=\"/,/^\"/c NFQWS_OPT=\"${nfqws_options} <HOSTLIST>\"" /opt/zapret/config
-sed -i "s/^MODE_FILTER=.*/MODE_FILTER=autohostlist/" /opt/zapret/config
+sed -i "/^MODE_FILTER=/c MODE_FILTER=autohostlist" /opt/zapret/config
 
 restart_service zapret
 
