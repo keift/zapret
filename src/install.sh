@@ -2,10 +2,12 @@
 
 dev=false
 debug=false
+skip_dns=false
 
 for arg in "${@}"; do
   [ "${arg}" = "--dev" ] && dev=true
   [ "${arg}" = "--debug" ] && debug=true
+  [ "${arg}" = "--skip-dns" ] && skip_dns=true
 done
 
 parameters="${*}"
@@ -757,7 +759,7 @@ else
   echo -e "  ${gray}Encrypting DNS queries...${reset}"
 fi
 
-if [ "${init_system}" = "systemd" ]; then
+if [ "${init_system}" = "systemd" ] && [ "${skip_dns}" = false ]; then
   dns_resolver="dnscrypt-proxy"
 
   install_package systemd-resolved
@@ -853,7 +855,7 @@ EOF
   [ -f /run/systemd/resolve/stub-resolv.conf ] && ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf &> "${log_redirects}"
 
   restart_service systemd-resolved
-else
+elif [ "${skip_dns}" = false ]; then
   dns_resolver="dnscrypt-proxy"
 
   if [ "${package_manager}" = "opkg" ]; then
