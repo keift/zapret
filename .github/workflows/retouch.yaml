@@ -32,7 +32,7 @@ jobs:
 
       - name: Commit and push
         run: |
-          if [[ -n $(git status --porcelain) ]]; then
+          if [ -n "$(git status --porcelain)" ]; then
             git add ./
             git commit -m "✨ chore: retouch"
             git push
