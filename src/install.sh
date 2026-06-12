@@ -1077,15 +1077,15 @@ if echo "${prototype_installation_results}" | grep -iq "system is not either sys
   prototype_installation_results=$(echo -e "Y\n\n\n\n\n\n\n\n\n\n\n\n" | /opt/zapret/install_easy.sh 2> "${log_redirects}")
 
   if echo "${prototype_installation_results}" | grep -iq "readonly system detected"; then
-    installation_results=$(echo -e "Y\nY\n\n\n\n\n\n\nY\n\n\n\n\n" | /opt/zapret/install_easy.sh 2> "${log_redirects}")
+    installation_results=$(echo -e "Y\nY\n\n\n\n4\n\n\nY\n\n\n\n\n" | /opt/zapret/install_easy.sh 2> "${log_redirects}")
   else
-    installation_results=$(echo -e "Y\n\n\n\n\n\n\nY\n\n\n\n\n" | /opt/zapret/install_easy.sh 2> "${log_redirects}")
+    installation_results=$(echo -e "Y\n\n\n\n4\n\n\nY\n\n\n\n\n" | /opt/zapret/install_easy.sh 2> "${log_redirects}")
   fi
 else
   if echo "${prototype_installation_results}" | grep -iq "readonly system detected"; then
-    installation_results=$(echo -e "Y\n\n\n\n\n\n\nY\n\n\n\n\n" | /opt/zapret/install_easy.sh 2> "${log_redirects}")
+    installation_results=$(echo -e "Y\n\n\n\n4\n\n\nY\n\n\n\n\n" | /opt/zapret/install_easy.sh 2> "${log_redirects}")
   else
-    installation_results=$(echo -e "\n\n\n\n\n\nY\n\n\n\n\n" | /opt/zapret/install_easy.sh 2> "${log_redirects}")
+    installation_results=$(echo -e "\n\n\n4\n\n\nY\n\n\n\n\n" | /opt/zapret/install_easy.sh 2> "${log_redirects}")
   fi
 fi
 
@@ -1143,7 +1143,6 @@ enable_service zapret
 start_service zapret
 
 sed -i "/^NFQWS_OPT=\"/,/^\"/c NFQWS_OPT=\"${nfqws_options} <HOSTLIST>\"" /opt/zapret/config
-sed -i "/^MODE_FILTER=/c MODE_FILTER=autohostlist" /opt/zapret/config
 
 restart_service zapret
 
