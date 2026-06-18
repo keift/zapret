@@ -1018,7 +1018,7 @@ while [ $# -gt 0 ]; do
 done
 
 if [ "${dev}" = true ]; then
-  nfqws_options="--dpi-desync=fake --dpi-desync-ttl=3"
+  nfqws_options="--dpi-desync=fakeddisorder --dpi-desync-ttl=1 --dpi-desync-autottl=-5 --dpi-desync-split-pos=1"
 else
   blockcheck_results=$(echo -e "${blockcheck_domain}\n\nN\n\n\n\n\n\n\n" | /opt/zapret/blockcheck.sh 2> "${log_redirects}" | sed -n "/^\* SUMMARY/,/^\$/ { /^\* SUMMARY/d; /^\$/d; p; }")
 
@@ -1026,13 +1026,7 @@ else
 
   nfqws_results=$(echo "${blockcheck_results}" | grep -E "curl_test_https[^ ]* ipv[0-9] ${blockcheck_domain} : nfqws")
 
-  if echo "${nfqws_results}" | grep -iq "ttl"; then
-    nfqws_options=$(echo "${nfqws_results}" | grep "ttl" | head -n 1)
-  else
-    nfqws_options=$(echo "${nfqws_results}" | tail -n 1)
-  fi
-
-  nfqws_options=$(echo "${nfqws_options}" | sed "s/.*nfqws //" | sed -z "s/^[[:space:]]*//; s/[[:space:]]*\$//")
+  nfqws_options=$(echo "${nfqws_results}" | tail -n 1 | sed "s/.*nfqws //" | sed -z "s/^[[:space:]]*//; s/[[:space:]]*\$//")
 fi
 
 if echo "${blockcheck_results}" | grep -iq "nftables queue support is not available"; then
