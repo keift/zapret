@@ -79,7 +79,7 @@ send_metrics() {
     local event="${1}"
     local unix_name=$(uname -a)
     local domain_response=$(curl -sSI --max-time 10 https://"${blockcheck_domain}" 2>&1 | head -n 1)
-    local nfqws_options=$(cat /opt/zapret/config 2>&1 | grep -E "^(NFQWS|MODE_FILTER)")
+    local bypass_methods=$(cat /opt/zapret/config 2>&1 | grep -E "^(NFQWS|MODE_FILTER)")
 
     local payload=$(
       jq -n \
@@ -92,7 +92,7 @@ send_metrics() {
         --arg blockcheck_results "${blockcheck_results}" \
         --arg installation_results "${installation_results}" \
         --arg domain_response "${domain_response}" \
-        --arg nfqws_options "${nfqws_options}" \
+        --arg bypass_methods "${bypass_methods}" \
         --arg parameters "${parameters}" \
         '{
           event: $event,
@@ -105,7 +105,7 @@ send_metrics() {
             blockcheck_results: $blockcheck_results,
             installation_results: $installation_results,
             domain_response: $domain_response,
-            nfqws_options: $nfqws_options,
+            bypass_methods: $bypass_methods,
             parameters: $parameters
           }
         }'
@@ -1018,15 +1018,15 @@ while [ $# -gt 0 ]; do
 done
 
 if [ "${dev}" = true ]; then
-  nfqws_options="--dpi-desync=fakeddisorder --dpi-desync-ttl=1 --dpi-desync-autottl=-5 --dpi-desync-split-pos=1"
+  bypass_methods="--dpi-desync=fakeddisorder --dpi-desync-ttl=1 --dpi-desync-autottl=-5 --dpi-desync-split-pos=1"
 else
   blockcheck_results=$(echo -e "${blockcheck_domain}\n\nN\n\n\n\n\n\n\n" | /opt/zapret/blockcheck.sh 2> "${log_redirects}" | sed -n "/^\* SUMMARY/,/^\$/ { /^\* SUMMARY/d; /^\$/d; p; }")
 
   [ "${debug}" = true ] && echo "${blockcheck_results}"
 
-  nfqws_results=$(echo "${blockcheck_results}" | grep -E "curl_test_https[^ ]* ipv[0-9] ${blockcheck_domain} : nfqws")
+  bypass_results=$(echo "${blockcheck_results}" | grep -E "curl_test_https[^ ]* ipv[0-9] ${blockcheck_domain} : nfqws")
 
-  nfqws_options=$(echo "${nfqws_results}" | tail -n 1 | sed "s/.*nfqws //" | sed -z "s/^[[:space:]]*//; s/[[:space:]]*\$//")
+  bypass_methods=$(echo "${bypass_results}" | tail -n 1 | sed "s/.*nfqws //" | sed -z "s/^[[:space:]]*//; s/[[:space:]]*\$//")
 fi
 
 if echo "${blockcheck_results}" | grep -iq "nftables queue support is not available"; then
@@ -1036,7 +1036,7 @@ if echo "${blockcheck_results}" | grep -iq "nftables queue support is not availa
   throw_system_is_too_old
 fi
 
-if ! echo "${nfqws_options}" | grep -iq -- "--"; then
+if ! echo "${bypass_methods}" | grep -iq -- "--"; then
   echo -e "Y\n\n" | /opt/zapret/uninstall_easy.sh &> "${log_redirects}"
   rm -rf /opt/zapret &> "${log_redirects}"
 
@@ -1136,7 +1136,7 @@ echo "${installation_results}" | grep -iq "system is not either systemd" && init
 enable_service zapret
 start_service zapret
 
-sed -i "/^NFQWS_OPT=\"/,/^\"/c NFQWS_OPT=\"${nfqws_options} <HOSTLIST>\"" /opt/zapret/config
+sed -i "/^NFQWS_OPT=\"/,/^\"/c NFQWS_OPT=\"${bypass_methods} <HOSTLIST>\"" /opt/zapret/config
 
 restart_service zapret
 
