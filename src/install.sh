@@ -820,7 +820,7 @@ if [ "${init_system}" = "systemd" ]; then
 
   restart_service systemd-resolved
 
-  cache_file=$(find / -type f -name "public-resolvers.md" 2> /dev/null)
+  cache_file=$(find / -type f -name "public-resolvers.md" 2> /dev/null | head -n 1)
 
   tee "${dnscrypt_config}" &> /dev/null << EOF
 listen_addresses = ["127.0.0.1:5300", "[::1]:5300"]
@@ -914,7 +914,7 @@ nameserver 1.0.0.1
 nameserver 2606:4700:4700::1001
 EOF
 
-  cache_file=$(find / -type f -name "public-resolvers.md" 2> /dev/null)
+  cache_file=$(find / -type f -name "public-resolvers.md" 2> /dev/null | head -n 1)
 
   tee "${dnscrypt_config}" &> /dev/null << EOF
 listen_addresses = ["127.0.0.1:53", "[::1]:53"]
