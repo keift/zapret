@@ -822,6 +822,8 @@ if [ "${init_system}" = "systemd" ]; then
 
   cache_file=$(find / -type f -name "public-resolvers.md" 2> /dev/null | head -n 1)
 
+  [ -z "${cache_file}" ] && cache_file="/var/cache/dnscrypt-proxy/public-resolvers.md"
+
   tee "${dnscrypt_config}" &> /dev/null << EOF
 listen_addresses = ["127.0.0.1:5300", "[::1]:5300"]
 
@@ -915,6 +917,8 @@ nameserver 2606:4700:4700::1001
 EOF
 
   cache_file=$(find / -type f -name "public-resolvers.md" 2> /dev/null | head -n 1)
+
+  [ -z "${cache_file}" ] && cache_file="/var/cache/dnscrypt-proxy/public-resolvers.md"
 
   tee "${dnscrypt_config}" &> /dev/null << EOF
 listen_addresses = ["127.0.0.1:53", "[::1]:53"]
