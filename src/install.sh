@@ -821,7 +821,6 @@ if [ "${init_system}" = "systemd" ]; then
   restart_service systemd-resolved
 
   mkdir -p /var/cache/dnscrypt-proxy &> "${log_redirects}"
-  touch /var/cache/dnscrypt-proxy/public-resolvers.md &> "${log_redirects}"
 
   tee "${dnscrypt_config}" &> /dev/null << EOF
 listen_addresses = ["127.0.0.1:5300", "[::1]:5300"]
@@ -916,7 +915,6 @@ nameserver 2606:4700:4700::1001
 EOF
 
   mkdir -p /var/cache/dnscrypt-proxy &> "${log_redirects}"
-  touch /var/cache/dnscrypt-proxy/public-resolvers.md &> "${log_redirects}"
 
   tee "${dnscrypt_config}" &> /dev/null << EOF
 listen_addresses = ["127.0.0.1:53", "[::1]:53"]
