@@ -822,9 +822,12 @@ if [ "${init_system}" = "systemd" ]; then
 
   cache_file=$(find / -type f -name "public-resolvers.md" 2> /dev/null | head -n 1)
 
-  [ -z "${cache_file}" ] && cache_file="/var/cache/dnscrypt-proxy/public-resolvers.md"
+  if [ -z "${cache_file}" ]; then
+    mkdir -p /var/cache/dnscrypt-proxy &> "${log_redirects}"
+    touch /var/cache/dnscrypt-proxy/public-resolvers.md &> "${log_redirects}"
 
-  mkdir -p /var/cache/dnscrypt-proxy
+    cache_file="/var/cache/dnscrypt-proxy/public-resolvers.md"
+  fi
 
   tee "${dnscrypt_config}" &> /dev/null << EOF
 listen_addresses = ["127.0.0.1:5300", "[::1]:5300"]
@@ -920,9 +923,12 @@ EOF
 
   cache_file=$(find / -type f -name "public-resolvers.md" 2> /dev/null | head -n 1)
 
-  [ -z "${cache_file}" ] && cache_file="/var/cache/dnscrypt-proxy/public-resolvers.md"
+  if [ -z "${cache_file}" ]; then
+    mkdir -p /var/cache/dnscrypt-proxy &> "${log_redirects}"
+    touch /var/cache/dnscrypt-proxy/public-resolvers.md &> "${log_redirects}"
 
-  mkdir -p /var/cache/dnscrypt-proxy
+    cache_file="/var/cache/dnscrypt-proxy/public-resolvers.md"
+  fi
 
   tee "${dnscrypt_config}" &> /dev/null << EOF
 listen_addresses = ["127.0.0.1:53", "[::1]:53"]
