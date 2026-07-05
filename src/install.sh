@@ -1043,15 +1043,15 @@ else
   bypass_results=$(echo "${blockcheck_results}" | grep -E "curl_test_https[^ ]* ipv[0-9] ${blockcheck_domain} : nfqws")
 
   if [ "${strict}" = true ]; then
-    target="tail"
+    bypass_target="tail"
   else
-    target="head"
+    bypass_target="head"
   fi
 
   if echo "${bypass_results}" | grep -iq "ttl"; then
-    bypass_methods=$(echo "${bypass_results}" | grep "ttl" | "${target}" -n 1)
+    bypass_methods=$(echo "${bypass_results}" | grep "ttl" | "${bypass_target}" -n 1)
   else
-    bypass_methods=$(echo "${bypass_results}" | "${target}" -n 1)
+    bypass_methods=$(echo "${bypass_results}" | "${bypass_target}" -n 1)
   fi
 
   bypass_methods=$(echo "${bypass_methods}" | sed "s/.*nfqws //" | sed -z "s/^[[:space:]]*//; s/[[:space:]]*\$//")
