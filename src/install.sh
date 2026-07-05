@@ -1041,7 +1041,7 @@ else
   bypass_results=$(echo "${blockcheck_results}" | grep -E "curl_test_https[^ ]* ipv[0-9] ${blockcheck_domain} : nfqws")
 
   if echo "${bypass_results}" | grep -iq "ttl"; then
-    bypass_methods=$(echo "${bypass_results}" | grep "ttl" | tail -n 1)
+    bypass_methods=$(echo "${bypass_results}" | grep "ttl" | head -n 1)
   else
     bypass_methods=$(echo "${bypass_results}" | tail -n 1)
   fi
