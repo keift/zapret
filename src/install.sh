@@ -1,9 +1,11 @@
 #!/bin/bash
 
+strict=false
 dev=false
 debug=false
 
 for arg in "${@}"; do
+  [ "${arg}" = "--strict" ] && strict=true
   [ "${arg}" = "--dev" ] && dev=true
   [ "${arg}" = "--debug" ] && debug=true
 done
@@ -1032,7 +1034,7 @@ while [ $# -gt 0 ]; do
 done
 
 if [ "${dev}" = true ]; then
-  bypass_methods="--dpi-desync=fakeddisorder --dpi-desync-ttl=1 --dpi-desync-autottl=-5 --dpi-desync-split-pos=1"
+  bypass_methods="--dpi-desync=fake --dpi-desync-ttl=3"
 else
   blockcheck_results=$(echo -e "${blockcheck_domain}\n\nN\n\n\n\n\n\n\n" | /opt/zapret/blockcheck.sh 2> "${log_redirects}" | sed -n "/^\* SUMMARY/,/^\$/ { /^\* SUMMARY/d; /^\$/d; p; }")
 
@@ -1040,10 +1042,16 @@ else
 
   bypass_results=$(echo "${blockcheck_results}" | grep -E "curl_test_https[^ ]* ipv[0-9] ${blockcheck_domain} : nfqws")
 
-  if echo "${bypass_results}" | grep -iq "ttl"; then
-    bypass_methods=$(echo "${bypass_results}" | grep "ttl" | head -n 1)
+  if [ "${strict}" = true ]; then
+    target="tail"
   else
-    bypass_methods=$(echo "${bypass_results}" | tail -n 1)
+    target="head"
+  fi
+
+  if echo "${bypass_results}" | grep -iq "ttl"; then
+    bypass_methods=$(echo "${bypass_results}" | grep "ttl" | "${target}" -n 1)
+  else
+    bypass_methods=$(echo "${bypass_results}" | "${target}" -n 1)
   fi
 
   bypass_methods=$(echo "${bypass_methods}" | sed "s/.*nfqws //" | sed -z "s/^[[:space:]]*//; s/[[:space:]]*\$//")

@@ -3,7 +3,7 @@
     "prettier": "prettier --write ./"
   },
   "dependencies": {
-    "prettier": "^3.8.4",
+    "prettier": "^3.9.4",
     "prettier-plugin-sh": "^0.18.1"
   }
 }
