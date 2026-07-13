@@ -622,12 +622,18 @@ print_head() {
 
   echo ""
 
-  if [ "${country_code}" = "RU" ]; then
-    echo -e "  ${blue}Keift ${cyan}Установить Zapret ${gray}v${version} (${last_commit_id})${reset}"
-  elif [ "${country_code}" = "TR" ]; then
-    echo -e "  ${blue}Keift ${cyan}Zapret Kurulumu ${gray}v${version} (${last_commit_id})${reset}"
+  if [ -n "${last_commit_id}" ]; then
+    local version_text="${gray}v${version} (${last_commit_id})"
   else
-    echo -e "  ${blue}Keift ${cyan}Install Zapret ${gray}v${version} (${last_commit_id})${reset}"
+    local version_text="${gray}v${version}"
+  fi
+
+  if [ "${country_code}" = "RU" ]; then
+    echo -e "  ${blue}Keift ${cyan}Установить Zapret ${version_text}${reset}"
+  elif [ "${country_code}" = "TR" ]; then
+    echo -e "  ${blue}Keift ${cyan}Zapret Kurulumu ${version_text}${reset}"
+  else
+    echo -e "  ${blue}Keift ${cyan}Install Zapret ${version_text}${reset}"
   fi
 
   echo ""

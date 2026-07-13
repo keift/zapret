@@ -414,12 +414,18 @@ print_head() {
 
   echo ""
 
-  if [ "${country_code}" = "RU" ]; then
-    echo -e "  ${blue}Keift ${cyan}Удалить Zapret ${gray}v${version} (${last_commit_id})${reset}"
-  elif [ "${country_code}" = "TR" ]; then
-    echo -e "  ${blue}Keift ${cyan}Zapret Kaldırma ${gray}v${version} (${last_commit_id})${reset}"
+  if [ -n "${last_commit_id}" ]; then
+    local version_text="${gray}v${version} (${last_commit_id})"
   else
-    echo -e "  ${blue}Keift ${cyan}Uninstall Zapret ${gray}v${version} (${last_commit_id})${reset}"
+    local version_text="${gray}v${version}"
+  fi
+
+  if [ "${country_code}" = "RU" ]; then
+    echo -e "  ${blue}Keift ${cyan}Удалить Zapret ${version_text}${reset}"
+  elif [ "${country_code}" = "TR" ]; then
+    echo -e "  ${blue}Keift ${cyan}Zapret Kaldırma ${version_text}${reset}"
+  else
+    echo -e "  ${blue}Keift ${cyan}Uninstall Zapret ${version_text}${reset}"
   fi
 
   echo ""
