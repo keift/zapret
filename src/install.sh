@@ -25,6 +25,7 @@ inverse="\x1b[7m"
 hidden="\x1b[8m"
 strikethrough="\x1b[9m"
 
+legible="\e[0m"
 black="\e[30m"
 red="\e[31m"
 green="\e[32m"
@@ -35,7 +36,10 @@ cyan="\e[36m"
 white="\e[37m"
 gray="\e[90m"
 
+version="1.2"
 zapret_version="72.12"
+
+last_commit_id=$(curl -s --max-time 10 https://api.github.com/repos/keift/zapret/commits/main | grep -m 1 '"sha":' | cut -d '"' -f 4 | cut -c 1-7)
 
 country_code=$(curl -s --max-time 10 https://ipinfo.io/country)
 
@@ -44,14 +48,14 @@ blockcheck_domain="unknown"
 
 send_metrics() {
   if [ "${country_code}" = "RU" ]; then
-    echo -e "  ${gray}Вы хотите поделиться результатами с ${blue}Keift${gray}?${reset}"
-    echo -ne "  ${gray}Это поможет нам улучшить этот инструмент. [${green}Д${gray}/${red}Н${gray}] ${reset}"
+    echo -e "  ${legible}Вы хотите поделиться результатами с ${blue}Keift${legible}?${reset}"
+    echo -ne "  ${legible}Это поможет нам улучшить этот инструмент. [${green}Д${legible}/${red}Н${legible}] ${reset}"
   elif [ "${country_code}" = "TR" ]; then
-    echo -e "  ${gray}Sonuçları ${blue}Keift ${gray}ile paylaşmak ister misiniz?${reset}"
-    echo -ne "  ${gray}Bu, aracı geliştirmemize yardımcı olur. [${green}E${gray}/${red}H${gray}] ${reset}"
+    echo -e "  ${legible}Sonuçları ${blue}Keift ${legible}ile paylaşmak ister misiniz?${reset}"
+    echo -ne "  ${legible}Bu, aracı geliştirmemize yardımcı olur. [${green}E${legible}/${red}H${legible}] ${reset}"
   else
-    echo -e "  ${gray}Would you like to share the results with ${blue}Keift${gray}?${reset}"
-    echo -ne "  ${gray}This helps us improve this tool. [${green}Y${gray}/${red}N${gray}] ${reset}"
+    echo -e "  ${legible}Would you like to share the results with ${blue}Keift${legible}?${reset}"
+    echo -ne "  ${legible}This helps us improve this tool. [${green}Y${legible}/${red}N${legible}] ${reset}"
   fi
 
   if [ -t 0 ]; then
@@ -71,11 +75,11 @@ send_metrics() {
   if [ "${metrics_answer,,}" = "${acceptance_answer}" ]; then
     echo ""
     if [ "${country_code}" = "RU" ]; then
-      echo -e "  ${gray}Спасибо за ваш отзыв.${reset}"
+      echo -e "  ${legible}Спасибо за ваш отзыв.${reset}"
     elif [ "${country_code}" = "TR" ]; then
-      echo -e "  ${gray}Geri bildiriminiz için teşekkürler.${reset}"
+      echo -e "  ${legible}Geri bildiriminiz için teşekkürler.${reset}"
     else
-      echo -e "  ${gray}Thank you for your feedback.${reset}"
+      echo -e "  ${legible}Thank you for your feedback.${reset}"
     fi
 
     local event="${1}"
@@ -119,26 +123,26 @@ send_metrics() {
   else
     echo ""
     if [ "${country_code}" = "RU" ]; then
-      echo -e "  ${gray}Всё в порядке, ничего не было отправлено.${reset}"
+      echo -e "  ${legible}Всё в порядке, ничего не было отправлено.${reset}"
     elif [ "${country_code}" = "TR" ]; then
-      echo -e "  ${gray}Sorun değil, hiçbir şey paylaşılmadı.${reset}"
+      echo -e "  ${legible}Sorun değil, hiçbir şey paylaşılmadı.${reset}"
     else
-      echo -e "  ${gray}That's okay, nothing was shared.${reset}"
+      echo -e "  ${legible}That's okay, nothing was shared.${reset}"
     fi
   fi
 
   if [ "${country_code}" = "RU" ]; then
-    echo -e "  ${gray}Нужна помощь? Свяжитесь с нами.${reset}"
+    echo -e "  ${legible}Нужна помощь? Свяжитесь с нами.${reset}"
   elif [ "${country_code}" = "TR" ]; then
-    echo -e "  ${gray}Yardıma mı ihtiyacınız var? Bizimle iletişime geçin.${reset}"
+    echo -e "  ${legible}Yardıma mı ihtiyacınız var? Bizimle iletişime geçin.${reset}"
   else
-    echo -e "  ${gray}Need help? Contact us.${reset}"
+    echo -e "  ${legible}Need help? Contact us.${reset}"
   fi
 
   echo ""
 
-  echo -e "  ${blue}Discord   ${white}https://discord.gg/keift${reset}"
-  echo -e "  ${cyan}Telegram  ${white}https://t.me/keiftco${reset}"
+  echo -e "  ${blue}Discord   ${legible}https://discord.gg/keift${reset}"
+  echo -e "  ${cyan}Telegram  ${legible}https://t.me/keiftco${reset}"
 }
 
 detect_system() {
@@ -619,11 +623,11 @@ print_head() {
   echo ""
 
   if [ "${country_code}" = "RU" ]; then
-    echo -e "  ${blue}Keift ${cyan}Установить Zapret${reset}"
+    echo -e "  ${blue}Keift ${cyan}Установить Zapret ${gray}v${version} (${last_commit_id})${reset}"
   elif [ "${country_code}" = "TR" ]; then
-    echo -e "  ${blue}Keift ${cyan}Zapret Kurulumu${reset}"
+    echo -e "  ${blue}Keift ${cyan}Zapret Kurulumu ${gray}v${version} (${last_commit_id})${reset}"
   else
-    echo -e "  ${blue}Keift ${cyan}Install Zapret${reset}"
+    echo -e "  ${blue}Keift ${cyan}Install Zapret ${gray}v${version} (${last_commit_id})${reset}"
   fi
 
   echo ""
@@ -632,27 +636,27 @@ print_head() {
 print_update_commands() {
   if [ "${package_manager}" = "apt" ]; then
     echo -e "  ${green}sudo ${cyan}apt ${cyan}update${reset}"
-    echo -e "  ${green}sudo ${cyan}apt ${cyan}upgrade ${white}-${yellow}y${reset}"
+    echo -e "  ${green}sudo ${cyan}apt ${cyan}upgrade ${legible}-${yellow}y${reset}"
   elif [ "${package_manager}" = "rpm-ostree" ]; then
     echo -e "  ${green}sudo ${cyan}rpm-ostree ${cyan}upgrade${reset}"
   elif [ "${package_manager}" = "dnf" ]; then
-    echo -e "  ${green}sudo ${cyan}dnf ${cyan}upgrade ${white}-${yellow}y${reset}"
+    echo -e "  ${green}sudo ${cyan}dnf ${cyan}upgrade ${legible}-${yellow}y${reset}"
   elif [ "${package_manager}" = "pacman" ]; then
-    echo -e "  ${green}sudo ${cyan}pacman ${white}-${yellow}Syu ${white}--${yellow}noconfirm${reset}"
+    echo -e "  ${green}sudo ${cyan}pacman ${legible}-${yellow}Syu ${legible}--${yellow}noconfirm${reset}"
   elif [ "${package_manager}" = "zypper" ]; then
-    echo -e "  ${green}sudo ${cyan}zypper ${white}-${yellow}n ${cyan}update${reset}"
+    echo -e "  ${green}sudo ${cyan}zypper ${legible}-${yellow}n ${cyan}update${reset}"
   elif [ "${package_manager}" = "xbps" ]; then
-    echo -e "  ${green}sudo ${cyan}xbps-install ${white}-${yellow}Suy${reset}"
+    echo -e "  ${green}sudo ${cyan}xbps-install ${legible}-${yellow}Suy${reset}"
   elif [ "${package_manager}" = "apk" ]; then
-    echo -e "  ${green}sudo ${cyan}apk ${cyan}upgrade ${white}-${yellow}U${reset}"
+    echo -e "  ${green}sudo ${cyan}apk ${cyan}upgrade ${legible}-${yellow}U${reset}"
   elif [ "${package_manager}" = "emerge" ]; then
-    echo -e "  ${green}sudo ${cyan}emerge ${white}--${yellow}sync${reset}"
-    echo -e "  ${green}sudo ${cyan}emerge ${white}-${yellow}uDNq ${cyan}@world${reset}"
+    echo -e "  ${green}sudo ${cyan}emerge ${legible}--${yellow}sync${reset}"
+    echo -e "  ${green}sudo ${cyan}emerge ${legible}-${yellow}uDNq ${cyan}@world${reset}"
   elif [ "${package_manager}" = "slackpkg" ]; then
-    echo -e "  ${green}sudo ${cyan}slackpkg ${white}-${yellow}batch=on ${white}-${yellow}default_answer=y ${cyan}update${reset}"
-    echo -e "  ${green}sudo ${cyan}slackpkg ${white}-${yellow}batch=on ${white}-${yellow}default_answer=y ${cyan}upgrade-all${reset}"
+    echo -e "  ${green}sudo ${cyan}slackpkg ${legible}-${yellow}batch=on ${legible}-${yellow}default_answer=y ${cyan}update${reset}"
+    echo -e "  ${green}sudo ${cyan}slackpkg ${legible}-${yellow}batch=on ${legible}-${yellow}default_answer=y ${cyan}upgrade-all${reset}"
   elif [ "${package_manager}" = "eopkg" ]; then
-    echo -e "  ${green}sudo ${cyan}eopkg ${cyan}upgrade ${white}-${yellow}y${reset}"
+    echo -e "  ${green}sudo ${cyan}eopkg ${cyan}upgrade ${legible}-${yellow}y${reset}"
   elif [ "${package_manager}" = "opkg" ]; then
     echo -e "  ${green}sudo ${cyan}opkg ${cyan}update${reset}"
     echo -e "  ${green}sudo ${cyan}opkg ${cyan}upgrade${reset}"
@@ -714,7 +718,7 @@ if [ "${EUID}" != "0" ]; then
 
   echo ""
 
-  echo -e "  ${green}curl ${white}-${yellow}fsSL ${cyan}https://raw.github.com/keift/zapret/refs/heads/main/src/install.sh ${gray}| ${green}sudo ${cyan}bash${reset}"
+  echo -e "  ${green}curl ${legible}-${yellow}fsSL ${cyan}https://raw.github.com/keift/zapret/refs/heads/main/src/install.sh ${legible}| ${green}sudo ${cyan}bash${reset}"
 
   echo ""
 
@@ -722,11 +726,11 @@ if [ "${EUID}" != "0" ]; then
 fi
 
 if [ "${country_code}" = "RU" ]; then
-  echo -e "  ${gray}Установка зависимостей...${reset}"
+  echo -e "  ${legible}Установка зависимостей...${reset}"
 elif [ "${country_code}" = "TR" ]; then
-  echo -e "  ${gray}Bağımlılıklar yükleniyor...${reset}"
+  echo -e "  ${legible}Bağımlılıklar yükleniyor...${reset}"
 else
-  echo -e "  ${gray}Installing dependencies...${reset}"
+  echo -e "  ${legible}Installing dependencies...${reset}"
 fi
 
 install_package bind
@@ -752,11 +756,11 @@ if ! command -v dig &> /dev/null \
 fi
 
 if [ "${country_code}" = "RU" ]; then
-  echo -e "  ${gray}Шифрование DNS-запросов...${reset}"
+  echo -e "  ${legible}Шифрование DNS-запросов...${reset}"
 elif [ "${country_code}" = "TR" ]; then
-  echo -e "  ${gray}DNS sorguları şifreleniyor...${reset}"
+  echo -e "  ${legible}DNS sorguları şifreleniyor...${reset}"
 else
-  echo -e "  ${gray}Encrypting DNS queries...${reset}"
+  echo -e "  ${legible}Encrypting DNS queries...${reset}"
 fi
 
 if [ "${init_system}" = "systemd" ]; then
@@ -958,11 +962,11 @@ EOF
 fi
 
 if [ "${country_code}" = "RU" ]; then
-  echo -e "  ${gray}Скачивание Zapret...${reset}"
+  echo -e "  ${legible}Скачивание Zapret...${reset}"
 elif [ "${country_code}" = "TR" ]; then
-  echo -e "  ${gray}Zapret indiriliyor...${reset}"
+  echo -e "  ${legible}Zapret indiriliyor...${reset}"
 else
-  echo -e "  ${gray}Downloading Zapret...${reset}"
+  echo -e "  ${legible}Downloading Zapret...${reset}"
 fi
 
 echo -e "Y\n\n" | /opt/zapret/uninstall_easy.sh &> "${log_redirects}"
@@ -981,22 +985,22 @@ cp -r /tmp/zapret-v"${zapret_version}" /opt/zapret &> "${log_redirects}"
 rm -rf /tmp/zapret-v"${zapret_version}" &> "${log_redirects}"
 
 if [ "${country_code}" = "RU" ]; then
-  echo -e "  ${gray}Подготовка к установке...${reset}"
+  echo -e "  ${legible}Подготовка к установке...${reset}"
 elif [ "${country_code}" = "TR" ]; then
-  echo -e "  ${gray}Kuruluma hazırlanıyor...${reset}"
+  echo -e "  ${legible}Kuruluma hazırlanıyor...${reset}"
 else
-  echo -e "  ${gray}Preparing for installation...${reset}"
+  echo -e "  ${legible}Preparing for installation...${reset}"
 fi
 
 echo -e "\n\n" | /opt/zapret/install_prereq.sh &> "${log_redirects}"
 /opt/zapret/install_bin.sh &> "${log_redirects}"
 
 if [ "${country_code}" = "RU" ]; then
-  echo -e "  ${gray}Поиск способов обхода блокировок...${reset}"
+  echo -e "  ${legible}Поиск способов обхода блокировок...${reset}"
 elif [ "${country_code}" = "TR" ]; then
-  echo -e "  ${gray}Erişim engelleri aşma yöntemleri aranıyor...${reset}"
+  echo -e "  ${legible}Erişim engelleri aşma yöntemleri aranıyor...${reset}"
 else
-  echo -e "  ${gray}Searching for methods to bypass access restrictions...${reset}"
+  echo -e "  ${legible}Searching for methods to bypass access restrictions...${reset}"
 fi
 
 blockcheck_domains=(
@@ -1069,11 +1073,11 @@ if ! echo "${bypass_methods}" | grep -iq -- "--"; then
   rm -rf /opt/zapret &> "${log_redirects}"
 
   if [ "${country_code}" = "RU" ]; then
-    echo -e "  ${gray}Ограничений доступа не обнаружено.${reset}"
+    echo -e "  ${legible}Ограничений доступа не обнаружено.${reset}"
   elif [ "${country_code}" = "TR" ]; then
-    echo -e "  ${gray}Erişim kısıtlaması tespit edilmedi.${reset}"
+    echo -e "  ${legible}Erişim kısıtlaması tespit edilmedi.${reset}"
   else
-    echo -e "  ${gray}No access restrictions were detected.${reset}"
+    echo -e "  ${legible}No access restrictions were detected.${reset}"
   fi
 
   echo ""
@@ -1086,11 +1090,11 @@ if ! echo "${bypass_methods}" | grep -iq -- "--"; then
 fi
 
 if [ "${country_code}" = "RU" ]; then
-  echo -e "  ${gray}Установка Zapret...${reset}"
+  echo -e "  ${legible}Установка Zapret...${reset}"
 elif [ "${country_code}" = "TR" ]; then
-  echo -e "  ${gray}Zapret kuruluyor...${reset}"
+  echo -e "  ${legible}Zapret kuruluyor...${reset}"
 else
-  echo -e "  ${gray}Installing Zapret...${reset}"
+  echo -e "  ${legible}Installing Zapret...${reset}"
 fi
 
 prototype_installation_results=$(echo -e "\n\n\n\n\n\n\n\n\n\n\n" | /opt/zapret/install_easy.sh 2> "${log_redirects}")
@@ -1175,11 +1179,11 @@ for domain in "${blockcheck_domains[@]}"; do
 done
 
 if [ "${country_code}" = "RU" ]; then
-  echo -e "  ${gray}Zapret успешно установлен.${reset}"
+  echo -e "  ${legible}Zapret успешно установлен.${reset}"
 elif [ "${country_code}" = "TR" ]; then
-  echo -e "  ${gray}Zapret başarıyla kuruldu.${reset}"
+  echo -e "  ${legible}Zapret başarıyla kuruldu.${reset}"
 else
-  echo -e "  ${gray}Zapret was successfully installed.${reset}"
+  echo -e "  ${legible}Zapret was successfully installed.${reset}"
 fi
 
 echo ""

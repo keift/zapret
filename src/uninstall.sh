@@ -22,6 +22,7 @@ inverse="\x1b[7m"
 hidden="\x1b[8m"
 strikethrough="\x1b[9m"
 
+legible="\e[0m"
 black="\e[30m"
 red="\e[31m"
 green="\e[32m"
@@ -31,6 +32,10 @@ magenta="\e[35m"
 cyan="\e[36m"
 white="\e[37m"
 gray="\e[90m"
+
+version="1.2"
+
+last_commit_id=$(curl -s --max-time 10 https://api.github.com/repos/keift/zapret/commits/main | grep -m 1 '"sha":' | cut -d '"' -f 4 | cut -c 1-7)
 
 country_code=$(curl -s --max-time 10 https://ipinfo.io/country)
 
@@ -410,11 +415,11 @@ print_head() {
   echo ""
 
   if [ "${country_code}" = "RU" ]; then
-    echo -e "  ${blue}Keift ${cyan}Удалить Zapret${reset}"
+    echo -e "  ${blue}Keift ${cyan}Удалить Zapret ${gray}v${version} (${last_commit_id})${reset}"
   elif [ "${country_code}" = "TR" ]; then
-    echo -e "  ${blue}Keift ${cyan}Zapret Kaldırma${reset}"
+    echo -e "  ${blue}Keift ${cyan}Zapret Kaldırma ${gray}v${version} (${last_commit_id})${reset}"
   else
-    echo -e "  ${blue}Keift ${cyan}Uninstall Zapret${reset}"
+    echo -e "  ${blue}Keift ${cyan}Uninstall Zapret ${gray}v${version} (${last_commit_id})${reset}"
   fi
 
   echo ""
@@ -451,7 +456,7 @@ if [ "${EUID}" != "0" ]; then
 
   echo ""
 
-  echo -e "  ${green}curl ${white}-${yellow}fsSL ${cyan}https://raw.github.com/keift/zapret/refs/heads/main/src/uninstall.sh ${gray}| ${green}sudo ${cyan}bash${reset}"
+  echo -e "  ${green}curl ${legible}-${yellow}fsSL ${cyan}https://raw.github.com/keift/zapret/refs/heads/main/src/uninstall.sh ${legible}| ${green}sudo ${cyan}bash${reset}"
 
   echo ""
 
@@ -459,11 +464,11 @@ if [ "${EUID}" != "0" ]; then
 fi
 
 if [ "${country_code}" = "RU" ]; then
-  echo -e "  ${gray}Настройки DNS удаляются...${reset}"
+  echo -e "  ${legible}Настройки DNS удаляются...${reset}"
 elif [ "${country_code}" = "TR" ]; then
-  echo -e "  ${gray}DNS ayarları kaldırılıyor...${reset}"
+  echo -e "  ${legible}DNS ayarları kaldırılıyor...${reset}"
 else
-  echo -e "  ${gray}DNS settings are being removed...${reset}"
+  echo -e "  ${legible}DNS settings are being removed...${reset}"
 fi
 
 if [ "${init_system}" = "systemd" ]; then
@@ -504,11 +509,11 @@ fi
 
 if [ ! -d /opt/zapret ]; then
   if [ "${country_code}" = "RU" ]; then
-    echo -e "  ${gray}Zapret уже не установлен.${reset}"
+    echo -e "  ${legible}Zapret уже не установлен.${reset}"
   elif [ "${country_code}" = "TR" ]; then
-    echo -e "  ${gray}Zapret zaten kurulu değil.${reset}"
+    echo -e "  ${legible}Zapret zaten kurulu değil.${reset}"
   else
-    echo -e "  ${gray}Zapret already not installed.${reset}"
+    echo -e "  ${legible}Zapret already not installed.${reset}"
   fi
 
   echo ""
@@ -517,22 +522,22 @@ if [ ! -d /opt/zapret ]; then
 fi
 
 if [ "${country_code}" = "RU" ]; then
-  echo -e "  ${gray}Удаление Zapret...${reset}"
+  echo -e "  ${legible}Удаление Zapret...${reset}"
 elif [ "${country_code}" = "TR" ]; then
-  echo -e "  ${gray}Zapret kaldırılıyor...${reset}"
+  echo -e "  ${legible}Zapret kaldırılıyor...${reset}"
 else
-  echo -e "  ${gray}Uninstalling Zapret...${reset}"
+  echo -e "  ${legible}Uninstalling Zapret...${reset}"
 fi
 
 echo -e "Y\n\n" | /opt/zapret/uninstall_easy.sh &> "${log_redirects}"
 rm -rf /opt/zapret &> "${log_redirects}"
 
 if [ "${country_code}" = "RU" ]; then
-  echo -e "  ${gray}Zapret успешно удален.${reset}"
+  echo -e "  ${legible}Zapret успешно удален.${reset}"
 elif [ "${country_code}" = "TR" ]; then
-  echo -e "  ${gray}Zapret başarıyla kaldırıldı.${reset}"
+  echo -e "  ${legible}Zapret başarıyla kaldırıldı.${reset}"
 else
-  echo -e "  ${gray}Zapret has been successfully uninstalled.${reset}"
+  echo -e "  ${legible}Zapret has been successfully uninstalled.${reset}"
 fi
 
 echo ""
