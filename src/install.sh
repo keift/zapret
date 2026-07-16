@@ -743,7 +743,6 @@ install_package bind
 install_package bind-tools
 install_package bind-utils
 install_package bind9-dnsutils
-install_package bind920
 install_package curl
 install_package gzip
 install_package iptables
