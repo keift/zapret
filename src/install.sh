@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 strict=false
 dev=false
