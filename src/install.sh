@@ -37,7 +37,7 @@ white="\e[37m"
 gray="\e[90m"
 
 version="1.2"
-zapret_version="72.12"
+zapret_version="72.13"
 
 last_commit_id=$(curl -s --max-time 10 https://api.github.com/repos/keift/zapret/commits/main | grep -m 1 '"sha":' | cut -d '"' -f 4 | cut -c 1-7)
 
