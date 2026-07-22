@@ -493,17 +493,17 @@ remove_package() {
   local package_name="${1}"
 
   if [ "${package_manager}" = "apt" ]; then
-    apt purge -y --autoremove "${package_name}" &> "${log_redirects}"
+    apt remove -y "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "rpm-ostree" ]; then
     rpm-ostree uninstall --apply-live "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "dnf" ]; then
     dnf remove -y "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "pacman" ]; then
-    pacman -Rns --noconfirm "${package_name}" &> "${log_redirects}"
+    pacman -R --noconfirm "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "zypper" ]; then
-    zypper -n remove -u "${package_name}" &> "${log_redirects}"
+    zypper -n remove "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "xbps" ]; then
-    xbps-remove -Ry "${package_name}" &> "${log_redirects}"
+    xbps-remove -y "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "apk" ]; then
     apk del "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "emerge" ]; then
@@ -511,9 +511,9 @@ remove_package() {
   elif [ "${package_manager}" = "slackpkg" ]; then
     slackpkg -batch=on -default_answer=y remove "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "eopkg" ]; then
-    eopkg remove -y --purge "${package_name}" &> "${log_redirects}"
+    eopkg remove -y "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "opkg" ]; then
-    opkg remove --autoremove "${package_name}" &> "${log_redirects}"
+    opkg remove "${package_name}" &> "${log_redirects}"
   else
     print_head
 
@@ -739,10 +739,11 @@ else
   echo -e "  ${legible}Installing dependencies...${reset}"
 fi
 
-install_package bind
-install_package bind-tools
-install_package bind-utils
-install_package bind9-dnsutils
+command -v dig &> /dev/null || install_package bind-tools
+command -v dig &> /dev/null || install_package bind-utils
+command -v dig &> /dev/null || install_package bind9-dnsutils
+command -v dig &> /dev/null || install_package bind
+
 install_package curl
 install_package gzip
 install_package iptables
