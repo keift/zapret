@@ -1,5 +1,6 @@
 {
   "scripts": {
+    "retouch": "bun run prettier",
     "prettier": "prettier --write ./"
   },
   "dependencies": {

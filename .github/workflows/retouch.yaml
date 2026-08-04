@@ -19,8 +19,8 @@ jobs:
       - name: Install dependencies
         run: bun install
 
-      - name: Run Prettier
-        run: bun run prettier
+      - name: Retouch it
+        run: bun run retouch
 
       - name: Configure Git
         run: |
