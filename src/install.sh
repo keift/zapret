@@ -449,7 +449,7 @@ install_package() {
   if [ "${package_manager}" = "apt" ]; then
     apt install -y "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "rpm-ostree" ]; then
-    rpm-ostree install --apply-live "${package_name}" &> "${log_redirects}"
+    rpm-ostree install -y --apply-live "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "dnf" ]; then
     dnf install -y "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "pacman" ]; then
@@ -495,7 +495,7 @@ remove_package() {
   if [ "${package_manager}" = "apt" ]; then
     apt remove -y "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "rpm-ostree" ]; then
-    rpm-ostree uninstall --apply-live "${package_name}" &> "${log_redirects}"
+    rpm-ostree uninstall -y --apply-live "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "dnf" ]; then
     dnf remove -y "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "pacman" ]; then
@@ -1124,29 +1124,11 @@ fi
 [ "${debug}" = true ] && echo "${installation_results}"
 
 if echo "${installation_results}" | grep -iq "readonly system detected"; then
-  echo -e "Y\n\n" | /opt/zapret/uninstall_easy.sh &> "${log_redirects}"
-  rm -rf /opt/zapret &> "${log_redirects}"
+  ln -sf /opt/zapret/init.d/systemd/zapret.service /etc/systemd/system/zapret.service &> "${log_redirects}"
 
-  print_head
-
-  if [ "${country_code}" = "RU" ]; then
-    echo -e "  ${red}Обнаружена неизменяемая система. Пожалуйста, отключите режим только для чтения.${reset}"
-  elif [ "${country_code}" = "TR" ]; then
-    echo -e "  ${red}Değiştirilemez sistem tespit edildi. Lütfen salt okunur modunu kapatın.${reset}"
-  else
-    echo -e "  ${red}Immutable system detected. Please turn off read-only mode.${reset}"
-  fi
-
-  echo ""
-
-  send_metrics ZAPRET_IMMUTABLE_SYSTEM_DETECTED
-
-  echo ""
-
-  exit 1
-fi
-
-if echo "${installation_results}" | grep -iq "could not start zapret service"; then
+  ln -sf /opt/zapret/init.d/systemd/zapret-list-update.service /etc/systemd/system/zapret-list-update.service &> "${log_redirects}"
+  ln -sf /opt/zapret/init.d/systemd/zapret-list-update.timer /etc/systemd/system/zapret-list-update.timer &> "${log_redirects}"
+elif echo "${installation_results}" | grep -iq "could not start zapret service"; then
   echo -e "Y\n\n" | /opt/zapret/uninstall_easy.sh &> "${log_redirects}"
   rm -rf /opt/zapret &> "${log_redirects}"
 
