@@ -5,6 +5,7 @@
 ### Added
 
 - **DNS maintainer.** Systemd-resolved maintainer for DNS stability and optimization.
+- **Immutable systems support.** It can be installed on immutable systems.
 
 ## v1.2
 
