@@ -1037,7 +1037,7 @@ fi
 [ "${debug}" = true ] && echo "${installation_results}"
 
 if echo "${installation_results}" | grep -iq "readonly system detected"; then
-  cp /opt/zapret/init.d/systemd/zapret.service /etc/systemd/system/zapret.service &> "${log_redirects}"
+  cp /opt/zapret/init.d/systemd/* /etc/systemd/system &> "${log_redirects}"
 elif echo "${installation_results}" | grep -iq "could not start zapret service"; then
   echo -e "Y\n\n" | /opt/zapret/uninstall_easy.sh &> "${log_redirects}"
   rm -rf /opt/zapret &> "${log_redirects}"
