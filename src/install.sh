@@ -447,7 +447,7 @@ install_package() {
   local package_name="${1}"
 
   if [ "${package_manager}" = "rpm-ostree" ]; then
-    rpm-ostree install -y "${package_name}" &> "${log_redirects}" && rpm-ostree apply-live &> "${log_redirects}"
+    rpm-ostree install -y "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "apt" ]; then
     apt install -y "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "dnf" ]; then
@@ -493,7 +493,7 @@ uninstall_package() {
   local package_name="${1}"
 
   if [ "${package_manager}" = "rpm-ostree" ]; then
-    rpm-ostree uninstall -y "${package_name}" &> "${log_redirects}" && rpm-ostree apply-live &> "${log_redirects}"
+    rpm-ostree uninstall -y "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "apt" ]; then
     apt remove -y "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "dnf" ]; then
@@ -753,6 +753,8 @@ install_package tar
 install_package wget
 install_package wget-ssl
 
+[ "${package_manager}" = "rpm-ostree" ] && rpm-ostree apply-live &> "${log_redirects}"
+
 if ! command -v dig &> /dev/null \
   || ! command -v curl &> /dev/null \
   || ! command -v jq &> /dev/null \
@@ -792,6 +794,8 @@ else
 
   install_package dnscrypt-proxy-"${init_system}"
   install_package dnscrypt-proxy2-"${init_system}"
+
+  [ "${package_manager}" = "rpm-ostree" ] && rpm-ostree apply-live &> "${log_redirects}"
 
   enable_service dnscrypt-proxy
   enable_service dnscrypt-proxy2
