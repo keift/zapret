@@ -1,5 +1,11 @@
 # Change Log
 
+## v1.3
+
+### Added
+
+- **DNS maintainer.** Systemd-resolved maintainer for DNS stability and optimization.
+
 ## v1.2
 
 ### Added

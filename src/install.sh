@@ -36,7 +36,7 @@ cyan="\e[36m"
 white="\e[37m"
 gray="\e[90m"
 
-version="1.2"
+version="1.3"
 zapret_version="72.13"
 
 last_commit_id=$(curl -s --max-time 10 https://api.github.com/repos/keift/zapret/commits/main | grep -m 1 '"sha":' | cut -d '"' -f 4 | cut -c 1-7)
@@ -177,10 +177,10 @@ detect_system() {
     init_system="unknown"
   fi
 
-  if command -v apt &> /dev/null; then
-    package_manager="apt"
-  elif command -v rpm-ostree &> /dev/null; then
+  if command -v rpm-ostree &> /dev/null; then
     package_manager="rpm-ostree"
+  elif command -v apt &> /dev/null; then
+    package_manager="apt"
   elif command -v dnf &> /dev/null; then
     package_manager="dnf"
   elif command -v pacman &> /dev/null; then
@@ -446,11 +446,10 @@ enable_service() {
 install_package() {
   local package_name="${1}"
 
-  if [ "${package_manager}" = "apt" ]; then
+  if [ "${package_manager}" = "rpm-ostree" ]; then
+    rpm-ostree install -y "${package_name}" &> "${log_redirects}" && rpm-ostree apply-live &> "${log_redirects}"
+  elif [ "${package_manager}" = "apt" ]; then
     apt install -y "${package_name}" &> "${log_redirects}"
-  elif [ "${package_manager}" = "rpm-ostree" ]; then
-    rpm-ostree install -y "${package_name}" &> "${log_redirects}"
-    rpm-ostree apply-live &> "${log_redirects}"
   elif [ "${package_manager}" = "dnf" ]; then
     dnf install -y "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "pacman" ]; then
@@ -490,14 +489,13 @@ install_package() {
   fi
 }
 
-remove_package() {
+uninstall_package() {
   local package_name="${1}"
 
-  if [ "${package_manager}" = "apt" ]; then
+  if [ "${package_manager}" = "rpm-ostree" ]; then
+    rpm-ostree uninstall -y "${package_name}" &> "${log_redirects}" && rpm-ostree apply-live &> "${log_redirects}"
+  elif [ "${package_manager}" = "apt" ]; then
     apt remove -y "${package_name}" &> "${log_redirects}"
-  elif [ "${package_manager}" = "rpm-ostree" ]; then
-    rpm-ostree uninstall -y "${package_name}" &> "${log_redirects}"
-    rpm-ostree apply-live &> "${log_redirects}"
   elif [ "${package_manager}" = "dnf" ]; then
     dnf remove -y "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "pacman" ]; then
@@ -642,11 +640,11 @@ print_head() {
 }
 
 print_update_commands() {
-  if [ "${package_manager}" = "apt" ]; then
+  if [ "${package_manager}" = "rpm-ostree" ]; then
+    echo -e "  ${green}sudo ${cyan}rpm-ostree ${cyan}upgrade${reset}"
+  elif [ "${package_manager}" = "apt" ]; then
     echo -e "  ${green}sudo ${cyan}apt ${cyan}update${reset}"
     echo -e "  ${green}sudo ${cyan}apt ${cyan}upgrade ${legible}-${yellow}y${reset}"
-  elif [ "${package_manager}" = "rpm-ostree" ]; then
-    echo -e "  ${green}sudo ${cyan}rpm-ostree ${cyan}upgrade${reset}"
   elif [ "${package_manager}" = "dnf" ]; then
     echo -e "  ${green}sudo ${cyan}dnf ${cyan}upgrade ${legible}-${yellow}y${reset}"
   elif [ "${package_manager}" = "pacman" ]; then
@@ -772,108 +770,13 @@ else
 fi
 
 if [ "${init_system}" = "systemd" ]; then
-  dns_resolver="dnscrypt-proxy"
+  dns_resolver="dnsd"
 
-  install_package systemd-resolved
+  curl -fsSL https://raw.github.com/keift/dnsd/refs/heads/main/install.sh | bash &> /dev/null
 
-  if [ "${package_manager}" = "opkg" ]; then
-    install_package dnscrypt-proxy2
-  else
-    install_package dnscrypt-proxy
-  fi
-
-  install_package dnscrypt-proxy-"${init_system}"
-  install_package dnscrypt-proxy2-"${init_system}"
-
-  enable_service systemd-resolved
-  start_service systemd-resolved
-
-  enable_service dnscrypt-proxy
-  enable_service dnscrypt-proxy2
-  start_service dnscrypt-proxy
-  start_service dnscrypt-proxy2
-
-  dnscrypt_configs=(
-    "/etc/dnscrypt-proxy.toml"
-    "/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
-
-    "/usr/local/etc/dnscrypt-proxy.toml"
-    "/usr/local/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
-
-    "/opt/etc/dnscrypt-proxy.toml"
-    "/opt/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
-
-    "/opt/dnscrypt-proxy/dnscrypt-proxy.toml"
-  )
-
-  for config in "${dnscrypt_configs[@]}"; do
-    if [ -f "${config}" ]; then
-      dnscrypt_config="${config}"
-
-      break
-    fi
-  done
-
-  if [ -z "${dnscrypt_config}" ]; then
-    if [ -f "/usr/share/defaults/dnscrypt-proxy/dnscrypt-proxy.toml" ]; then
-      mkdir -p /etc/dnscrypt-proxy &> "${log_redirects}"
-
-      cp /usr/share/defaults/dnscrypt-proxy/dnscrypt-proxy.toml /etc/dnscrypt-proxy/dnscrypt-proxy.toml &> "${log_redirects}"
-
-      dnscrypt_config="/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
-    else
-      throw_system_is_too_old
-    fi
-  fi
-
-  tee /etc/systemd/resolved.conf &> /dev/null <<< ""
-
-  chattr -i /etc/resolv.conf &> "${log_redirects}"
-
-  [ -f /run/systemd/resolve/stub-resolv.conf ] && ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf &> "${log_redirects}"
-
-  restart_service systemd-resolved
-
-  mkdir -p /var/cache/dnscrypt-proxy &> "${log_redirects}"
-
-  tee "${dnscrypt_config}" &> /dev/null << EOF
-listen_addresses = ["127.0.0.1:5300", "[::1]:5300"]
-
-[sources.public-resolvers]
-urls = [
-  "https://raw.github.com/dnscrypt/dnscrypt-resolvers/refs/heads/master/v3/public-resolvers.md",
-  "https://raw.githack.com/dnscrypt/dnscrypt-resolvers/refs/heads/master/v3/public-resolvers.md",
-  "https://cdn.jsdelivr.net/gh/dnscrypt/dnscrypt-resolvers/v3/public-resolvers.md",
-  "https://download.dnscrypt.info/resolvers-list/v3/public-resolvers.md"
-]
-minisign_key = "RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3"
-cache_file = "/var/cache/dnscrypt-proxy/public-resolvers.md"
-EOF
-
-  restart_service dnscrypt-proxy
-  restart_service dnscrypt-proxy2
-
-  while ! dig -p 5300 +tries=1 +time=10 @127.0.0.1 &> /dev/null && ! dig -p 5300 +tries=1 +time=10 @::1 &> /dev/null; do
-    restart_service dnscrypt-proxy
-    restart_service dnscrypt-proxy2
-
+  while [ -f /opt/dnsd/cache/resolver ] && [ "$(cat /opt/dnsd/cache/resolver)" != "local" ]; do
     sleep 10
   done
-
-  tee /etc/systemd/resolved.conf &> /dev/null << EOF
-[Resolve]
-DNS=127.0.0.1:5300
-DNS=[::1]:5300
-
-Domains=~.
-DNSOverTLS=no
-EOF
-
-  chattr -i /etc/resolv.conf &> "${log_redirects}"
-
-  [ -f /run/systemd/resolve/stub-resolv.conf ] && ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf &> "${log_redirects}"
-
-  restart_service systemd-resolved
 else
   dns_resolver="dnscrypt-proxy"
 

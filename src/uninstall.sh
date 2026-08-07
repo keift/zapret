@@ -33,7 +33,7 @@ cyan="\e[36m"
 white="\e[37m"
 gray="\e[90m"
 
-version="1.2"
+version="1.3"
 
 last_commit_id=$(curl -s --max-time 10 https://api.github.com/repos/keift/zapret/commits/main | grep -m 1 '"sha":' | cut -d '"' -f 4 | cut -c 1-7)
 
@@ -71,10 +71,10 @@ detect_system() {
     init_system="unknown"
   fi
 
-  if command -v apt &> /dev/null; then
-    package_manager="apt"
-  elif command -v rpm-ostree &> /dev/null; then
+  if command -v rpm-ostree &> /dev/null; then
     package_manager="rpm-ostree"
+  elif command -v apt &> /dev/null; then
+    package_manager="apt"
   elif command -v dnf &> /dev/null; then
     package_manager="dnf"
   elif command -v pacman &> /dev/null; then
@@ -328,11 +328,10 @@ enable_service() {
 install_package() {
   local package_name="${1}"
 
-  if [ "${package_manager}" = "apt" ]; then
+  if [ "${package_manager}" = "rpm-ostree" ]; then
+    rpm-ostree install -y "${package_name}" &> "${log_redirects}" && rpm-ostree apply-live &> "${log_redirects}"
+  elif [ "${package_manager}" = "apt" ]; then
     apt install -y "${package_name}" &> "${log_redirects}"
-  elif [ "${package_manager}" = "rpm-ostree" ]; then
-    rpm-ostree install -y "${package_name}" &> "${log_redirects}"
-    rpm-ostree apply-live &> "${log_redirects}"
   elif [ "${package_manager}" = "dnf" ]; then
     dnf install -y "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "pacman" ]; then
@@ -368,14 +367,13 @@ install_package() {
   fi
 }
 
-remove_package() {
+uninstall_package() {
   local package_name="${1}"
 
-  if [ "${package_manager}" = "apt" ]; then
+  if [ "${package_manager}" = "rpm-ostree" ]; then
+    rpm-ostree uninstall -y "${package_name}" &> "${log_redirects}" && rpm-ostree apply-live &> "${log_redirects}"
+  elif [ "${package_manager}" = "apt" ]; then
     apt remove -y "${package_name}" &> "${log_redirects}"
-  elif [ "${package_manager}" = "rpm-ostree" ]; then
-    rpm-ostree uninstall -y "${package_name}" &> "${log_redirects}"
-    rpm-ostree apply-live &> "${log_redirects}"
   elif [ "${package_manager}" = "dnf" ]; then
     dnf remove -y "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "pacman" ]; then
@@ -482,28 +480,13 @@ fi
 if [ "${init_system}" = "systemd" ]; then
   install_package systemd-resolved
 
-  remove_package dnscrypt-proxy
-  remove_package dnscrypt-proxy2
-
-  remove_package dnscrypt-proxy-"${init_system}"
-  remove_package dnscrypt-proxy2-"${init_system}"
-
-  enable_service systemd-resolved
-  start_service systemd-resolved
-
-  tee /etc/systemd/resolved.conf &> /dev/null <<< ""
-
-  chattr -i /etc/resolv.conf &> "${log_redirects}"
-
-  [ -f /run/systemd/resolve/stub-resolv.conf ] && ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf &> "${log_redirects}"
-
-  restart_service systemd-resolved
+  curl -fsSL https://raw.github.com/keift/dnsd/refs/heads/main/uninstall.sh | bash &> /dev/null
 else
-  remove_package dnscrypt-proxy
-  remove_package dnscrypt-proxy2
+  uninstall_package dnscrypt-proxy
+  uninstall_package dnscrypt-proxy2
 
-  remove_package dnscrypt-proxy-"${init_system}"
-  remove_package dnscrypt-proxy2-"${init_system}"
+  uninstall_package dnscrypt-proxy-"${init_system}"
+  uninstall_package dnscrypt-proxy2-"${init_system}"
 
   chattr -i /etc/resolv.conf &> "${log_redirects}"
 
