@@ -43,7 +43,7 @@ last_commit_id=$(curl -s --max-time 10 https://api.github.com/repos/keift/zapret
 
 country_code=$(curl -s --max-time 10 https://ipinfo.io/country)
 
-dns_resolver="unknown"
+dns_strategy="unknown"
 blockcheck_domain="unknown"
 
 send_metrics() {
@@ -93,7 +93,7 @@ send_metrics() {
         --arg unix_name "${unix_name}" \
         --arg init_system "${init_system}" \
         --arg package_manager "${package_manager}" \
-        --arg dns_resolver "${dns_resolver}" \
+        --arg dns_strategy "${dns_strategy}" \
         --arg blockcheck_domain "${blockcheck_domain}" \
         --arg blockcheck_results "${blockcheck_results}" \
         --arg installation_results "${installation_results}" \
@@ -106,7 +106,7 @@ send_metrics() {
             unix_name: $unix_name,
             init_system: $init_system,
             package_manager: $package_manager,
-            dns_resolver: $dns_resolver,
+            dns_strategy: $dns_strategy,
             blockcheck_domain: $blockcheck_domain,
             blockcheck_results: $blockcheck_results,
             installation_results: $installation_results,
@@ -770,15 +770,19 @@ else
 fi
 
 if [ "${init_system}" = "systemd" ]; then
-  dns_resolver="dnsd"
-
   curl -fsSL https://raw.github.com/keift/dnsd/refs/heads/main/install.sh | bash &> /dev/null
 
-  while [ -f /opt/dnsd/cache/resolver ] && [ "$(cat /opt/dnsd/cache/resolver)" != "local" ]; do
+  while [ -f /opt/dnsd/cache/strategy ] && [ "$(cat /opt/dnsd/cache/strategy)" != "local" ]; do
     sleep 10
   done
+
+  if [ "$(cat /opt/dnsd/cache/strategy)" != "dns_over_tls" ]; then
+    dns_strategy="dns_over_tls"
+  elif [ "$(cat /opt/dnsd/cache/strategy)" != "dnscrypt" ]; then
+    dns_strategy="dnscrypt"
+  fi
 else
-  dns_resolver="dnscrypt-proxy"
+  dns_strategy="dnscrypt"
 
   if [ "${package_manager}" = "opkg" ]; then
     install_package dnscrypt-proxy2
