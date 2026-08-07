@@ -1037,19 +1037,9 @@ fi
 [ "${debug}" = true ] && echo "${installation_results}"
 
 if echo "${installation_results}" | grep -iq "readonly system detected"; then
+  sed -i "s|/opt|/var/opt|g" /opt/zapret/init.d/systemd/zapret.service &> "${log_redirects}"
+
   ln -sf /opt/zapret/init.d/systemd/zapret.service /etc/systemd/system/zapret.service &> "${log_redirects}"
-
-  ln -sf /opt/zapret/init.d/systemd/zapret-list-update.service /etc/systemd/system/zapret-list-update.service &> "${log_redirects}"
-  ln -sf /opt/zapret/init.d/systemd/zapret-list-update.timer /etc/systemd/system/zapret-list-update.timer &> "${log_redirects}"
-
-  enable_service zapret
-  start_service zapret
-
-  enable_service zapret-list-update
-  start_service zapret-list-update
-
-  enable_service zapret-list-update.timer
-  start_service zapret-list-update.timer
 elif echo "${installation_results}" | grep -iq "could not start zapret service"; then
   echo -e "Y\n\n" | /opt/zapret/uninstall_easy.sh &> "${log_redirects}"
   rm -rf /opt/zapret &> "${log_redirects}"
@@ -1078,7 +1068,7 @@ echo "${installation_results}" | grep -iq "system is not either systemd" && init
 enable_service zapret
 start_service zapret
 
-sed -i "/^NFQWS_OPT=\"/,/^\"/c NFQWS_OPT=\"${bypass_methods} <HOSTLIST>\"" /opt/zapret/config
+sed -i "/^NFQWS_OPT=\"/,/^\"/c NFQWS_OPT=\"${bypass_methods} <HOSTLIST>\"" /opt/zapret/config &> "${log_redirects}"
 
 restart_service zapret
 
