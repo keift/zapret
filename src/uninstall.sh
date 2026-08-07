@@ -478,8 +478,6 @@ else
 fi
 
 if [ "${init_system}" = "systemd" ]; then
-  install_package systemd-resolved
-
   curl -fsSL https://raw.github.com/keift/dnsd/refs/heads/main/uninstall.sh | bash &> /dev/null
 else
   uninstall_package dnscrypt-proxy
