@@ -523,6 +523,14 @@ fi
 echo -e "Y\n\n" | /opt/zapret/uninstall_easy.sh &> "${log_redirects}"
 rm -rf /opt/zapret &> "${log_redirects}"
 
+rm -rf /etc/systemd/system/zapret.service &> "${log_redirects}"
+
+rm -rf /etc/systemd/system/zapret-list-update.service &> "${log_redirects}"
+rm -rf /etc/systemd/system/zapret-list-update.timer &> "${log_redirects}"
+
+rm -rf /etc/systemd/system/tpws@.service &> "${log_redirects}"
+rm -rf /etc/systemd/system/nfqws@.service &> "${log_redirects}"
+
 if [ "${country_code}" = "RU" ]; then
   echo -e "  ${legible}Zapret успешно удален.${reset}"
 elif [ "${country_code}" = "TR" ]; then

@@ -1037,7 +1037,28 @@ fi
 [ "${debug}" = true ] && echo "${installation_results}"
 
 if echo "${installation_results}" | grep -iq "readonly system detected"; then
-  cp /opt/zapret/init.d/systemd/* /etc/systemd/system &> "${log_redirects}"
+  cp /opt/zapret/init.d/systemd/zapret.service /etc/systemd/system/zapret.service &> "${log_redirects}"
+
+  cp /opt/zapret/init.d/systemd/zapret-list-update.service /etc/systemd/system/zapret-list-update.service &> "${log_redirects}"
+  cp /opt/zapret/init.d/systemd/zapret-list-update.timer /etc/systemd/system/zapret-list-update.timer &> "${log_redirects}"
+
+  cp /opt/zapret/init.d/systemd/tpws@.service /etc/systemd/system/tpws@.service &> "${log_redirects}"
+  cp /opt/zapret/init.d/systemd/nfqws@.service /etc/systemd/system/nfqws@.service &> "${log_redirects}"
+
+  enable_service zapret
+  start_service zapret
+
+  enable_service zapret-list-update
+  start_service zapret-list-update
+
+  enable_service zapret-list-update.timer
+  start_service zapret-list-update.timer
+
+  enable_service tpws@
+  start_service tpws@
+
+  enable_service nfqws@
+  start_service nfqws@
 elif echo "${installation_results}" | grep -iq "could not start zapret service"; then
   echo -e "Y\n\n" | /opt/zapret/uninstall_easy.sh &> "${log_redirects}"
   rm -rf /opt/zapret &> "${log_redirects}"
