@@ -1037,6 +1037,8 @@ if echo "${installation_results}" | grep -iq "readonly system detected"; then
 
   ln -sf /opt/zapret/init.d/systemd/zapret-list-update.service /etc/systemd/system/zapret-list-update.service &> "${log_redirects}"
   ln -sf /opt/zapret/init.d/systemd/zapret-list-update.timer /etc/systemd/system/zapret-list-update.timer &> "${log_redirects}"
+
+  systemctl daemon-reload &> "${log_redirects}"
 elif echo "${installation_results}" | grep -iq "could not start zapret service"; then
   echo -e "Y\n\n" | /opt/zapret/uninstall_easy.sh &> "${log_redirects}"
   rm -rf /opt/zapret &> "${log_redirects}"
