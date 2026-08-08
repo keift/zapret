@@ -891,13 +891,13 @@ fi
 echo -e "Y\n\n" | /opt/zapret/uninstall_easy.sh &> "${log_redirects}"
 rm -rf /opt/zapret &> "${log_redirects}"
 
-rm -rf /tmp/zapret.tar.gz &> "${log_redirects}"
+rm -f /tmp/zapret.tar.gz &> "${log_redirects}"
 
 wget -O /tmp/zapret.tar.gz https://github.com/bol-van/zapret/releases/download/v"${zapret_version}"/zapret-v"${zapret_version}".tar.gz &> "${log_redirects}"
 
 tar -xz -f /tmp/zapret.tar.gz -C /tmp &> "${log_redirects}"
 
-rm -rf /tmp/zapret.tar.gz &> "${log_redirects}"
+rm -f /tmp/zapret.tar.gz &> "${log_redirects}"
 
 cp -r /tmp/zapret-v"${zapret_version}" /opt/zapret &> "${log_redirects}"
 
