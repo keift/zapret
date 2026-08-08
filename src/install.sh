@@ -778,9 +778,9 @@ if [ "${init_system}" = "systemd" ]; then
     sleep 10
   done
 
-  if [ "$(cat /opt/dnsd/cache/strategy)" != "dns_over_tls" ]; then
+  if [ "$(cat /opt/dnsd/cache/strategy)" = "dns_over_tls" ]; then
     dns_strategy="dns_over_tls"
-  elif [ "$(cat /opt/dnsd/cache/strategy)" != "dnscrypt" ]; then
+  elif [ "$(cat /opt/dnsd/cache/strategy)" = "dnscrypt" ]; then
     dns_strategy="dnscrypt"
   fi
 else
