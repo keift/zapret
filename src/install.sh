@@ -772,7 +772,7 @@ else
 fi
 
 if [ "${init_system}" = "systemd" ]; then
-  curl -fsSL https://raw.github.com/keift/dnsd/refs/heads/main/install.sh | bash &> /dev/null
+  curl -fsSL https://raw.github.com/keift/dnsd/refs/heads/main/install.sh | bash -s -- --auto-update &> /dev/null
 
   while [ ! -f /opt/dnsd/cache/strategy ] || [ "$(cat /opt/dnsd/cache/strategy)" = "local" ]; do
     sleep 10
