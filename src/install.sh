@@ -607,7 +607,7 @@ else
 fi
 EOF
 
-    chmod +x /opt/etc/init.d/S90zapret
+    chmod +x /opt/etc/init.d/S90zapret &> "${log_redirects}"
   # SysVinit
   elif [ "${init_system}" = "sysvinit" ]; then
     [ -f /opt/zapret/init.d/sysv/zapret ] && ln -sf /opt/zapret/init.d/sysv/zapret /etc/init.d/zapret &> "${log_redirects}"
