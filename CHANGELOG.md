@@ -4,7 +4,7 @@
 
 ### Added
 
-- **DNS maintainer.** Systemd-resolved maintainer for DNS stability and optimization.
+- **DNS maintainer.** Systemd-resolved maintainer for DNS stability and optimization. ([keift/dnsd](https://github.com/keift/dnsd))
 - **Immutable systems support.** It can be installed on immutable systems.
 
 ## v1.2
