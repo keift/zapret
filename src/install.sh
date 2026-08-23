@@ -260,8 +260,6 @@ start_service() {
   elif [ "${init_system}" = "rc" ]; then
     /etc/rc.d/rc."${service_name}" start &> "${log_redirects}"
   else
-    print_head
-
     if [ "${country_code}" = "RU" ]; then
       echo -e "  ${red}Неподдерживаемая система инициализации.${reset}"
     elif [ "${country_code}" = "TR" ]; then
@@ -336,8 +334,6 @@ restart_service() {
   elif [ "${init_system}" = "rc" ]; then
     /etc/rc.d/rc."${service_name}" restart &> "${log_redirects}"
   else
-    print_head
-
     if [ "${country_code}" = "RU" ]; then
       echo -e "  ${red}Неподдерживаемая система инициализации.${reset}"
     elif [ "${country_code}" = "TR" ]; then
@@ -423,8 +419,6 @@ enable_service() {
   elif [ "${init_system}" = "rc" ]; then
     :
   else
-    print_head
-
     if [ "${country_code}" = "RU" ]; then
       echo -e "  ${red}Неподдерживаемая система инициализации.${reset}"
     elif [ "${country_code}" = "TR" ]; then
@@ -469,8 +463,6 @@ install_package() {
   elif [ "${package_manager}" = "opkg" ]; then
     opkg install "${package_name}" &> "${log_redirects}"
   else
-    print_head
-
     if [ "${country_code}" = "RU" ]; then
       echo -e "  ${red}Неподдерживаемый менеджер пакетов.${reset}"
     elif [ "${country_code}" = "TR" ]; then
@@ -515,8 +507,6 @@ uninstall_package() {
   elif [ "${package_manager}" = "opkg" ]; then
     opkg remove "${package_name}" &> "${log_redirects}"
   else
-    print_head
-
     if [ "${country_code}" = "RU" ]; then
       echo -e "  ${red}Неподдерживаемый менеджер пакетов.${reset}"
     elif [ "${country_code}" = "TR" ]; then
@@ -617,28 +607,6 @@ EOF
   fi
 }
 
-print_head() {
-  clear
-
-  echo ""
-
-  if [ -n "${last_commit_id}" ]; then
-    local version_text="${gray}v${version} (${last_commit_id})"
-  else
-    local version_text="${gray}v${version}"
-  fi
-
-  if [ "${country_code}" = "RU" ]; then
-    echo -e "  ${blue}Keift ${cyan}Установить Zapret ${version_text}${reset}"
-  elif [ "${country_code}" = "TR" ]; then
-    echo -e "  ${blue}Keift ${cyan}Zapret Kurulumu ${version_text}${reset}"
-  else
-    echo -e "  ${blue}Keift ${cyan}Install Zapret ${version_text}${reset}"
-  fi
-
-  echo ""
-}
-
 print_update_commands() {
   if [ "${package_manager}" = "rpm-ostree" ]; then
     echo -e "  ${green}sudo ${cyan}rpm-ostree ${cyan}upgrade${reset}"
@@ -669,35 +637,27 @@ print_update_commands() {
   fi
 }
 
-throw_system_is_too_old() {
-  print_head
+clear
 
-  if [ "${country_code}" = "RU" ]; then
-    echo -e "  ${red}Ваша система слишком устарела. Пожалуйста, обновите вашу систему.${reset}"
-  elif [ "${country_code}" = "TR" ]; then
-    echo -e "  ${red}Sisteminiz çok eski. Lütfen sisteminizi güncelleyin.${reset}"
-  else
-    echo -e "  ${red}Your system is too old. Please update your system.${reset}"
-  fi
+echo ""
 
-  echo ""
+if [ -n "${last_commit_id}" ]; then
+  version_text="${gray}v${version} (${last_commit_id})"
+else
+  version_text="${gray}v${version}"
+fi
 
-  print_update_commands
+if [ "${country_code}" = "RU" ]; then
+  echo -e "  ${blue}Keift ${cyan}Установить Zapret ${version_text}${reset}"
+elif [ "${country_code}" = "TR" ]; then
+  echo -e "  ${blue}Keift ${cyan}Zapret Kurulumu ${version_text}${reset}"
+else
+  echo -e "  ${blue}Keift ${cyan}Install Zapret ${version_text}${reset}"
+fi
 
-  echo ""
-
-  send_metrics ZAPRET_SYSTEM_IS_TOO_OLD
-
-  echo ""
-
-  exit 1
-}
-
-print_head
+echo ""
 
 if [ "$(uname)" != "Linux" ]; then
-  print_head
-
   if [ "${country_code}" = "RU" ]; then
     echo -e "  ${red}Неподдерживаемая система.${reset}"
   elif [ "${country_code}" = "TR" ]; then
@@ -712,8 +672,6 @@ if [ "$(uname)" != "Linux" ]; then
 fi
 
 if [ "${EUID}" != "0" ]; then
-  print_head
-
   if [ "${country_code}" = "RU" ]; then
     echo -e "  ${red}Недостаточно прав. Попробуйте запустить с помощью этой команды.${reset}"
   elif [ "${country_code}" = "TR" ]; then
@@ -760,7 +718,25 @@ if ! command -v dig &> /dev/null \
   || ! command -v jq &> /dev/null \
   || ! command -v tar &> /dev/null \
   || ! command -v wget &> /dev/null; then
-  throw_system_is_too_old
+  if [ "${country_code}" = "RU" ]; then
+    echo -e "  ${red}Ваша система слишком устарела. Пожалуйста, обновите вашу систему.${reset}"
+  elif [ "${country_code}" = "TR" ]; then
+    echo -e "  ${red}Sisteminiz çok eski. Lütfen sisteminizi güncelleyin.${reset}"
+  else
+    echo -e "  ${red}Your system is too old. Please update your system.${reset}"
+  fi
+
+  echo ""
+
+  print_update_commands
+
+  echo ""
+
+  send_metrics ZAPRET_SYSTEM_IS_TOO_OLD
+
+  echo ""
+
+  exit 1
 fi
 
 if [ "${country_code}" = "RU" ]; then
@@ -831,7 +807,25 @@ else
 
       dnscrypt_config="/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
     else
-      throw_system_is_too_old
+      if [ "${country_code}" = "RU" ]; then
+        echo -e "  ${red}Ваша система слишком устарела. Пожалуйста, обновите вашу систему.${reset}"
+      elif [ "${country_code}" = "TR" ]; then
+        echo -e "  ${red}Sisteminiz çok eski. Lütfen sisteminizi güncelleyin.${reset}"
+      else
+        echo -e "  ${red}Your system is too old. Please update your system.${reset}"
+      fi
+
+      echo ""
+
+      print_update_commands
+
+      echo ""
+
+      send_metrics ZAPRET_SYSTEM_IS_TOO_OLD
+
+      echo ""
+
+      exit 1
     fi
   fi
 
@@ -893,7 +887,23 @@ rm -rf /opt/zapret &> "${log_redirects}"
 
 rm -f /tmp/zapret.tar.gz &> "${log_redirects}"
 
-wget -O /tmp/zapret.tar.gz https://github.com/bol-van/zapret/releases/download/v"${zapret_version}"/zapret-v"${zapret_version}".tar.gz &> "${log_redirects}"
+if ! wget -O /tmp/zapret.tar.gz https://github.com/bol-van/zapret/releases/download/v"${zapret_version}"/zapret-v"${zapret_version}".tar.gz &> "${log_redirects}"; then
+  if [ "${country_code}" = "RU" ]; then
+    echo -e "  ${red}Произошла ошибка при загрузке.${reset}"
+  elif [ "${country_code}" = "TR" ]; then
+    echo -e "  ${red}İndirme sırasında bir hata oluştu.${reset}"
+  else
+    echo -e "  ${red}An error occurred during download.${reset}"
+  fi
+
+  echo ""
+
+  send_metrics ZAPRET_AN_ERROR_OCCURED_DURING_DOWNLOAD
+
+  echo ""
+
+  exit 1
+fi
 
 tar -xz -f /tmp/zapret.tar.gz -C /tmp &> "${log_redirects}"
 
@@ -984,7 +994,25 @@ if echo "${blockcheck_results}" | grep -iq "nftables queue support is not availa
   echo -e "Y\n\n" | /opt/zapret/uninstall_easy.sh &> "${log_redirects}"
   rm -rf /opt/zapret &> "${log_redirects}"
 
-  throw_system_is_too_old
+  if [ "${country_code}" = "RU" ]; then
+    echo -e "  ${red}Ваша система слишком устарела. Пожалуйста, обновите вашу систему.${reset}"
+  elif [ "${country_code}" = "TR" ]; then
+    echo -e "  ${red}Sisteminiz çok eski. Lütfen sisteminizi güncelleyin.${reset}"
+  else
+    echo -e "  ${red}Your system is too old. Please update your system.${reset}"
+  fi
+
+  echo ""
+
+  print_update_commands
+
+  echo ""
+
+  send_metrics ZAPRET_SYSTEM_IS_TOO_OLD
+
+  echo ""
+
+  exit 1
 fi
 
 if ! echo "${bypass_methods}" | grep -iq -- "--"; then
@@ -1062,8 +1090,6 @@ if echo "${installation_results}" | grep -iq "readonly system detected"; then
 elif echo "${installation_results}" | grep -iq "could not start zapret service"; then
   echo -e "Y\n\n" | /opt/zapret/uninstall_easy.sh &> "${log_redirects}"
   rm -rf /opt/zapret &> "${log_redirects}"
-
-  print_head
 
   if [ "${country_code}" = "RU" ]; then
     echo -e "  ${red}Что-то пошло не так.${reset}"

@@ -154,8 +154,6 @@ start_service() {
   elif [ "${init_system}" = "rc" ]; then
     /etc/rc.d/rc."${service_name}" start &> "${log_redirects}"
   else
-    print_head
-
     if [ "${country_code}" = "RU" ]; then
       echo -e "  ${red}Неподдерживаемая система инициализации.${reset}"
     elif [ "${country_code}" = "TR" ]; then
@@ -226,8 +224,6 @@ restart_service() {
   elif [ "${init_system}" = "rc" ]; then
     /etc/rc.d/rc."${service_name}" restart &> "${log_redirects}"
   else
-    print_head
-
     if [ "${country_code}" = "RU" ]; then
       echo -e "  ${red}Неподдерживаемая система инициализации.${reset}"
     elif [ "${country_code}" = "TR" ]; then
@@ -309,8 +305,6 @@ enable_service() {
   elif [ "${init_system}" = "rc" ]; then
     :
   else
-    print_head
-
     if [ "${country_code}" = "RU" ]; then
       echo -e "  ${red}Неподдерживаемая система инициализации.${reset}"
     elif [ "${country_code}" = "TR" ]; then
@@ -351,8 +345,6 @@ install_package() {
   elif [ "${package_manager}" = "opkg" ]; then
     opkg install "${package_name}" &> "${log_redirects}"
   else
-    print_head
-
     if [ "${country_code}" = "RU" ]; then
       echo -e "  ${red}Неподдерживаемый менеджер пакетов.${reset}"
     elif [ "${country_code}" = "TR" ]; then
@@ -393,8 +385,6 @@ uninstall_package() {
   elif [ "${package_manager}" = "opkg" ]; then
     opkg remove "${package_name}" &> "${log_redirects}"
   else
-    print_head
-
     if [ "${country_code}" = "RU" ]; then
       echo -e "  ${red}Неподдерживаемый менеджер пакетов.${reset}"
     elif [ "${country_code}" = "TR" ]; then
@@ -409,33 +399,27 @@ uninstall_package() {
   fi
 }
 
-print_head() {
-  clear
+clear
 
-  echo ""
+echo ""
 
-  if [ -n "${last_commit_id}" ]; then
-    local version_text="${gray}v${version} (${last_commit_id})"
-  else
-    local version_text="${gray}v${version}"
-  fi
+if [ -n "${last_commit_id}" ]; then
+  version_text="${gray}v${version} (${last_commit_id})"
+else
+  version_text="${gray}v${version}"
+fi
 
-  if [ "${country_code}" = "RU" ]; then
-    echo -e "  ${blue}Keift ${cyan}Удалить Zapret ${version_text}${reset}"
-  elif [ "${country_code}" = "TR" ]; then
-    echo -e "  ${blue}Keift ${cyan}Zapret Kaldırma ${version_text}${reset}"
-  else
-    echo -e "  ${blue}Keift ${cyan}Uninstall Zapret ${version_text}${reset}"
-  fi
+if [ "${country_code}" = "RU" ]; then
+  echo -e "  ${blue}Keift ${cyan}Удалить Zapret ${version_text}${reset}"
+elif [ "${country_code}" = "TR" ]; then
+  echo -e "  ${blue}Keift ${cyan}Zapret Kaldırma ${version_text}${reset}"
+else
+  echo -e "  ${blue}Keift ${cyan}Uninstall Zapret ${version_text}${reset}"
+fi
 
-  echo ""
-}
-
-print_head
+echo ""
 
 if [ "$(uname)" != "Linux" ]; then
-  print_head
-
   if [ "${country_code}" = "RU" ]; then
     echo -e "  ${red}Неподдерживаемая система.${reset}"
   elif [ "${country_code}" = "TR" ]; then
@@ -450,8 +434,6 @@ if [ "$(uname)" != "Linux" ]; then
 fi
 
 if [ "${EUID}" != "0" ]; then
-  print_head
-
   if [ "${country_code}" = "RU" ]; then
     echo -e "  ${red}Недостаточно прав. Попробуйте запустить с помощью этой команды.${reset}"
   elif [ "${country_code}" = "TR" ]; then
