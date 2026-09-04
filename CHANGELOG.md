@@ -24,6 +24,7 @@
 - **RPM-OSTREE package manager support.** Respect for RPM-OSTREE package manager.
 - **XBPS package manager support.** Respect for XBPS package manager.
 - **APK package manager support.** Respect for APK package manager.
+- **APX package manager support.** Respect for APX package manager.
 - **Emerge package manager support.** Respect for Emerge package manager.
 - **Slackpkg package manager support.** Respect for Slackpkg package manager.
 - **EOPKG package manager support.** Respect for EOPKG package manager.
