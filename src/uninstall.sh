@@ -85,8 +85,6 @@ detect_system() {
     package_manager="xbps"
   elif command -v apk &> /dev/null; then
     package_manager="apk"
-  elif command -v apx &> /dev/null; then
-    package_manager="apx"
   elif command -v emerge &> /dev/null; then
     package_manager="emerge"
   elif command -v slackpkg &> /dev/null; then
@@ -338,8 +336,6 @@ install_package() {
     xbps-install -y "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "apk" ]; then
     apk add "${package_name}" &> "${log_redirects}"
-  elif [ "${package_manager}" = "apx" ]; then
-    apx install -y "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "emerge" ]; then
     emerge "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "slackpkg" ]; then
@@ -380,8 +376,6 @@ uninstall_package() {
     xbps-remove -y "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "apk" ]; then
     apk del "${package_name}" &> "${log_redirects}"
-  elif [ "${package_manager}" = "apx" ]; then
-    apx remove -y "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "emerge" ]; then
     emerge --unmerge "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "slackpkg" ]; then
