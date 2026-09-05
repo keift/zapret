@@ -191,6 +191,8 @@ detect_system() {
     package_manager="xbps"
   elif command -v apk &> /dev/null; then
     package_manager="apk"
+  elif command -v apx &> /dev/null; then
+    package_manager="apx"
   elif command -v emerge &> /dev/null; then
     package_manager="emerge"
   elif command -v slackpkg &> /dev/null; then
