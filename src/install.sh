@@ -740,11 +740,11 @@ if ! command -v dig &> /dev/null \
   echo ""
 
   if [ "${country_code}" = "RU" ]; then
-    echo -e "  ${legible}${yellow}${bold}СОВЕТ  ${reset}${yellow}Если ошибка сохраняется несмотря на обновление системы, перезагрузите устройство и попробуйте снова.${reset}"
+    echo -e "  ${legible}${yellow}${bold}СОВЕТ  ${reset}${yellow}После обновления системы может потребоваться перезагрузить устройство.${reset}"
   elif [ "${country_code}" = "TR" ]; then
-    echo -e "  ${legible}${yellow}${bold}İPUCU  ${reset}${yellow}Sisteminizi güncellemenize rağmen hata devam ediyorsa, cihazınızı yeniden başlatıp tekrar deneyin.${reset}"
+    echo -e "  ${legible}${yellow}${bold}İPUCU  ${reset}${yellow}Sisteminizi güncelledikten sonra cihazınızı yeniden başlatmanız gerekebilir.${reset}"
   else
-    echo -e "  ${legible}${yellow}${bold}TIP  ${reset}${yellow}If the error persists despite updating your system, restart your device and try again.${reset}"
+    echo -e "  ${legible}${yellow}${bold}TIP  ${reset}${yellow}You may need to restart your device after updating your system.${reset}"
   fi
 
   echo ""
@@ -839,11 +839,11 @@ else
       echo ""
 
       if [ "${country_code}" = "RU" ]; then
-        echo -e "  ${legible}${yellow}${bold}СОВЕТ  ${reset}${yellow}Если ошибка сохраняется несмотря на обновление системы, перезагрузите устройство и попробуйте снова.${reset}"
+        echo -e "  ${legible}${yellow}${bold}СОВЕТ  ${reset}${yellow}После обновления системы может потребоваться перезагрузить устройство.${reset}"
       elif [ "${country_code}" = "TR" ]; then
-        echo -e "  ${legible}${yellow}${bold}İPUCU  ${reset}${yellow}Sisteminizi güncellemenize rağmen hata devam ediyorsa, cihazınızı yeniden başlatıp tekrar deneyin.${reset}"
+        echo -e "  ${legible}${yellow}${bold}İPUCU  ${reset}${yellow}Sisteminizi güncelledikten sonra cihazınızı yeniden başlatmanız gerekebilir.${reset}"
       else
-        echo -e "  ${legible}${yellow}${bold}TIP  ${reset}${yellow}If the error persists despite updating your system, restart your device and try again.${reset}"
+        echo -e "  ${legible}${yellow}${bold}TIP  ${reset}${yellow}You may need to restart your device after updating your system.${reset}"
       fi
 
       echo ""
@@ -1036,11 +1036,11 @@ if echo "${blockcheck_results}" | grep -iq "nftables queue support is not availa
   echo ""
 
   if [ "${country_code}" = "RU" ]; then
-    echo -e "  ${legible}${yellow}${bold}СОВЕТ  ${reset}${yellow}Если ошибка сохраняется несмотря на обновление системы, перезагрузите устройство и попробуйте снова.${reset}"
+    echo -e "  ${legible}${yellow}${bold}СОВЕТ  ${reset}${yellow}После обновления системы может потребоваться перезагрузить устройство.${reset}"
   elif [ "${country_code}" = "TR" ]; then
-    echo -e "  ${legible}${yellow}${bold}İPUCU  ${reset}${yellow}Sisteminizi güncellemenize rağmen hata devam ediyorsa, cihazınızı yeniden başlatıp tekrar deneyin.${reset}"
+    echo -e "  ${legible}${yellow}${bold}İPUCU  ${reset}${yellow}Sisteminizi güncelledikten sonra cihazınızı yeniden başlatmanız gerekebilir.${reset}"
   else
-    echo -e "  ${legible}${yellow}${bold}TIP  ${reset}${yellow}If the error persists despite updating your system, restart your device and try again.${reset}"
+    echo -e "  ${legible}${yellow}${bold}TIP  ${reset}${yellow}You may need to restart your device after updating your system.${reset}"
   fi
 
   echo ""
