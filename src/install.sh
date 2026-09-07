@@ -84,6 +84,13 @@ send_metrics() {
 
     local event="${1}"
     local unix_name=$(uname -a)
+    local blockcheck_results_filtered=$(
+      echo "${blockcheck_results}" | head -n 100
+      echo ""
+      echo "----"
+      echo ""
+      echo "${blockcheck_results}" | sed -n "/^\* SUMMARY/,/^\$/ { /^\* SUMMARY/d; /^\$/d; p; }"
+    )
     local domain_response=$(curl -sSI --max-time 10 https://"${blockcheck_domain}" 2>&1 | head -n 1)
     local bypass_methods=$(cat /opt/zapret/config 2>&1 | grep -E "^(NFQWS|MODE_FILTER)")
 
@@ -95,7 +102,7 @@ send_metrics() {
         --arg package_manager "${package_manager}" \
         --arg dns_strategy "${dns_strategy}" \
         --arg blockcheck_domain "${blockcheck_domain}" \
-        --arg blockcheck_results "${blockcheck_results}" \
+        --arg blockcheck_results "${blockcheck_results_filtered}" \
         --arg installation_results "${installation_results}" \
         --arg domain_response "${domain_response}" \
         --arg bypass_methods "${bypass_methods}" \
@@ -732,6 +739,16 @@ if ! command -v dig &> /dev/null \
 
   echo ""
 
+  if [ "${country_code}" = "RU" ]; then
+    echo -e "  ${legible}${yellow}${bold}СОВЕТ  ${reset}${yellow}Если ошибка сохраняется несмотря на обновление системы, перезагрузите устройство и попробуйте снова.${reset}"
+  elif [ "${country_code}" = "TR" ]; then
+    echo -e "  ${legible}${yellow}${bold}İPUCU  ${reset}${yellow}Sisteminizi güncellemenize rağmen hata devam ediyorsa, cihazınızı yeniden başlatıp tekrar deneyin.${reset}"
+  else
+    echo -e "  ${legible}${yellow}${bold}TIP  ${reset}${yellow}If the error persists despite updating your system, restart your device and try again.${reset}"
+  fi
+
+  echo ""
+
   send_metrics ZAPRET_SYSTEM_IS_TOO_OLD
 
   echo ""
@@ -818,6 +835,16 @@ else
       echo ""
 
       print_update_commands
+
+      echo ""
+
+      if [ "${country_code}" = "RU" ]; then
+        echo -e "  ${legible}${yellow}${bold}СОВЕТ  ${reset}${yellow}Если ошибка сохраняется несмотря на обновление системы, перезагрузите устройство и попробуйте снова.${reset}"
+      elif [ "${country_code}" = "TR" ]; then
+        echo -e "  ${legible}${yellow}${bold}İPUCU  ${reset}${yellow}Sisteminizi güncellemenize rağmen hata devam ediyorsa, cihazınızı yeniden başlatıp tekrar deneyin.${reset}"
+      else
+        echo -e "  ${legible}${yellow}${bold}TIP  ${reset}${yellow}If the error persists despite updating your system, restart your device and try again.${reset}"
+      fi
 
       echo ""
 
@@ -925,11 +952,11 @@ echo -e "\n\n" | /opt/zapret/install_prereq.sh &> "${log_redirects}"
 /opt/zapret/install_bin.sh &> "${log_redirects}"
 
 if [ "${country_code}" = "RU" ]; then
-  echo -e "  ${legible}Поиск способов обхода блокировок...${reset}"
+  echo -e "  ${legible}Поиск методов обхода блокировок доступа...${reset}"
 elif [ "${country_code}" = "TR" ]; then
   echo -e "  ${legible}Erişim engelleri aşma yöntemleri aranıyor...${reset}"
 else
-  echo -e "  ${legible}Searching for methods to bypass access restrictions...${reset}"
+  echo -e "  ${legible}Searching for methods to bypass access blocks...${reset}"
 fi
 
 blockcheck_domains=(
@@ -1008,6 +1035,16 @@ if echo "${blockcheck_results}" | grep -iq "nftables queue support is not availa
 
   echo ""
 
+  if [ "${country_code}" = "RU" ]; then
+    echo -e "  ${legible}${yellow}${bold}СОВЕТ  ${reset}${yellow}Если ошибка сохраняется несмотря на обновление системы, перезагрузите устройство и попробуйте снова.${reset}"
+  elif [ "${country_code}" = "TR" ]; then
+    echo -e "  ${legible}${yellow}${bold}İPUCU  ${reset}${yellow}Sisteminizi güncellemenize rağmen hata devam ediyorsa, cihazınızı yeniden başlatıp tekrar deneyin.${reset}"
+  else
+    echo -e "  ${legible}${yellow}${bold}TIP  ${reset}${yellow}If the error persists despite updating your system, restart your device and try again.${reset}"
+  fi
+
+  echo ""
+
   send_metrics ZAPRET_SYSTEM_IS_TOO_OLD
 
   echo ""
@@ -1020,16 +1057,35 @@ if ! echo "${bypass_methods}" | grep -iq -- "--"; then
   rm -rf /opt/zapret &> "${log_redirects}"
 
   if [ "${country_code}" = "RU" ]; then
-    echo -e "  ${legible}Ограничений доступа не обнаружено.${reset}"
+    echo -e "  ${legible}Блокировок доступа не обнаружено.${reset}"
   elif [ "${country_code}" = "TR" ]; then
-    echo -e "  ${legible}Erişim kısıtlaması tespit edilmedi.${reset}"
+    echo -e "  ${legible}Erişim engeli tespit edilmedi.${reset}"
   else
-    echo -e "  ${legible}No access restrictions were detected.${reset}"
+    echo -e "  ${legible}No access blocks detected.${reset}"
   fi
 
   echo ""
 
-  send_metrics ZAPRET_NO_ACCESS_RESTRICTIONS_WERE_DETECTED
+  if [ "${country_code}" = "RU" ]; then
+    echo -e "  ${legible}${yellow}${bold}СОВЕТ  ${reset}${yellow}Отсутствие обнаруженных блокировок доступа указывает на то, что ваш провайдер не применяет DPI.${reset}"
+    echo -e "         ${legible}${yellow}Это означает, что они применяют блокировку доступа только через DNS.${reset}"
+    echo -e "         ${legible}${yellow}Шифрования ваших DNS-запросов достаточно для обхода этих блокировок.${reset}"
+    echo -e "         ${legible}${yellow}Однако, если обойти блокировки по-прежнему не удается, перезагрузите устройство и попробуйте снова.${reset}"
+  elif [ "${country_code}" = "TR" ]; then
+    echo -e "  ${legible}${yellow}${bold}İPUCU  ${reset}${yellow}Erişim engeli tespit edilmemesi, ISS'nizin DPI uygulamadığını gösterir.${reset}"
+    echo -e "         ${legible}${yellow}Bu, yalnızca DNS üzerinden erişim engelleri uyguladıkları anlamına gelir.${reset}"
+    echo -e "         ${legible}${yellow}DNS sorgularınızın şifrelenmiş olması, erişim engellerini aşmak için yeterlidir.${reset}"
+    echo -e "         ${legible}${yellow}Fakat yine de erişim engelleri aşılamıyorsa, cihazınızı yeniden başlatıp tekrar deneyin.${reset}"
+  else
+    echo -e "  ${legible}${yellow}${bold}TIP  ${reset}${yellow}No access blocks being detected indicates that your ISP does not apply DPI.${reset}"
+    echo -e "       ${legible}${yellow}This means they only apply access blocks via DNS.${reset}"
+    echo -e "       ${legible}${yellow}Encrypting your DNS queries is sufficient to bypass these access blocks.${reset}"
+    echo -e "       ${legible}${yellow}However, if the access blocks still cannot be bypassed, restart your device and try again.${reset}"
+  fi
+
+  echo ""
+
+  send_metrics ZAPRET_NO_ACCESS_BLOCKS_WERE_DETECTED
 
   echo ""
 
