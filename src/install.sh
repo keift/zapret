@@ -969,11 +969,11 @@ done
 if [ "${dev}" = true ]; then
   bypass_methods="--dpi-desync=fake --dpi-desync-ttl=3"
 else
-  blockcheck_results=$(echo -e "${blockcheck_domain}\n\nN\n\n\n\n\n\n\n" | /opt/zapret/blockcheck.sh 2> "${log_redirects}" | sed -n "/^\* SUMMARY/,/^\$/ { /^\* SUMMARY/d; /^\$/d; p; }")
+  blockcheck_results=$(echo -e "${blockcheck_domain}\n\nN\n\n\n\n\n\n\n" | /opt/zapret/blockcheck.sh 2> "${log_redirects}")
 
   [ "${debug}" = true ] && echo "${blockcheck_results}"
 
-  bypass_results=$(echo "${blockcheck_results}" | grep -E "curl_test_https[^ ]* ipv[0-9] ${blockcheck_domain} : nfqws")
+  bypass_results=$(echo "${blockcheck_results}" | sed -n "/^\* SUMMARY/,/^\$/ { /^\* SUMMARY/d; /^\$/d; p; }" | grep -E "curl_test_https[^ ]* ipv[0-9] ${blockcheck_domain} : nfqws")
 
   if [ "${strict}" = true ]; then
     bypass_target="tail"
