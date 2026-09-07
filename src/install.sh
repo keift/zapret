@@ -992,7 +992,11 @@ done
 if [ "${dev}" = true ]; then
   bypass_methods="--dpi-desync=fake --dpi-desync-ttl=3"
 else
-  blockcheck_results=$(echo -e "${blockcheck_domain}\n\nN\n\n\n\n\n\n\n" | /opt/zapret/blockcheck.sh 2> "${log_redirects}")
+  if curl -V | grep -iq "HTTP3"; then
+    blockcheck_results=$(echo -e "${blockcheck_domain}\n\nN\n\n\nN\n\n\n\n" | /opt/zapret/blockcheck.sh 2> "${log_redirects}")
+  else
+    blockcheck_results=$(echo -e "${blockcheck_domain}\n\nN\n\n\n\n\n\n" | /opt/zapret/blockcheck.sh 2> "${log_redirects}")
+  fi
 
   [ "${debug}" = true ] && echo "${blockcheck_results}"
 
