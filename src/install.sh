@@ -84,13 +84,7 @@ send_metrics() {
 
     local event="${1}"
     local unix_name=$(uname -a)
-    local blockcheck_results_filtered=$(
-      echo "${blockcheck_results}" | head -n 100
-      echo ""
-      echo "----"
-      echo ""
-      echo "${blockcheck_results}" | sed -n "/^\* SUMMARY/,/^\$/ { /^\* SUMMARY/d; /^\$/d; p; }"
-    )
+    local blockcheck_results_filtered=$(echo "${blockcheck_results}" | head -n 100)
     local domain_response=$(curl -sSI --max-time 10 https://"${blockcheck_domain}" 2>&1 | head -n 1)
     local bypass_methods=$(cat /opt/zapret/config 2>&1 | grep -E "^(NFQWS|MODE_FILTER)")
 
@@ -103,6 +97,7 @@ send_metrics() {
         --arg dns_strategy "${dns_strategy}" \
         --arg blockcheck_domain "${blockcheck_domain}" \
         --arg blockcheck_results "${blockcheck_results_filtered}" \
+        --arg bypass_results "${bypass_results}" \
         --arg installation_results "${installation_results}" \
         --arg domain_response "${domain_response}" \
         --arg bypass_methods "${bypass_methods}" \
@@ -116,6 +111,7 @@ send_metrics() {
             dns_strategy: $dns_strategy,
             blockcheck_domain: $blockcheck_domain,
             blockcheck_results: $blockcheck_results,
+            bypass_results: $bypass_results,
             installation_results: $installation_results,
             domain_response: $domain_response,
             bypass_methods: $bypass_methods,
