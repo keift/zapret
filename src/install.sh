@@ -1100,21 +1100,21 @@ else
   echo -e "  ${legible}Installing Zapret...${reset}"
 fi
 
-prototype_installation_results=$(echo -e "\n\n\n\n\n\n\n\n\n\n\n" | /opt/zapret/install_easy.sh 2> "${log_redirects}")
+prototype_installation_results=$(echo -e "\n\n\n\n\n\n\n\n\n\n\n\n" | /opt/zapret/install_easy.sh 2> "${log_redirects}")
 
 if echo "${prototype_installation_results}" | grep -iq "system is not either systemd"; then
-  prototype_installation_results=$(echo -e "Y\n\n\n\n\n\n\n\n\n\n\n\n" | /opt/zapret/install_easy.sh 2> "${log_redirects}")
+  prototype_installation_results=$(echo -e "Y\n\n\n\n\n\n\n\n\n\n\n\n\n" | /opt/zapret/install_easy.sh 2> "${log_redirects}")
 
   if echo "${prototype_installation_results}" | grep -iq "readonly system detected"; then
-    installation_results=$(echo -e "Y\nY\n\n\n\n4\n\n\nY\n\n\n\n\n" | /opt/zapret/install_easy.sh 2> "${log_redirects}")
+    installation_results=$(echo -e "Y\nY\n\n\n\n4\n\n\nY\n\n\n\n\n\n" | /opt/zapret/install_easy.sh 2> "${log_redirects}")
   else
-    installation_results=$(echo -e "Y\n\n\n\n4\n\n\nY\n\n\n\n\n" | /opt/zapret/install_easy.sh 2> "${log_redirects}")
+    installation_results=$(echo -e "Y\n\n\n\n4\n\n\nY\n\n\n\n\n\n" | /opt/zapret/install_easy.sh 2> "${log_redirects}")
   fi
 else
   if echo "${prototype_installation_results}" | grep -iq "readonly system detected"; then
-    installation_results=$(echo -e "Y\n\n\n\n4\n\n\nY\n\n\n\n\n" | /opt/zapret/install_easy.sh 2> "${log_redirects}")
+    installation_results=$(echo -e "Y\n\n\n\n4\n\n\nY\n\n\n\n\n\n" | /opt/zapret/install_easy.sh 2> "${log_redirects}")
   else
-    installation_results=$(echo -e "\n\n\n4\n\n\nY\n\n\n\n\n" | /opt/zapret/install_easy.sh 2> "${log_redirects}")
+    installation_results=$(echo -e "\n\n\n4\n\n\nY\n\n\n\n\n\n" | /opt/zapret/install_easy.sh 2> "${log_redirects}")
   fi
 fi
 
