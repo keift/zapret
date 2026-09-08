@@ -928,6 +928,8 @@ if ! wget -O /tmp/zapret.tar.gz https://github.com/bol-van/zapret/releases/downl
   exit 1
 fi
 
+rm -rf /tmp/zapret-v"${zapret_version}" &> "${log_redirects}"
+
 tar -xz -f /tmp/zapret.tar.gz -C /tmp &> "${log_redirects}"
 
 rm -f /tmp/zapret.tar.gz &> "${log_redirects}"
