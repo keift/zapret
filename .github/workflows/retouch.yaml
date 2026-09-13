@@ -3,7 +3,7 @@ name: Retouch
 on:
   push:
     branches:
-      - main
+      - '**'
 
 jobs:
   job:
