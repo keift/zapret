@@ -763,13 +763,13 @@ fi
 if [ "${init_system}" = "systemd" ]; then
   curl -fsSL https://raw.github.com/keift/dnsd/refs/heads/main/install.sh | bash -s -- --updates &> /dev/null
 
-  while [ ! -f /opt/dnsd/cache/strategy ] || [ "$(cat /opt/dnsd/cache/strategy)" = "local" ]; do
+  while [ ! -f /opt/dnsd/state/strategy ] || [ "$(cat /opt/dnsd/state/strategy)" = "local" ]; do
     sleep 10
   done
 
-  if [ "$(cat /opt/dnsd/cache/strategy)" = "dns_over_tls" ]; then
+  if [ "$(cat /opt/dnsd/state/strategy)" = "dns_over_tls" ]; then
     dns_strategy="dns_over_tls"
-  elif [ "$(cat /opt/dnsd/cache/strategy)" = "dnscrypt" ]; then
+  elif [ "$(cat /opt/dnsd/state/strategy)" = "dnscrypt" ]; then
     dns_strategy="dnscrypt"
   fi
 else
