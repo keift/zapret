@@ -880,7 +880,7 @@ EOF
   restart_service dnscrypt-proxy
   restart_service dnscrypt-proxy2
 
-  while ! dig +tries=1 +time=1 @127.0.0.1 &> /dev/null && ! dig +tries=1 +time=1 @::1 &> /dev/null; do
+  while ! dig +time=1 +tries=1 @127.0.0.1 &> /dev/null && ! dig +time=1 +tries=1 @::1 &> /dev/null; do
     restart_service dnscrypt-proxy
     restart_service dnscrypt-proxy2
 
