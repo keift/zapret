@@ -818,7 +818,7 @@ else
     if [ -f "/usr/share/defaults/dnscrypt-proxy/dnscrypt-proxy.toml" ]; then
       mkdir -p /etc/dnscrypt-proxy &> "${log_redirects}"
 
-      cp /usr/share/defaults/dnscrypt-proxy/dnscrypt-proxy.toml /etc/dnscrypt-proxy/dnscrypt-proxy.toml &> "${log_redirects}"
+      cp -f /usr/share/defaults/dnscrypt-proxy/dnscrypt-proxy.toml /etc/dnscrypt-proxy/dnscrypt-proxy.toml &> "${log_redirects}"
 
       dnscrypt_config="/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
     else
@@ -936,7 +936,7 @@ tar -xz -f /tmp/zapret.tar.gz -C /tmp &> "${log_redirects}"
 
 rm -f /tmp/zapret.tar.gz &> "${log_redirects}"
 
-cp -r /tmp/zapret-v"${zapret_version}" /opt/zapret &> "${log_redirects}"
+cp -rf /tmp/zapret-v"${zapret_version}" /opt/zapret &> "${log_redirects}"
 
 rm -rf /tmp/zapret-v"${zapret_version}" &> "${log_redirects}"
 
@@ -1125,13 +1125,13 @@ fi
 [ "${debug}" = true ] && echo "${installation_results}"
 
 if echo "${installation_results}" | grep -iq "readonly system detected"; then
-  cp /opt/zapret/init.d/systemd/zapret.service /etc/systemd/system/zapret.service &> "${log_redirects}"
+  cp -f /opt/zapret/init.d/systemd/zapret.service /etc/systemd/system/zapret.service &> "${log_redirects}"
 
-  cp /opt/zapret/init.d/systemd/zapret-list-update.service /etc/systemd/system/zapret-list-update.service &> "${log_redirects}"
-  cp /opt/zapret/init.d/systemd/zapret-list-update.timer /etc/systemd/system/zapret-list-update.timer &> "${log_redirects}"
+  cp -f /opt/zapret/init.d/systemd/zapret-list-update.service /etc/systemd/system/zapret-list-update.service &> "${log_redirects}"
+  cp -f /opt/zapret/init.d/systemd/zapret-list-update.timer /etc/systemd/system/zapret-list-update.timer &> "${log_redirects}"
 
-  cp /opt/zapret/init.d/systemd/tpws@.service /etc/systemd/system/tpws@.service &> "${log_redirects}"
-  cp /opt/zapret/init.d/systemd/nfqws@.service /etc/systemd/system/nfqws@.service &> "${log_redirects}"
+  cp -f /opt/zapret/init.d/systemd/tpws@.service /etc/systemd/system/tpws@.service &> "${log_redirects}"
+  cp -f /opt/zapret/init.d/systemd/nfqws@.service /etc/systemd/system/nfqws@.service &> "${log_redirects}"
 
   enable_service zapret
   start_service zapret
