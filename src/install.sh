@@ -74,6 +74,7 @@ send_metrics() {
 
   if [ "${metrics_answer,,}" = "${acceptance_answer}" ]; then
     echo ""
+
     if [ "${country_code}" = "RU" ]; then
       echo -e "  ${legible}Спасибо за ваш отзыв.${reset}"
     elif [ "${country_code}" = "TR" ]; then
@@ -125,6 +126,7 @@ send_metrics() {
       -d "${payload}" &> "${log_redirects}"
   else
     echo ""
+
     if [ "${country_code}" = "RU" ]; then
       echo -e "  ${legible}Всё в порядке, ничего не было отправлено.${reset}"
     elif [ "${country_code}" = "TR" ]; then
