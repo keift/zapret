@@ -460,7 +460,7 @@ install_package() {
   elif [ "${package_manager}" = "apk" ]; then
     apk add "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "emerge" ]; then
-    emerge --batch "${package_name}" &> "${log_redirects}"
+    emerge "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "slackpkg" ]; then
     slackpkg -batch=on -default_answer=yes install "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "eopkg" ]; then
@@ -504,7 +504,7 @@ uninstall_package() {
   elif [ "${package_manager}" = "apk" ]; then
     apk del "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "emerge" ]; then
-    emerge --batch --unmerge "${package_name}" &> "${log_redirects}"
+    emerge --unmerge "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "slackpkg" ]; then
     slackpkg -batch=on -default_answer=yes remove "${package_name}" &> "${log_redirects}"
   elif [ "${package_manager}" = "eopkg" ]; then
@@ -792,8 +792,6 @@ else
   enable_service dnscrypt-proxy2
   start_service dnscrypt-proxy
   start_service dnscrypt-proxy2
-
-  [ -f /etc/dnscrypt-proxy/example-dnscrypt-proxy.toml ] && cp -f /etc/dnscrypt-proxy/example-dnscrypt-proxy.toml /etc/dnscrypt-proxy/dnscrypt-proxy.toml &> "${log_redirects}"
 
   dnscrypt_configs=(
     "/etc/dnscrypt-proxy.toml"
