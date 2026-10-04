@@ -793,6 +793,8 @@ else
   start_service dnscrypt-proxy
   start_service dnscrypt-proxy2
 
+  [ -f /etc/dnscrypt-proxy/example-dnscrypt-proxy.toml ] && cp -f /etc/dnscrypt-proxy/example-dnscrypt-proxy.toml /etc/dnscrypt-proxy/dnscrypt-proxy.toml &> "${log_redirects}"
+
   dnscrypt_configs=(
     "/etc/dnscrypt-proxy.toml"
     "/etc/dnscrypt-proxy/dnscrypt-proxy.toml"
