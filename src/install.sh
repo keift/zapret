@@ -707,14 +707,13 @@ fi
 ! command -v dig &> /dev/null && install_package bind9-dnsutils
 ! command -v dig &> /dev/null && install_package bind
 
-install_package curl
-install_package gzip
+! command -v curl &> /dev/null && install_package curl
+! command -v gzip &> /dev/null && install_package gzip
 install_package iptables
-install_package jq
+! command -v jq &> /dev/null && install_package jq
 install_package nftables
-install_package tar
-install_package wget
-install_package wget-ssl
+! command -v tar &> /dev/null && install_package tar
+! command -v wget &> /dev/null && install_package wget && install_package wget-ssl
 
 [ "${package_manager}" = "rpm-ostree" ] && rpm-ostree apply-live &> "${log_redirects}"
 
