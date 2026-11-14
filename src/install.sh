@@ -39,9 +39,9 @@ gray="\e[90m"
 version="1.3"
 zapret_version="72.13"
 
-last_commit_id=$(curl -s --max-time 10 https://api.github.com/repos/keift/zapret/commits/main | grep -m 1 '"sha":' | cut -d '"' -f 4 | cut -c 1-7)
+last_commit_id=$(curl -fsSL --max-time 10 https://api.github.com/repos/keift/zapret/commits/main | grep -m 1 '"sha":' | cut -d '"' -f 4 | cut -c 1-7)
 
-country_code=$(curl -s --max-time 10 https://ipinfo.io/country)
+country_code=$(curl -fsSL --max-time 10 https://ipinfo.io/country)
 
 dns_strategy="unknown"
 blockcheck_domain="unknown"
@@ -86,7 +86,7 @@ send_metrics() {
     local event="${1}"
     local unix_name=$(uname -a)
     local blockcheck_results_filtered=$(echo "${blockcheck_results}" | head -n 100)
-    local domain_response=$(curl -sSI --max-time 10 https://"${blockcheck_domain}" 2>&1 | head -n 1)
+    local domain_response=$(curl -fsSLI --max-time 10 https://"${blockcheck_domain}" 2>&1 | head -n 1)
     local bypass_methods=$(grep -E "^(NFQWS|MODE_FILTER)" /opt/zapret/config 2>&1)
 
     local payload=$(
@@ -975,7 +975,7 @@ blockcheck_domains=(
 for domain in "${blockcheck_domains[@]}"; do
   blockcheck_domain="${domain}"
 
-  curl --max-time 10 https://"${domain}" &> /dev/null || break
+  curl -fsSL --max-time 10 https://"${domain}" &> /dev/null || break
 done
 
 while [ $# -gt 0 ]; do
@@ -1178,7 +1178,7 @@ restart_service zapret
 
 for domain in "${blockcheck_domains[@]}"; do
   for i in {1..3}; do
-    curl --max-time 1 https://"${domain}" &> /dev/null
+    curl -fsSL --max-time 1 https://"${domain}" &> /dev/null
   done
 done
 

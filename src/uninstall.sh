@@ -35,9 +35,9 @@ gray="\e[90m"
 
 version="1.3"
 
-last_commit_id=$(curl -s --max-time 10 https://api.github.com/repos/keift/zapret/commits/main | grep -m 1 '"sha":' | cut -d '"' -f 4 | cut -c 1-7)
+last_commit_id=$(curl -fsSL --max-time 10 https://api.github.com/repos/keift/zapret/commits/main | grep -m 1 '"sha":' | cut -d '"' -f 4 | cut -c 1-7)
 
-country_code=$(curl -s --max-time 10 https://ipinfo.io/country)
+country_code=$(curl -fsSL --max-time 10 https://ipinfo.io/country)
 
 detect_system() {
   # Systemd
