@@ -39,9 +39,9 @@ gray="\e[90m"
 version="1.3"
 zapret_version="72.13"
 
-last_commit_id=$(curl -fsSL --max-time 10 https://api.github.com/repos/keift/zapret/commits/main | grep -m 1 '"sha":' | cut -d '"' -f 4 | cut -c 1-7)
+last_commit_id=$(curl -fsSL --max-time 10 https://api.github.com/repos/keift/zapret/commits/main 2> "${log_redirects}" | grep -m 1 '"sha":' | cut -d '"' -f 4 | cut -c 1-7)
 
-country_code=$(curl -fsSL --max-time 10 https://ipinfo.io/country)
+country_code=$(curl -fsSL --max-time 10 https://ipinfo.io/country 2> "${log_redirects}")
 
 dns_strategy="unknown"
 blockcheck_domain="unknown"
